@@ -20,7 +20,7 @@
   --on-c: #231d17;
   --danger: #a82a1e;
   --signal: #c4521f;      /* ember: markers only (logo, current lesson, playhead), never text */
-  --done: #3b7535;        /* completion badges, progress rings and bar */
+  --done: #3b7535;        /* completion: progress rings, done checks and bar */
   --on-done: #faf8f4;
   --inv-bg: var(--ink);   /* inverted chrome: primary button, selected tab */
   --inv-fg: var(--surface);

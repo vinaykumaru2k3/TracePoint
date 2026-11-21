@@ -11,14 +11,15 @@ const reachedOf = (id: string, p: Progress, cur: string, idx: number) => Math.ma
 const lastOf = (id: string) => Math.max(1, (DEFAULT_STEP_COUNT[id] ?? 1) - 1);
 const doneOf = (id: string, reached: number) => reached >= lastOf(id);
 
-/** A lesson's mark: an empty ring, a ring filling with the share of steps reached, then a check badge. */
+/** A lesson's mark: an empty ring, a ring filling with the share of steps reached, then a closed ring with a check. */
 function StatusMark({ done, fraction, fresh }: { done: boolean; fraction: number; fresh: boolean }) {
-  if (done) return <span className={`badge${fresh ? " fresh" : ""}`} aria-hidden="true"><Icon name="check" size={10} /></span>;
-  const pct = Math.round(Math.min(1, Math.max(0, fraction)) * 100);
+  /* Done is the ring's last stage: the arc closes and a check appears inside it. */
+  const pct = done ? 100 : Math.round(Math.min(1, Math.max(0, fraction)) * 100);
   return (
-    <svg className="ring" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true" focusable="false">
+    <svg className={`ring${done ? " done" : ""}${fresh ? " fresh" : ""}`} width="14" height="14" viewBox="0 0 14 14" aria-hidden="true" focusable="false">
       <circle className="ring-track" cx="7" cy="7" r="5.5" />
       {pct > 0 && <circle className="ring-arc" cx="7" cy="7" r="5.5" pathLength={100} strokeDasharray={`${pct} 100`} />}
+      {done && <path className="ring-check" d="M4.6 7.1l1.7 1.7 3.2-3.5" />}
     </svg>
   );
 }
@@ -28,7 +29,7 @@ export default function CourseSidebar({ currentId, currentIdx, progress }: Props
   const isDone = (id: string) => doneOf(id, reachedOf(id, progress, currentId, currentIdx));
   const completed = LESSONS.filter((l) => isDone(l.id)).length;
   const planned = COURSE.sections.reduce((n, s) => n + s.lessons.length, 0);
-  /* Lessons already done when the tree mounted keep a still badge; one finished now pops in once. */
+  /* Lessons already done when the tree mounted keep a still mark; one finished now closes and draws its check once. */
   const doneAtMount = useRef<Set<string> | null>(null);
   if (!doneAtMount.current) doneAtMount.current = new Set(LESSONS.filter((l) => isDone(l.id)).map((l) => l.id));
 
@@ -49,7 +50,7 @@ export default function CourseSidebar({ currentId, currentIdx, progress }: Props
             <summary>
               <Icon name="folder" size={14} /><span className="sec-name" title={sec.name}>{folderName(sec)}</span>
               {!live.length ? <small>soon</small>
-                : allDone ? <small className="sec-done"><span className="badge sm" aria-hidden="true"><Icon name="check" size={8} /></span>done<span className="sr">, all {live.length} lessons complete</span></small>
+                : allDone ? <small className="sec-done" title={`All ${live.length} lessons complete`}><Icon name="check" size={10} />{doneHere}/{live.length}<span className="sr">, all lessons complete</span></small>
                 : <small title={`${doneHere} of ${live.length} lessons complete`}>{doneHere}/{live.length}<span className="sr"> lessons complete</span></small>}
             </summary>
             <ul>

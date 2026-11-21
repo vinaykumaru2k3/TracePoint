@@ -89,16 +89,19 @@ a { color: inherit; text-decoration: none; }
 .lnk.on::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--signal); border-radius: 1px; }
 .lnk.soon { color: var(--muted-2); padding-left: 30px; }
 .lnk .soon-tag { margin-left: auto; font-family: var(--mono); font-size: 11px; }
-/* completion marks: an empty ring, a ring that fills with the steps reached, then a filled check badge */
+/* completion marks: an empty ring, a ring that fills with the steps reached, then a closed ring with a check inside */
 .ring { flex: none; display: block; }
 .ring-track { fill: none; stroke: var(--line-strong); stroke-width: 1.5; }
 .ring-arc { fill: none; stroke: var(--done); stroke-width: 2; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 7px 7px; }
-.badge { flex: none; width: 14px; height: 14px; display: grid; place-items: center; border-radius: 50%; background: var(--done); color: var(--on-done); }
-.badge .icon path { stroke-width: 2.2; }
-.badge.sm { width: 12px; height: 12px; }
-.badge.fresh { animation: badge-pop 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
-@keyframes badge-pop { from { transform: scale(0.3); opacity: 0; } 60% { transform: scale(1.12); opacity: 1; } }
-.root > summary .sec-done, .sec > summary .sec-done { display: inline-flex; align-items: center; gap: 5px; color: var(--ink); font-weight: 500; }
+.ring.done .ring-track { stroke: none; }
+.ring-check { fill: none; stroke: var(--done); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.ring.fresh .ring-arc { animation: ring-close 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.ring.fresh .ring-check { stroke-dasharray: 8; animation: check-draw 0.3s 0.3s ease-out both; }
+@keyframes ring-close { from { stroke-dasharray: 0 100; } }
+@keyframes check-draw { from { stroke-dashoffset: 8; } to { stroke-dashoffset: 0; } }
+.lnk.done:not(.on) .nm { color: var(--muted); }
+.root > summary .sec-done, .sec > summary .sec-done { display: inline-flex; align-items: center; gap: 4px; }
+.sec-done .icon { color: var(--done); }
 .side-foot { padding: 10px 14px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); }
 .side-foot b { color: var(--ink); font-family: var(--mono); font-weight: 500; }
 .bar { height: 4px; border-radius: 2px; background: var(--surface-2); border: 1px solid var(--line); overflow: hidden; margin-top: 8px; }
@@ -321,13 +324,13 @@ a { color: inherit; text-decoration: none; }
 
 @media (prefers-reduced-motion: reduce) {
   .box, .ptr, .bar i, .btn, .ln, .edge, .win, .icon-btn, .rail .node, .rail li::before, .rail li::after { transition: none; }
-  .enter, .badge.fresh, .drawer[open] .drawer-sheet, .drawer[open]::backdrop { animation: none; }
+  .enter, .ring.fresh .ring-arc, .ring.fresh .ring-check, .drawer[open] .drawer-sheet, .drawer[open]::backdrop { animation: none; }
   .tick { display: none; }
   .leaving { display: none; }
 }
 
 @media (forced-colors: active) {
-  .badge, .cell.act .box, .codetabs button[aria-selected="true"], .lnk.on, .tab.on, .btn.primary { outline: 2px solid CanvasText; }
+  .cell.act .box, .codetabs button[aria-selected="true"], .lnk.on, .tab.on, .btn.primary { outline: 2px solid CanvasText; }
   .ln.on { border-left-color: Highlight; }
   .rail li::before, .rail li::after, .rail .node { forced-color-adjust: none; }
   .rail li::before, .rail li::after { background: GrayText; }
