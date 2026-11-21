@@ -25,7 +25,7 @@ export function resolveGuide(sectionId: string): "guide" | "missing" | "redirect
   return GUIDES[sectionId] ? "guide" : "missing";
 }
 
-function Part({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
+export function Part({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
   return (
     <section className="gpart" id={id} aria-labelledby={`${id}-h`}>
       <h2 className="pane-title-label" id={`${id}-h`}>{title}</h2>

@@ -11,14 +11,15 @@ interface RoutesProps { progress: Progress; onVisit(id: string, idx: number): vo
 
 /** The page routes, split out so a test can mount them in a MemoryRouter. */
 export function AppRoutes({ progress, onVisit, courseOpen, onCloseCourse }: RoutesProps) {
-  const page = <LessonPage progress={progress} onVisit={onVisit} courseOpen={courseOpen} onCloseCourse={onCloseCourse} />;
+  const page = (view: "theory" | "trace") => <LessonPage view={view} progress={progress} onVisit={onVisit} courseOpen={courseOpen} onCloseCourse={onCloseCourse} />;
   const guide = (id?: string) => <GuidePage sectionId={id} progress={progress} courseOpen={courseOpen} onCloseCourse={onCloseCourse} />;
   return (
     <Routes>
       <Route path="/" element={guide("foundations")} />
       <Route path="/guide/:sectionId" element={guide()} />
-      <Route path="/:lessonId" element={page} />
-      <Route path="/:lessonId/:step" element={page} />
+      <Route path="/:lessonId" element={page("trace")} />
+      <Route path="/:lessonId/learn" element={page("theory")} />
+      <Route path="/:lessonId/:step" element={page("trace")} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

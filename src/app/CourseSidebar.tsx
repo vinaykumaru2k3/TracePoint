@@ -24,7 +24,7 @@ function StatusMark({ done, fraction, fresh }: { done: boolean; fraction: number
   );
 }
 
-/** The course tree. Lessons that exist link to their first step, the rest are listed as "soon". */
+/** The course tree. Lessons that exist link to their theory tab until started, then to their first step, the rest are listed as "soon". */
 export default function CourseSidebar({ currentId, currentIdx, progress, guideId }: Props) {
   const isDone = (id: string) => doneOf(id, reachedOf(id, progress, currentId, currentIdx));
   const completed = LESSONS.filter((l) => isDone(l.id)).length;
@@ -67,7 +67,7 @@ export default function CourseSidebar({ currentId, currentIdx, progress, guideId
                 const done = doneOf(l.id, reached);
                 return (
                   <li key={l.id}>
-                    <Link to={`/${l.id}/1`} className={`lnk live${l.id === currentId ? " on" : ""}${done ? " done" : ""}`} aria-current={l.id === currentId ? "page" : undefined} title={l.name}>
+                    <Link to={progress[l.id] === undefined ? `/${l.id}/learn` : `/${l.id}/1`} className={`lnk live${l.id === currentId ? " on" : ""}${done ? " done" : ""}`} aria-current={l.id === currentId ? "page" : undefined} title={l.name}>
                       <StatusMark done={done} fraction={reached / lastOf(l.id)} fresh={done && !doneAtMount.current!.has(l.id)} />
                       <span className="nm">{l.name}</span>
                       <span className="sr">{done ? ", complete" : reached > 0 ? ", in progress" : ""}</span>

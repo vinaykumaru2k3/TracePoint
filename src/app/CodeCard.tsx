@@ -27,7 +27,7 @@ function colour(src: string, lang: Lang): ReactNode[] {
   return out;
 }
 
-const reduced = () => !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+const reduced = () => typeof window !== "undefined" && !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
 interface Props { lesson: AnyLesson; step: AnyStep; idx: number }
 
