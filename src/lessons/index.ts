@@ -18,6 +18,7 @@ import callStack from "./call-stack";
 import backtracking from "./backtracking";
 import nQueens from "./n-queens";
 import linearSearch from "./linear-search";
+import binarySearch from "./binary-search";
 
 /** Playable lessons, in course order. Add a lesson here and it lights up in the course tree. */
 export const LESSONS: AnyLesson[] = [
@@ -25,7 +26,7 @@ export const LESSONS: AnyLesson[] = [
   stack, queue, deque, sll, dll, fastSlow,
   chaining, openAddressing, freqMap,
   callStack, backtracking, nQueens,
-  linearSearch
+  linearSearch, binarySearch
 ];
 
 export const LESSON_BY_ID: Record<string, AnyLesson> = Object.fromEntries(LESSONS.map((l) => [l.id, l]));
