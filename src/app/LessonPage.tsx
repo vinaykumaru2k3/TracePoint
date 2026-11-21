@@ -178,19 +178,23 @@ function LessonView({ lesson, stepParam, progress, onVisit, courseOpen, onCloseC
     </section>
   );
 
+  /* The timeline: one stop per step on a track; the track is filled up to the playhead (the current step). */
   const rail = (
     <div className="rail-wrap" key="rail">
       <div className="rail-head">
-        <span className="lbl">In this lesson</span>
+        <span className="lbl">Timeline</span>
         <span className="muted">{stepOf} · <b>{label(idx)}</b></span>
       </div>
-      <ol className="rail" ref={railRef}>
+      <ol className="rail" ref={railRef} aria-label="Steps">
         {steps.map((_, i) => {
-          const state = i === idx ? "" : i <= reached ? ", seen" : "";
+          const cls = i === idx ? "cur" : i < idx ? "past" : i <= reached ? "seen" : "";
+          const state = i < idx ? ", done" : i > idx && i <= reached ? ", seen" : "";
           return (
-            <li key={i} className={i === idx ? "cur" : i <= reached ? "seen" : ""}>
+            <li key={i} className={cls}>
               <button type="button" aria-current={i === idx ? "step" : undefined} onClick={() => player.jump(i)} title={`Step ${i + 1}: ${label(i)}`} aria-label={`Step ${i + 1}: ${label(i)}${state}`}>
-                <span className="ix">{nn(i)}</span><span className="name">{railName(i)}</span>
+                <span className="ix">{nn(i)}</span>
+                <span className="node" aria-hidden="true" />
+                <span className="name">{railName(i)}</span>
               </button>
             </li>
           );

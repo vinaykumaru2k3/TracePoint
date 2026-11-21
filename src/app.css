@@ -1,7 +1,7 @@
 *, *::before, *::after { box-sizing: border-box; }
 html, body, #root { height: 100%; }
 html { accent-color: var(--ink); scrollbar-color: var(--line-strong) transparent; }
-body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 13px; line-height: 1.6; font-variant-ligatures: none; -webkit-font-smoothing: antialiased; }
 h1, h2, h3, p, dl, dd { margin: 0; }
 h1, h2, h3 { text-wrap: balance; }
 p { text-wrap: pretty; }
@@ -62,7 +62,7 @@ a { color: inherit; text-decoration: none; }
 .help li { display: flex; gap: 8px; align-items: center; }
 .help p { color: var(--muted); }
 
-.page { flex: 1; min-height: 0; display: grid; grid-template-columns: 248px minmax(0, 1fr) 400px; }
+.page { flex: 1; min-height: 0; display: grid; grid-template-columns: 272px minmax(0, 1fr) 400px; }
 /* desktop: everything fits the window; only the code box scrolls */
 .page > * { min-height: 0; overflow: hidden; }
 .side-col { display: flex; flex-direction: column; }
@@ -81,20 +81,28 @@ a { color: inherit; text-decoration: none; }
 .root > summary .sec-name, .sec > summary .sec-name { overflow: hidden; text-overflow: ellipsis; }
 .root-body { margin: 0 0 0 12px; padding-left: 4px; border-left: 1px solid var(--line); }
 .sec ul { list-style: none; margin: 0 0 0 12px; padding: 0 0 0 4px; border-left: 1px solid var(--line); display: grid; }
-.lnk { position: relative; display: flex; align-items: center; gap: 8px; min-height: 26px; padding: 0 8px; white-space: nowrap; border-radius: var(--radius); font-size: 13px; }
+.lnk { position: relative; display: flex; align-items: center; gap: 8px; min-width: 0; min-height: 26px; padding: 0 8px; white-space: nowrap; border-radius: var(--radius); font-size: 12px; }
+.lnk .nm { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .lnk.live { cursor: pointer; }
 .lnk.live:hover { background: var(--surface-2); }
 .lnk.on { background: var(--surface-2); font-weight: 600; }
 .lnk.on::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--signal); border-radius: 1px; }
-.lnk.soon { color: var(--muted-2); }
+.lnk.soon { color: var(--muted-2); padding-left: 30px; }
 .lnk .soon-tag { margin-left: auto; font-family: var(--mono); font-size: 11px; }
-.lnk .dot { width: 7px; height: 7px; border: 1px solid currentColor; border-radius: 50%; flex: none; }
-.lnk .dot.part { background: linear-gradient(90deg, currentColor 50%, transparent 50%); }
-.lnk .dot.done { background: currentColor; }
+/* completion marks: an empty ring, a ring that fills with the steps reached, then a filled check badge */
+.ring { flex: none; display: block; }
+.ring-track { fill: none; stroke: var(--line-strong); stroke-width: 1.5; }
+.ring-arc { fill: none; stroke: var(--done); stroke-width: 2; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 7px 7px; }
+.badge { flex: none; width: 14px; height: 14px; display: grid; place-items: center; border-radius: 50%; background: var(--done); color: var(--on-done); }
+.badge .icon path { stroke-width: 2.2; }
+.badge.sm { width: 12px; height: 12px; }
+.badge.fresh { animation: badge-pop 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+@keyframes badge-pop { from { transform: scale(0.3); opacity: 0; } 60% { transform: scale(1.12); opacity: 1; } }
+.root > summary .sec-done, .sec > summary .sec-done { display: inline-flex; align-items: center; gap: 5px; color: var(--ink); font-weight: 500; }
 .side-foot { padding: 10px 14px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); }
 .side-foot b { color: var(--ink); font-family: var(--mono); font-weight: 500; }
 .bar { height: 4px; border-radius: 2px; background: var(--surface-2); border: 1px solid var(--line); overflow: hidden; margin-top: 8px; }
-.bar i { display: block; height: 100%; background: var(--c-green-3); transition: width 0.3s; }
+.bar i { display: block; height: 100%; background: var(--done); transition: width 0.3s; }
 
 /* ---------- course drawer (narrow screens) ---------- */
 .drawer { margin: 0; padding: 0; border: 0; background: transparent; max-width: none; max-height: none; width: 100%; height: 100%; color: var(--ink); }
@@ -116,7 +124,7 @@ a { color: inherit; text-decoration: none; }
 .lesson-head { display: grid; gap: 4px; }
 .crumb { display: flex; gap: 8px; font-family: var(--mono); font-size: 12px; color: var(--muted); }
 .crumb .cur { color: var(--ink); }
-.lesson-head h1 { font-size: 26px; line-height: 1.2; font-weight: 600; letter-spacing: -0.01em; }
+.lesson-head h1 { font-size: 26px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02em; }
 .meta { font-family: var(--mono); font-size: 12px; color: var(--muted); }
 .sub { color: var(--muted); max-width: 70ch; margin-top: 2px; }
 
@@ -150,20 +158,32 @@ a { color: inherit; text-decoration: none; }
 .scene-fit { position: absolute; left: 0; top: 0; width: 600px; height: 400px; overflow: hidden; visibility: hidden; pointer-events: none; clip-path: inset(50%); }
 .scene-fit * { animation: none !important; transition: none !important; }
 
-/* step rail: numbered stops on a line; scrolls sideways when the run is long */
-.rail-wrap { display: grid; gap: 6px; min-width: 0; }
+/* step timeline: a track with one stop per step. Executed steps fill the track up to the playhead
+   (the current step, in the ember signal); steps ahead stay hollow. Scrolls sideways when the run is long. */
+.rail-wrap { display: grid; gap: 4px; min-width: 0; }
 .rail-head { display: flex; justify-content: space-between; gap: 12px; font-size: 12px; }
 .rail-head b { color: var(--ink); font-weight: 600; }
-.rail { position: relative; list-style: none; margin: 0; padding: 0 0 6px; display: flex; gap: 2px; overflow-x: auto; scroll-snap-type: inline proximity; scrollbar-width: thin; overscroll-behavior-inline: contain; }
-.rail li { flex: none; position: relative; scroll-snap-align: center; }
-.rail button { display: flex; align-items: center; gap: 6px; padding: 5px 9px; border: 1px solid transparent; border-radius: var(--radius); background: none; cursor: pointer; color: var(--muted); font-family: var(--mono); font-size: 11px; white-space: nowrap; }
-.rail .ix { display: inline-flex; align-items: center; gap: 5px; font-weight: 500; }
-.rail .name { max-width: 14ch; overflow: hidden; text-overflow: ellipsis; }
-.rail li:not(.cur) .ix { color: var(--muted); }
-.rail li.seen button { color: var(--ink); }
-.rail li.cur button { background: var(--inv-bg); color: var(--inv-fg); border-color: var(--inv-bg); }
-.rail li.cur .ix::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--signal); flex: none; }
-.rail li:not(.cur) button:hover { background: var(--surface-2); border-color: var(--line); color: var(--ink); }
+.rail { --track-y: 29px; position: relative; list-style: none; margin: 0 -8px; padding: 0 0 4px; display: flex; overflow-x: auto; scroll-snap-type: inline proximity; scrollbar-width: thin; overscroll-behavior-inline: contain; }
+.rail li { flex: 1 0 auto; min-width: 58px; position: relative; scroll-snap-align: center; }
+/* the track: each stop draws the half to its left and the half to its right */
+.rail li::before, .rail li::after { content: ""; position: absolute; top: calc(var(--track-y) - 1px); height: 2px; background: var(--line); pointer-events: none; transition: background-color 0.2s; }
+.rail li::before { left: 0; right: 50%; }
+.rail li::after { left: 50%; right: 0; }
+.rail li:first-child::before, .rail li:last-child::after { display: none; }
+.rail li.past::before, .rail li.past::after, .rail li.cur::before { background: var(--ink); }
+.rail button { position: relative; z-index: 1; width: 100%; display: grid; grid-template-rows: 16px 20px auto; justify-items: center; align-items: center; padding: 3px 8px 6px; border: 0; border-radius: var(--radius); background: none; cursor: pointer; color: var(--muted); font-family: var(--mono); font-size: 11px; line-height: 16px; white-space: nowrap; }
+.rail .ix { font-variant-numeric: tabular-nums; color: var(--muted); }
+.rail .node { width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid var(--line-strong); background: var(--surface); transition: background-color 0.2s, border-color 0.2s; }
+.rail .name { max-width: 12ch; overflow: hidden; text-overflow: ellipsis; }
+.rail li.past .node { background: var(--ink); border-color: var(--ink); }
+.rail li.past .name { color: var(--ink); }
+.rail li.seen .node { border-color: var(--muted); }
+/* the playhead: an ember disk set off from the track by a ring of the pane colour */
+.rail li.cur .node { width: 15px; height: 15px; background: var(--signal); border: 2.5px solid var(--surface); outline: 1.5px solid var(--signal); }
+.rail li.cur .ix, .rail li.cur .name { color: var(--ink); font-weight: 700; }
+.rail button:hover .name, .rail button:hover .ix { color: var(--ink); }
+.rail li:not(.cur) button:hover .node { border-color: var(--ink); }
+.rail button:focus-visible { outline-offset: -2px; }
 
 .run { display: grid; gap: 6px; }
 .run label { font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }
@@ -300,15 +320,26 @@ a { color: inherit; text-decoration: none; }
 @keyframes leave { to { transform: translate(var(--lx, 0), var(--ly, 0)); opacity: 0; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .box, .ptr, .bar i, .btn, .ln, .edge, .win, .icon-btn { transition: none; }
-  .enter, .drawer[open] .drawer-sheet, .drawer[open]::backdrop { animation: none; }
+  .box, .ptr, .bar i, .btn, .ln, .edge, .win, .icon-btn, .rail .node, .rail li::before, .rail li::after { transition: none; }
+  .enter, .badge.fresh, .drawer[open] .drawer-sheet, .drawer[open]::backdrop { animation: none; }
   .tick { display: none; }
   .leaving { display: none; }
 }
 
 @media (forced-colors: active) {
-  .rail li.cur button, .cell.act .box, .codetabs button[aria-selected="true"], .lnk.on, .tab.on, .btn.primary { outline: 2px solid CanvasText; }
+  .badge, .cell.act .box, .codetabs button[aria-selected="true"], .lnk.on, .tab.on, .btn.primary { outline: 2px solid CanvasText; }
   .ln.on { border-left-color: Highlight; }
+  .rail li::before, .rail li::after, .rail .node { forced-color-adjust: none; }
+  .rail li::before, .rail li::after { background: GrayText; }
+  .rail li.past::before, .rail li.past::after, .rail li.cur::before { background: CanvasText; }
+  .rail .node { background: Canvas; border-color: GrayText; }
+  .rail li.past .node { background: CanvasText; border-color: CanvasText; }
+  .rail li.cur .node { background: Highlight; border-color: Canvas; outline-color: Highlight; }
+}
+
+/* ---------- mid-width desktop windows: give the stage back some room ---------- */
+@media (min-width: 1121px) and (max-width: 1360px) {
+  .page { grid-template-columns: 256px minmax(0, 1fr) 372px; }
 }
 
 /* ---------- short desktop windows: drop the secondary lines so the stage and code keep room ---------- */
@@ -362,7 +393,8 @@ a { color: inherit; text-decoration: none; }
   .icon-btn { width: 40px; height: 40px; }
   .btn.sm, .btn { min-height: 40px; }
   .run select, .run input[type="text"] { min-height: 40px; }
-  .rail button { min-height: 40px; padding: 5px 11px; }
+  .rail li { min-width: 52px; }
+  .rail button { min-height: 44px; padding: 3px 6px 6px; }
   .search-btn { width: 40px; height: 40px; }
   .copy-state { flex-basis: 100%; }
   .copy-state:empty { display: none; }
