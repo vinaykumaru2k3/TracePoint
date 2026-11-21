@@ -14,14 +14,14 @@ export default function CourseSidebar({ currentId, currentIdx, progress }: Props
   const planned = CURRICULUM.reduce((n, s) => n + s.lessons.length, 0);
 
   return (
-    <aside className="side" aria-label="Course">
+    <nav className="side" aria-label="Course">
       <div className="side-title">Course <small>{planned} lessons</small></div>
       {CURRICULUM.map((sec) => {
         const live = sec.lessons.filter((l) => LESSON_BY_ID[l.id]);
         const open = sec.lessons.some((l) => l.id === currentId);
         return (
           <details className="sec" key={sec.id} open={open} style={{ "--sec": sec.color } as React.CSSProperties}>
-            <summary><i className="folder" aria-hidden="true" /><span className="sec-name" title={sec.name}>{sec.n}. {sec.name}</span><small>{live.length}/{sec.lessons.length}</small></summary>
+            <summary><i className="folder" aria-hidden="true" /><span className="sec-name" title={sec.name}>{sec.n}. {sec.name}</span><small>{live.length ? `${live.length}/${sec.lessons.length}` : "soon"}</small></summary>
             <ul>
               {sec.lessons.map((l) => {
                 if (!LESSON_BY_ID[l.id]) {
@@ -49,6 +49,6 @@ export default function CourseSidebar({ currentId, currentIdx, progress }: Props
           <i style={{ width: `${(completed / LESSONS.length) * 100}%` }} />
         </div>
       </div>
-    </aside>
+    </nav>
   );
 }

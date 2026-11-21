@@ -32,8 +32,9 @@ export interface Step<S> {
 
 export interface Metric { label: string; value: string | number }
 
-/** One memory cell. `tag` replaces the default "[i]" label, e.g. a node address "@3". */
-export interface MemoryCell { v: number | string | null; live: boolean; act: boolean; marks: string[]; tag?: string }
+/** One memory cell. `tag` replaces the default "[i]" label, e.g. a node address "@3".
+ *  `tone` colours an active cell like the matching scene state (default amber "active"). */
+export interface MemoryCell { v: number | string | null; live: boolean; act: boolean; marks: string[]; tag?: string; tone?: "active" | "compare" | "found" }
 export interface MemoryView { title: string; cells: MemoryCell[]; note: string }
 
 export type ParseResult<I> = { ok: true; input: I } | { ok: false; error: string };

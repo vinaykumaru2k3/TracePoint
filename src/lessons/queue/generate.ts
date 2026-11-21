@@ -30,9 +30,9 @@ export function generateQueue(ops: Op[]): Step<QueueState>[] {
 
   const steps: Step<QueueState>[] = [snap({
     kind: "problem", op: null, anchors: [], notes: {},
-    title: "Start empty",
+    title: "First in, first out",
     idea: "A queue is an array plus a head index and a size.",
-    text: "An empty queue. Items join at the rear and leave from the front. The class keeps them in a small circular int array with a head index and a size."
+    text: `Goal: build a queue where offer, poll and peek each cost O(1), with no shifting. Items join at the rear and leave from the front. The class keeps them in a circular int array of ${cap} slots with a head index and a size. It starts empty.`
   })];
 
   for (const { name, v = 0 } of ops) {
