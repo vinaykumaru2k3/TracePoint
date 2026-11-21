@@ -33,7 +33,7 @@ export function generateBigO({ nums }: NumsInput): Step<BigOState>[] {
     total += nums[i];
     sumOps++;
     steps.push(snap({
-      kind: "move", op: `total += a[${i}]`, anchors: ["sum.sig", "sum.loop", "sum.add"],
+      kind: "move", op: `total += a[${i}]`, short: `+a[${i}]`, anchors: ["sum.sig", "sum.loop", "sum.add"],
       notes: { "sum.loop": `i = ${i}, step ${sumOps} of ${n}`, "sum.add": `total = ${total - nums[i]} + ${nums[i]} = ${total}` },
       title: i === 0 ? "One loop, one step per item" : `Add a[${i}]`,
       idea: "A single loop over n items runs its body n times.",
@@ -56,7 +56,7 @@ export function generateBigO({ nums }: NumsInput): Step<BigOState>[] {
       dupOps++;
       const hit = nums[i] === nums[j];
       steps.push(snap({
-        kind: hit ? "found" : "check", op: `a[${i}] == a[${j}]`, ret: hit ? "true" : undefined,
+        kind: hit ? "found" : "check", op: `a[${i}] == a[${j}]`, short: `${i}·${j}`, ret: hit ? "true" : undefined,
         anchors: hit ? ["dup.sig", "dup.outer", "dup.inner", "dup.cmp", "dup.found"] : ["dup.sig", "dup.outer", "dup.inner", "dup.cmp"],
         notes: {
           "dup.inner": `i = ${i}, j = ${j}, pair ${dupOps}`,

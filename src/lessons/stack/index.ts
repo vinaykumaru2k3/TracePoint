@@ -26,7 +26,7 @@ export default defineLesson<Op[], StackState>({
   generate: generateStack,
 
   Scene,
-  legend: [{ cls: "s-active", label: "just pushed" }, { cls: "s-found", label: "peeked" }, { cls: "s-default", label: "waiting" }],
+  legend: [{ cls: "s-active", label: "pushed or popped" }, { cls: "s-found", label: "peeked" }, { cls: "s-default", label: "waiting" }],
   metrics: ({ state: s }) => [
     { label: "Size", value: s.items.length },
     { label: "Top", value: s.top },
@@ -36,7 +36,7 @@ export default defineLesson<Op[], StackState>({
   memory: ({ state: s }): MemoryView => ({
     title: "In memory: int[] data",
     note: "Dashed cells are not part of the stack. Popped values stay behind until overwritten.",
-    cells: s.arr.map((v, i) => ({ v, live: i <= s.top, act: i === s.cell, marks: i === s.top ? ["top"] : [] }))
+    cells: s.arr.map((v, i) => ({ v, live: i <= s.top, act: i === s.cell, tone: s.mode === "peek" ? "found" : undefined, marks: i === s.top ? ["top"] : [] }))
   }),
   vars: ({ state: s }) => `top = ${s.top}`,
   costs: [["push", "O(1)"], ["pop", "O(1)"], ["peek", "O(1)"]],

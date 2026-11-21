@@ -35,7 +35,7 @@ export default defineLesson<ArrayOp[], ArrayState>({
   memory: ({ state: s }): MemoryView => ({
     title: "In memory: int[] data",
     note: "One contiguous block. Slot i lives at start + i × 4 bytes, which is why indexing is O(1).",
-    cells: s.data.map((v, k) => ({ v, live: k < s.size, act: k === s.at, marks: k === s.size ? ["size"] : [] }))
+    cells: s.data.map((v, k) => ({ v, live: k < s.size, act: k === s.at, tone: s.mode === "read" ? "found" : undefined, marks: k === s.size ? ["size"] : [] }))
   }),
   vars: ({ state: s }) => `size = ${s.size}`,
   costs: [["get", "O(1)"], ["append", "O(1)"], ["insert", "O(n)"], ["remove", "O(n)"]],

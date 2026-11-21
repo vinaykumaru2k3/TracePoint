@@ -1,4 +1,4 @@
-import { defineLesson, type MemoryView } from "../../engine/types";
+import { defineLesson, toneOf, type MemoryView } from "../../engine/types";
 import { parseNums, type NumsInput } from "../parseOps";
 import Scene from "./Scene";
 import { FS_MAX, generateFs, type FsState } from "./generate";
@@ -45,7 +45,9 @@ export default defineLesson<NumsInput, FsState>({
       const marks: string[] = [];
       if (i === s.slow) marks.push("slow");
       if (i === s.fast) marks.push("fast");
-      return { v: `${v}→${s.next[i] === null ? "null" : `@${s.next[i]}`}`, tag: `@${i}`, live: true, act: marks.length > 0 && s.moved !== null, marks };
+      /* Same colour as the drawing: only the pointer that just moved, or the meeting node, is lit. */
+      const tone = s.met && i === s.slow ? "found" : s.moved === "fast" && i === s.fast ? "compare" : s.moved === "slow" && i === s.slow ? "visited" : undefined;
+      return { v: `${v}→${s.next[i] === null ? "null" : `@${s.next[i]}`}`, tag: `@${i}`, live: true, act: !!tone, tone, marks };
     })
   }),
   vars: ({ state: s }) => {

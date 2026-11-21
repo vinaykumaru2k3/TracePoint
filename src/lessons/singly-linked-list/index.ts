@@ -1,4 +1,4 @@
-import { defineLesson, type MemoryView } from "../../engine/types";
+import { defineLesson, toneOf, type MemoryView } from "../../engine/types";
 import { parseOps, type Op } from "../parseOps";
 import Scene from "./Scene";
 import { SLL_MAX, generateSll, type SllState } from "./generate";
@@ -53,7 +53,7 @@ export default defineLesson<Op[], SllState>({
       if (n.id === s.tail) marks.push("tail");
       return {
         v: `${n.v}→${n.next === null ? "null" : `@${n.next}`}`, tag: `@${n.id}`,
-        live: n.id !== s.gone, act: n.id === s.cur || n.state === "active", marks
+        live: n.id !== s.gone, act: n.id === s.cur || n.state === "active", tone: toneOf(n.state), marks
       };
     })
   }),

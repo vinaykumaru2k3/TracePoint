@@ -1,4 +1,4 @@
-import { defineLesson, type MemoryView } from "../../engine/types";
+import { defineLesson, toneOf, type MemoryView } from "../../engine/types";
 import { parseOps, type Op } from "../parseOps";
 import Scene from "./Scene";
 import { SLOTS, TOMB, generateOa, type OaState } from "./generate";
@@ -37,7 +37,7 @@ export default defineLesson<Op[], OaState>({
     title: "In memory: int[] slots",
     note: "Keys sit directly in the array. -1 marks empty, -2 marks a tombstone.",
     cells: s.slots.map((v, i) => ({
-      v: v === null ? -1 : v === TOMB ? -2 : v, live: v !== null && v !== TOMB, act: i === s.probe, marks: i === s.home ? ["home"] : []
+      v: v === null ? -1 : v === TOMB ? -2 : v, live: v !== null && v !== TOMB, act: s.mark ? i === s.mark.at : i === s.probe, tone: s.mark ? toneOf(s.mark.state) : "compare", marks: i === s.home ? ["home"] : []
     }))
   }),
   vars: ({ state: s }) => `size = ${s.size}` + (s.probe !== null ? `   i = ${s.probe}` : ""),

@@ -35,7 +35,7 @@ export default defineLesson<PrefixInput, PrefixState>({
   memory: ({ state: s }): MemoryView => ({
     title: "In memory: int[] p (length n + 1)",
     note: "p costs one extra array of n + 1 ints. That memory buys O(1) answers.",
-    cells: s.p.map((v, k) => ({ v, live: v !== null, act: (s.i >= 0 && k === s.i + 1) || (!!s.q && (k === s.q[1] + 1 || k === s.q[0])), marks: s.q && k === s.q[1] + 1 ? ["r+1"] : s.q && k === s.q[0] ? ["l"] : [] }))
+    cells: s.p.map((v, k) => ({ v, live: v !== null, act: (s.i >= 0 && k === s.i + 1) || (!!s.q && (k === s.q[1] + 1 || k === s.q[0])), tone: s.q && k === s.q[1] + 1 ? "found" : s.q && k === s.q[0] ? "compare" : undefined, marks: s.q && k === s.q[1] + 1 ? ["r+1"] : s.q && k === s.q[0] ? ["l"] : [] }))
   }),
   vars: ({ state: s }) => (s.q ? `l = ${s.q[0]}   r = ${s.q[1]}` : `i = ${s.i}`),
   costs: [["build", "O(n)"], ["query", "O(1)"]],

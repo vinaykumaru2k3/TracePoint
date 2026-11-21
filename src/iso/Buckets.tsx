@@ -33,7 +33,12 @@ export default function Buckets({ chains, active = null, flag = null }: Props) {
   return (
     <g>
       <polygon className="foot" points={foot} />
-      {chains.map((_, b) => <IsoPlate key={b} x={ex(b)} y={0} w={2} d={2} index={b} state={b === active ? "visited" : "default"} />)}
+      {chains.map((_, b) => <IsoPlate key={b} x={ex(b)} y={0} w={2} d={2} state={b === active ? "visited" : "default"} />)}
+      {/* Bucket numbers sit behind the plates: in front, the first chain node would cover them. */}
+      {chains.map((_, b) => {
+        const t = project(ex(b) + 1, -0.9, 8);
+        return <text key={`i${b}`} className="plate-index" x={t.x} y={t.y - 4} textAnchor="middle">{`[${b}]`}</text>;
+      })}
       {chains.map((chain, b) => (
         <g key={b}>
           {chain.map((e, j) => (

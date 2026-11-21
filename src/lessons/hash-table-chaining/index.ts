@@ -1,4 +1,4 @@
-import { defineLesson, type MemoryView } from "../../engine/types";
+import { defineLesson, toneOf, type MemoryView } from "../../engine/types";
 import { parseOps, type Op } from "../parseOps";
 import Scene from "./Scene";
 import { BUCKETS, CHAIN_MAX, generateChaining, type ChainState } from "./generate";
@@ -16,6 +16,10 @@ function fits(ops: Op[]): boolean {
   }
   return true;
 }
+
+/** A bucket cell takes the strongest colour of its chain, or the bucket colour while it is only being looked at. */
+const bucketTone = (c: { state?: string }[]) =>
+  (["found", "compare", "active"] as const).find((t) => c.some((e) => e.state === t)) ?? toneOf("visited");
 
 export default defineLesson<Op[], ChainState>({
   id: "hash-table-chaining",
@@ -52,7 +56,7 @@ export default defineLesson<Op[], ChainState>({
     title: "In memory: LinkedList[] buckets",
     note: "An array of list heads. Each bucket points at its own chain of nodes, or holds an empty list.",
     cells: s.chains.map((c, i) => ({
-      v: c.length ? c.map((e) => e.v).join("→") : "empty", live: c.length > 0, act: i === s.bucket, marks: [], tag: `[${i}]`
+      v: c.length ? c.map((e) => e.v).join("→") : "empty", live: c.length > 0, act: i === s.bucket, tone: bucketTone(c), marks: [], tag: `[${i}]`
     }))
   }),
   vars: ({ state: s }) => `size = ${s.size}   buckets = ${BUCKETS}`,

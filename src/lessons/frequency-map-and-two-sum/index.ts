@@ -38,7 +38,7 @@ export default defineLesson<NumsInput, FmState>({
     return {
       title: `In memory: HashMap ${s.phase === "two" ? "seen (value → index)" : "count (value → times)"}`,
       note: "Each key is hashed to a bucket, so get and put stay O(1) on average no matter how many keys there are.",
-      cells: map.map(([key, val]) => ({ v: val, tag: `${key}`, live: true, act: key === s.key, marks: [] }))
+      cells: map.map(([key, val]) => ({ v: val, tag: `${key}`, live: true, act: key === s.key, tone: s.pair ? "found" : undefined, marks: [] }))
     };
   },
   vars: ({ state: s }) => `target = ${s.target}` + (s.i !== null ? `   i = ${s.i}   x = ${s.nums[s.i]}` : ""),
