@@ -32,9 +32,16 @@ describe("theory contract", () => {
     });
   }
   for (const l of LESSONS) {
-    if (!l.theory) continue;
     it(`theory ${l.id} passes the checker`, () => {
-      expect(checkTheory(l.theory!, l.id, linkIds())).toEqual([]);
+      expect(l.theory, `lesson ${l.id} has no theory`).toBeTruthy();
+      expect(checkTheory(l.theory, l.id, linkIds())).toEqual([]);
     });
   }
+  it("has a guide for every section that has a live lesson", () => {
+    const missing = CURRICULUM.filter((s) => liveIdsOf(s.id).length > 0 && !GUIDES[s.id]).map((s) => s.id);
+    expect(missing).toEqual([]);
+  });
+  it("has theory on every lesson", () => {
+    expect(LESSONS.filter((l) => !l.theory).map((l) => l.id)).toEqual([]);
+  });
 });

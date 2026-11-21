@@ -42,3 +42,10 @@ describe("folder colours", () => {
     expect(css).toMatch(/\.sec\[open\] > ul\s*\{[^}]*border-left:\s*1px solid var\(--sec\)/);
   });
 });
+
+describe("cheat tables", () => {
+  it("keeps cost cells on one line but lets the first and last columns wrap", () => {
+    const css: string = readFileSync("src/app.css", "utf8");
+    expect(css).toMatch(/\.cheat td:not\(:first-child\):not\(:last-child\),\s*\.cheat th:not\(:first-child\):not\(:last-child\)\s*\{[^}]*white-space:\s*nowrap/);
+  });
+});

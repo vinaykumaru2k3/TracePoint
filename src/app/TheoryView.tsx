@@ -17,7 +17,6 @@ export function LessonTabs({ id, view, search }: { id: string; view: "theory" | 
 export default function TheoryView({ lesson, search }: { lesson: AnyLesson; search: string }) {
   const t = lesson.theory;
   const watch = <Link to={`/${lesson.id}/1${search}`} className="btn primary watch">Watch it run</Link>;
-  if (!t) return <div className="prose theory">{watch}</div>;
   const list = (items: string[]) => <ul>{items.map((x, i) => <li key={i}><Rich text={x} /></li>)}</ul>;
   return (
     <div className="prose theory">

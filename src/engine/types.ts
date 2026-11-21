@@ -78,7 +78,7 @@ export interface Lesson<I, S> {
   learn: [string, (s: Step<S>) => boolean][];
 
   /** Readable guide shown on the lesson's theory tab. */
-  theory?: LessonTheory;
+  theory: LessonTheory;
 
   /** Raw source per language, with `@a name` anchor comments. */
   code: Record<Lang, string>;
