@@ -4,6 +4,7 @@ import { generateArray, parseArrayOps, type ArrayOp, type ArrayState } from "./g
 import java from "./code/Main.java?raw";
 import python from "./code/main.py?raw";
 import cpp from "./code/main.cpp?raw";
+import theory from "./theory";
 
 export default defineLesson<ArrayOp[], ArrayState>({
   id: "arrays",
@@ -46,6 +47,8 @@ export default defineLesson<ArrayOp[], ArrayState>({
     ["remove shifts later items left", (s) => s.kind === "move" && !!s.op?.endsWith("left")],
     ["a fixed array cannot grow past capacity", (s) => s.kind === "empty" && s.retNote === "array is full"]
   ],
+
+  theory,
 
   code: { java, python, cpp }
 });

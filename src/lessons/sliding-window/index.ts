@@ -5,6 +5,7 @@ import { generateWindow, parseWindow, type WindowState } from "./generate";
 import java from "./code/Main.java?raw";
 import python from "./code/main.py?raw";
 import cpp from "./code/main.cpp?raw";
+import theory from "./theory";
 
 export default defineLesson<NumsInput, WindowState>({
   id: "sliding-window",
@@ -46,6 +47,8 @@ export default defineLesson<NumsInput, WindowState>({
     ["keep the best as you go", (s) => s.kind === "move" && s.state.improved],
     ["one pass finds the answer", (s) => s.kind === "found"]
   ],
+
+  theory,
 
   code: { java, python, cpp }
 });

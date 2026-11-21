@@ -4,6 +4,7 @@ import { generatePrefix, parsePrefix, type PrefixInput, type PrefixState } from 
 import java from "./code/Main.java?raw";
 import python from "./code/main.py?raw";
 import cpp from "./code/main.cpp?raw";
+import theory from "./theory";
 
 export default defineLesson<PrefixInput, PrefixState>({
   id: "prefix-sums",
@@ -45,6 +46,8 @@ export default defineLesson<PrefixInput, PrefixState>({
     ["a range sum is p[r + 1] - p[l]", (s) => s.kind === "found"],
     ["a range starting at 0 subtracts p[0]", (s) => !!s.state.q && s.state.q[0] === 0]
   ],
+
+  theory,
 
   code: { java, python, cpp }
 });
