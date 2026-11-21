@@ -9,14 +9,16 @@ const theory: LessonTheory = {
     "Place one queen per row, from row 0 down. Store the board as `cols`, where `cols[r]` is the column of the queen in row `r`. Two queens can never share a row.",
     "In the current row, try columns left to right. A square is safe if no placed queen shares its column or a diagonal. Two squares share a diagonal when their column gap equals their row gap.",
     "Skip an attacked square at once. This is pruning: stopping a branch of the search before exploring anything under it.",
-    "On a safe square, place a queen and call `solve` for the next row. When `row` equals n, every row has a queen. That is the base case, where the recursion stops.",
-    "If a row has no safe square, `solve` returns false. The caller lifts its queen and tries the next column in its row. Undoing a choice this way is called backtracking.",
+    "On a safe square, place a queen, and `solve` calls itself for the next row. A function calling itself is recursion.",
+    "When `row` equals n, every row has a queen. That is the base case, the call that answers without calling `solve` again.",
+    "Sometimes no column in a row leads to a solution. Either none is safe, or every safe one dead-ends in a row below. Then `solve` returns false. The caller lifts its queen and tries the next column in its row. Undoing a choice this way is called backtracking.",
     "If row 0 runs out of columns, no solution exists. The 3×3 board is one such case."
   ],
   ops: [
     ["check one square", "O(n)", "Compare it with each queen placed so far, at most n − 1 of them."],
-    ["placements tried", "`O(n!)` worst case", "Row r has at most n − r free columns, since each queen above uses one. So there are at most n × (n − 1) × … × 1 ways to fill the rows."],
-    ["space", "O(n)", "`cols` holds up to n numbers. Each call waiting for an answer keeps a frame on the call stack, and the chain is at most n + 1 calls deep."]
+    ["placements tried", "`O(n!)` worst case", "Row r has at most n − r free columns, since each queen above uses one. So there are at most n × (n − 1) × … × 1 ways to fill the rows. That product is `n!`, said n factorial."],
+    ["space", "O(n)", "`cols` holds up to n numbers. The call stack is the memory that tracks every call not yet returned. Each waiting call keeps a frame there, a block holding its own `row`."],
+    ["recursion depth", "O(n)", "The chain of waiting calls is at most n + 1 long, one per row plus the base case."]
   ],
   useWhen: [
     "You place things under rules, such as a timetable or a sudoku, and want one valid arrangement.",

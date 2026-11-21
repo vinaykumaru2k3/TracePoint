@@ -34,7 +34,7 @@ const theory: LessonTheory = {
     "The stack held at most 5 frames, which is n + 1 for n = 4. Time and space are both O(n)."
   ],
   pitfalls: [
-    "A base case the input can skip. This `fact` only stops at `n == 0`, so `fact(-1)` recurses until the stack overflows. Guard bad inputs, or stop at `n <= 1`.",
+    "A base case the input can skip. This `fact` only stops at `n == 0`, so `fact(-1)` recurses until the stack overflows. Guard bad inputs: reject `n < 0` before recursing. This lesson's input box only allows 0 to 7, so the trace never shows the overflow.",
     "Forgetting that the caller is paused, not finished. Code after the recursive call runs on the way back up, in reverse order.",
     "Ignoring the return value. If a call does not return or use the answer from the call below, the result is lost.",
     "Assuming recursion is free in memory. Every pending call keeps a frame, so the space is the depth of the deepest chain of calls."

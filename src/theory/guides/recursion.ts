@@ -25,15 +25,15 @@ const recursion: Guide = {
     ["backtracking", "A way to search by making a choice, exploring what follows, then undoing that choice and trying the next."],
     ["choice", "One option at one step of a backtracking search, such as taking an item or skipping it."],
     ["pruning", "Stopping a branch of the search as soon as it breaks a rule, so nothing under it is explored."],
-    ["search tree", "The tree of all calls in a backtracking search. Each call is a node, and each choice is a branch to a child call."]
+    ["search tree", "A picture of every call in a backtracking search, shaped like a family tree. The first call sits at the top. Each call is a node, and each choice is a branch down to the call it makes, its child."]
   ],
   cheat: {
     head: ["Technique", "Time", "Space", "Note"],
     rows: [
       ["Factorial `fact(n)`", "O(n)", "O(n) stack space", "There are n + 1 calls, each doing O(1) work. Each pending call keeps its frame until it returns, so n + 1 frames pile up."],
       ["All subsets of n items", "O(n·2ⁿ) to list them", "O(n) depth", "Each item is in or out, so there are 2ⁿ subsets. Copying each one costs up to n."],
-      ["N-Queens on an n×n board", "Worst case grows like `n!`", "O(n)", "Row r has at most n − r free columns, since each queen above uses one. Pruning cuts most branches, so far fewer are tried."],
-      ["Space of any recursion", "Depends on the work per call", "The deepest chain of calls", "Only calls still waiting hold frames. Subsets of 3 items make 15 calls but hold at most 4 frames at once."]
+      ["N-Queens on an n×n board", "Worst case about `n!` placements, where `n!` (n factorial) is n × (n − 1) × … × 1", "O(n)", "Row r has at most n − r free columns, since each queen above uses one. Each placement is checked in O(n). Pruning cuts most branches, so far fewer are tried."],
+      ["Space of any recursion", "Number of calls × work per call", "The deepest chain of calls", "Only calls still waiting hold frames. Subsets of 3 items make 15 calls but hold at most 4 frames at once."]
     ]
   },
   patterns: [
@@ -57,13 +57,13 @@ const recursion: Guide = {
     },
     {
       title: "A sudoku solver",
-      setting: "Sudoku is a 9×9 number puzzle. Each row, column and 3×3 box must hold the digits 1 to 9 once each. Some cells start filled.",
+      setting: "Sudoku is a 9×9 number puzzle. The grid is split into nine 3×3 boxes. Each row, column and box must hold the digits 1 to 9 once each. Some cells start filled.",
       idea: "Pick an empty cell and try each digit that breaks no rule. Recurse to the next empty cell. If a cell has no legal digit, undo the last choice and try the next.",
       why: "This is placing things under rules, so backtracking with pruning fits. A digit that breaks a rule is rejected at once, so far fewer than all grids are tried."
     },
     {
       title: "Reading nested data such as JSON",
-      setting: "JSON, short for JavaScript Object Notation, is a text format for data. A list or an object in it can hold other lists and objects, to any depth.",
+      setting: "JSON, short for JavaScript Object Notation, is a text format for data. An object in it is a group of named values, such as `{\"name\": \"Ann\"}`. A list or an object can hold other lists and objects, to any depth.",
       idea: "A reader handles one value. If the value is a list or an object, the reader calls itself on each item inside. A number or a string is the base case.",
       why: "The shape of the data matches the shape of the code. The depth of the call stack equals the depth of the nesting, which is why very deep input can overflow it."
     }
