@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { MemoryRouter } from "react-router-dom";
 import { makeKeyHandler } from "../hooks/useKeyboard";
+import { timerArmed } from "../engine/usePlayer";
 import { LESSON_BY_ID } from "../lessons";
 import { AppRoutes } from "./App";
 import CourseSidebar from "./CourseSidebar";
@@ -50,6 +51,28 @@ describe("theory route", () => {
     expect(html).toContain("Watch it run");
     expect(html).not.toContain("timeline");
     expect(html).not.toContain('class="rail');
+  });
+});
+
+describe("theory view and progress", () => {
+  it("never reports a visit", () => {
+    const onVisit = vi.fn();
+    renderToStaticMarkup(<MemoryRouter initialEntries={["/stack/learn"]}><AppRoutes progress={{}} onVisit={onVisit} courseOpen={false} onCloseCourse={() => {}} /></MemoryRouter>);
+    expect(onVisit).not.toHaveBeenCalled();
+  });
+  it("shows a theory-appropriate hint in the code strip", () => {
+    const html = at("/stack/learn");
+    expect(html).not.toContain("Step forward");
+    expect(html).toContain("Open the trace tab");
+  });
+});
+
+describe("autoplay timer", () => {
+  it("is armed only while playing in the trace view before the end", () => {
+    expect(timerArmed(true, true, 1, 5)).toBe(true);
+    expect(timerArmed(true, false, 1, 5)).toBe(false);
+    expect(timerArmed(false, true, 1, 5)).toBe(false);
+    expect(timerArmed(true, true, 5, 5)).toBe(false);
   });
 });
 

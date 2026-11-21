@@ -4,9 +4,12 @@ const STEP_MS = 2800;
 export const SPEEDS = [0.5, 1, 2] as const;
 export type Speed = (typeof SPEEDS)[number];
 
+/** Whether the autoplay timer should be running: only while playing, in a view that shows the steps, and before the end. */
+export const timerArmed = (playing: boolean, active: boolean, idx: number, last: number) => playing && active && idx < last;
+
 /** Step player. The current index is owned by the caller (the URL), this adds autoplay on top.
  *  Play moves one step at once, then keeps going until the last step. */
-export function usePlayer(last: number, idx: number, setIdx: (i: number) => void) {
+export function usePlayer(last: number, idx: number, setIdx: (i: number) => void, active = true) {
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState<Speed>(1);
   const idxRef = useRef(idx);
@@ -18,10 +21,11 @@ export function usePlayer(last: number, idx: number, setIdx: (i: number) => void
   /* One timer per step, so a speed change or a manual move restarts the countdown cleanly. */
   useEffect(() => {
     if (!playing) return undefined;
-    if (idx >= last) { setPlaying(false); return undefined; }
+    if (!active) { setPlaying(false); return undefined; }
+    if (!timerArmed(playing, active, idx, last)) { setPlaying(false); return undefined; }
     const t = setTimeout(() => setIdx(idxRef.current + 1), ms);
     return () => clearTimeout(t);
-  }, [playing, idx, last, ms, setIdx]);
+  }, [playing, active, idx, last, ms, setIdx]);
 
   const stop = useCallback(() => setPlaying(false), []);
   const toggle = useCallback(() => {

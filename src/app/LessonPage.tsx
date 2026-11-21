@@ -50,7 +50,7 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
   const wanted = Number.parseInt(stepParam ?? "1", 10);
   const idx = Math.max(0, Math.min(last, Number.isFinite(wanted) ? wanted - 1 : 0));
   const setIdx = useCallback((i: number) => navigate(`/${lesson.id}/${i + 1}${query}`, { replace: true }), [navigate, lesson.id, query]);
-  const player = usePlayer(last, idx, setIdx);
+  const player = usePlayer(last, idx, setIdx, view === "trace");
   useKeyboard({
     prev: player.back, next: () => player.jump(idx + 1), first: () => player.jump(0), last: () => player.jump(last),
     toggle: player.toggle, reset: player.reset
@@ -248,7 +248,7 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
 
   /* The theory tab shows the code at rest: no line is lit. */
   const restStep = useMemo(() => ({ ...steps[0], anchors: [] }), [steps]);
-  const code = theory ? <CodeCard key="code" lesson={lesson} step={restStep} idx={0} /> : <CodeCard key="code" lesson={lesson} step={step} idx={idx} />;
+  const code = theory ? <CodeCard key="code" lesson={lesson} step={restStep} idx={0} idle="Open the trace tab to see which lines run." /> : <CodeCard key="code" lesson={lesson} step={step} idx={idx} />;
   const learn = <LearnList key="learn" items={lesson.learn.map(([t, test]) => [t, steps.slice(0, reached + 1).some(test)] as const)} />;
 
   if (theory) {
