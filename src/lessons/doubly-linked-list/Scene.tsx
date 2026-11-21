@@ -1,16 +1,15 @@
 import IsoScene from "../../iso/IsoScene";
-import LinkedNodes, { NODE_SPAN, listFrame, type LinkSpec, type NodePointer, type NodeSpec } from "../../iso/LinkedNodes";
-import { fitBox } from "../../iso/project";
+import LinkedNodes, { listView, type LinkSpec, type NodePointer, type NodeSpec } from "../../iso/LinkedNodes";
 import type { Step } from "../../engine/types";
 import { DLL_MAX, type DllState } from "./generate";
 
 const LIFT = 44;
-const VIEW = fitBox(listFrame(DLL_MAX, true), 20);
+const VIEW = listView(DLL_MAX, { double: true, lift: LIFT });
 
-/** Wide nodes with a prev lane and a next lane. New and removed nodes float above the row. */
+/** Wide nodes with a next lane on top and a prev lane below. New and removed nodes float above the row. */
 export default function Scene({ step }: { step: Step<DllState> }) {
   const s = step.state;
-  const nodes: NodeSpec[] = s.nodes.map((n) => ({ id: n.id, v: n.v, x: n.slot * NODE_SPAN, y: 0, z: n.lift ? LIFT : 0, state: n.state }));
+  const nodes: NodeSpec[] = s.nodes.map((n) => ({ id: n.id, v: n.v, slot: n.slot, z: n.lift ? LIFT : 0, state: n.state }));
   const st = (id: number, kind: "next" | "prev"): LinkSpec["state"] =>
     id === s.gone ? "dim" : s.active.includes(`${id}:${kind}`) ? "active" : "default";
   const links: LinkSpec[] = s.nodes.flatMap((n) => [

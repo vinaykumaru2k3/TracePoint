@@ -1,16 +1,15 @@
 import IsoScene from "../../iso/IsoScene";
-import LinkedNodes, { NODE_SPAN, listFrame, type LinkSpec, type NodePointer, type NodeSpec } from "../../iso/LinkedNodes";
-import { fitBox } from "../../iso/project";
+import LinkedNodes, { listView, type LinkSpec, type NodePointer, type NodeSpec } from "../../iso/LinkedNodes";
 import type { Step } from "../../engine/types";
 import { SLL_MAX, type SllState } from "./generate";
 
 const LIFT = 44;
-const VIEW = fitBox(listFrame(SLL_MAX), 20);
+const VIEW = listView(SLL_MAX, { lift: LIFT });
 
 /** Nodes in a row with next arrows. New and unlinked nodes float above the row. */
 export default function Scene({ step }: { step: Step<SllState> }) {
   const s = step.state;
-  const nodes: NodeSpec[] = s.nodes.map((n) => ({ id: n.id, v: n.v, x: n.slot * NODE_SPAN, y: 0, z: n.lift ? LIFT : 0, state: n.state }));
+  const nodes: NodeSpec[] = s.nodes.map((n) => ({ id: n.id, v: n.v, slot: n.slot, z: n.lift ? LIFT : 0, state: n.state }));
   const links: LinkSpec[] = s.nodes.map((n) => ({
     from: n.id, to: n.next, state: n.id === s.gone ? "dim" : n.id === s.active ? "active" : "default"
   }));
