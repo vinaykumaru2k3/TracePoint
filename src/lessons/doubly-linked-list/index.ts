@@ -5,6 +5,7 @@ import { DLL_MAX, generateDll, type DllState } from "./generate";
 import java from "./code/Main.java?raw";
 import python from "./code/main.py?raw";
 import cpp from "./code/main.cpp?raw";
+import theory from "./theory";
 
 const ALIASES: Record<string, string> = {
   add_first: "addfirst", pushfront: "addfirst", appendleft: "addfirst",
@@ -71,6 +72,8 @@ export default defineLesson<Op[], DllState>({
     ["removing the only node empties both ends", (s) => s.kind === "remove" && s.state.head === null],
     ["removing from an empty list throws", (s) => s.kind === "empty"]
   ],
+
+  theory,
 
   code: { java, python, cpp }
 });

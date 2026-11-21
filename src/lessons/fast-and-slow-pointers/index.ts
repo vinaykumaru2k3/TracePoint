@@ -5,6 +5,7 @@ import { FS_MAX, generateFs, type FsState } from "./generate";
 import java from "./code/Main.java?raw";
 import python from "./code/main.py?raw";
 import cpp from "./code/main.cpp?raw";
+import theory from "./theory";
 
 export default defineLesson<NumsInput, FsState>({
   id: "fast-and-slow-pointers",
@@ -61,6 +62,8 @@ export default defineLesson<NumsInput, FsState>({
     ["in a cycle, fast catches up and they meet", (s) => s.kind === "found"],
     ["without a cycle, fast reaches null", (s) => s.anchors.includes("fs.none")]
   ],
+
+  theory,
 
   code: { java, python, cpp }
 });

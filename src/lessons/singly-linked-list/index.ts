@@ -5,6 +5,7 @@ import { SLL_MAX, generateSll, type SllState } from "./generate";
 import java from "./code/Main.java?raw";
 import python from "./code/main.py?raw";
 import cpp from "./code/main.cpp?raw";
+import theory from "./theory";
 
 const ALIASES: Record<string, string> = {
   add_first: "addfirst", push: "addfirst", prepend: "addfirst",
@@ -69,6 +70,8 @@ export default defineLesson<Op[], SllState>({
     ["delete rewires prev.next around the node", (s) => s.anchors.includes("delete.unlink")],
     ["deleting the head just moves head", (s) => s.anchors.includes("delete.head")]
   ],
+
+  theory,
 
   code: { java, python, cpp }
 });

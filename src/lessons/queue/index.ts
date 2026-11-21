@@ -5,6 +5,7 @@ import { generateQueue, type QueueState } from "./generate";
 import java from "./code/Main.java?raw";
 import python from "./code/main.py?raw";
 import cpp from "./code/main.cpp?raw";
+import theory from "./theory";
 
 export default defineLesson<Op[], QueueState>({
   id: "queue",
@@ -52,6 +53,8 @@ export default defineLesson<Op[], QueueState>({
     ["the rear index wraps around the array", (s) => !!s.state.wrapped],
     ["polling an empty queue returns null", (s) => s.kind === "empty" && s.op === "poll()"]
   ],
+
+  theory,
 
   code: { java, python, cpp }
 });
