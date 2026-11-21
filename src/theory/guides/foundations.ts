@@ -6,7 +6,7 @@ const foundations: Guide = {
   core: [
     "Adding up 10 numbers takes about 10 steps. Adding up a million numbers takes about a million. An algorithm, a step-by-step method for solving a problem, is judged by how its step count grows with the input size `n`. Seconds depend on the machine, so you count steps instead.",
     "You write that growth in Big-O. O(n) means the steps grow in proportion to `n`. O(n²) means doubling `n` roughly quadruples the work. O(1) means the work stays the same at any size.",
-    "The array is the first data structure in this section. It keeps its items side by side in memory, so the computer finds item `i` with one calculation from the start address. That is why reading by index is O(1). Every technique here is built on that fact."
+    "The array is the first data structure in this section. It keeps its items side by side in memory, so the computer finds item `i` with one calculation from the start address, the memory location where the array begins. That is why reading by index is O(1). Every technique here is built on that fact."
   ],
   analogy:
     "Picture a hallway of numbered lockers. With a locker number, you walk straight to it, and that takes one trip however long the hallway is. Without a number, you open lockers in turn until you find your bag, so a longer hallway means more steps. An array works the same way. Big-O is the habit of asking how the steps grow as the hallway gets longer.",
@@ -27,7 +27,10 @@ const foundations: Guide = {
     ["window", "A subarray you track by its left and right indexes as it moves along the array."],
     ["prefix sum", "The total of the first `i` items of an array. For `[3, 1, 4]` the prefix sums are 0, 3, 4 and 8."],
     ["pointer", "In this section, a variable that holds an index into an array, such as `lo` or `hi`."],
-    ["amortized", "Averaged over a long run of operations. A rare slow step is spread across many fast ones."]
+    ["amortized", "Averaged over a long run of operations. A rare slow step is spread across many fast ones."],
+    ["dynamic array", "An array that grows by copying its items into a bigger block when it fills up. Python's `list` and Java's `ArrayList` work this way."],
+    ["`log n`", "Roughly how many times you can halve `n` before you reach 1. For `n` = 1,000 that is about 10, so O(n log n) grows only a little faster than O(n)."],
+    ["address", "The number that names a place in memory. An array's start address is where its first item sits."]
   ],
   cheat: {
     head: ["Operation", "Time", "Extra space", "Note"],
@@ -39,7 +42,7 @@ const foundations: Guide = {
       ["Two pointers on a sorted array", "O(n)", "O(1)", "Each step moves one pointer inward."],
       ["Sliding window", "O(n)", "O(1)", "Each item enters the window once and leaves once."],
       ["Build prefix sums", "O(n)", "O(n)", "One pass fills a table of `n + 1` totals."],
-      ["Range-sum query", "O(1)", "O(1)", "One subtraction, `p[r + 1] - p[l]`."]
+      ["Range-sum query", "O(1)", "O(1)", "With prefix sums in `p`, the sum from index `l` to `r` is one subtraction, `p[r + 1] - p[l]`."]
     ]
   },
   patterns: [
@@ -51,7 +54,7 @@ const foundations: Guide = {
   tips: [
     "Count the worst case. An early `return` can make one run fast, but Big-O describes the slowest input of size `n`.",
     "Watch the last index. An array of `n` items ends at index `n - 1`, and reading `a[n]` is out of range.",
-    "Two pointers need sorted input. Sorting first costs O(n log n) time, which is more than the O(n) walk itself.",
+    "Two pointers need sorted input. If the input arrives unsorted, sorting it takes more time than the O(n) walk, so the sort becomes the slowest part.",
     "Prefix sums go stale. If one value changes, every total after it is wrong until you rebuild in O(n).",
     "Inserting at the front of an array shifts every item. Doing it `n` times in a loop costs O(n²)."
   ],
