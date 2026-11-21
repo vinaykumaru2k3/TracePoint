@@ -8,11 +8,13 @@ React 18 + Vite 5 + TypeScript (strict), react-router-dom 6 `HashRouter`, Vitest
 
 Lessons done (M0–M2): sections 1–5, 26 lessons. Foundations: big-o-by-counting, arrays, strings, two-pointers, sliding-window, prefix-sums. Linear: stack, queue, deque, singly/doubly linked list, fast-and-slow-pointers. Hashing: hash-table-chaining, open-addressing, frequency-map-and-two-sum. Recursion: call-stack, backtracking, n-queens. Searching and sorting: linear-search, binary-search, bubble-sort, selection-sort, insertion-sort, merge-sort, quick-sort, counting-sort. The rest of the curriculum (`src/curriculum.ts`) shows as "soon". `COURSE` there is the `DSA` root of the explorer tree, and `folderName()` makes folder names like `01-foundations/`.
 
+The theory layer is in too: five folder guides (one per live section) and a theory tab for all 26 lessons.
+
 Roadmap: M0 platform → M1 … M5 DP/advanced, one branch and PR each. Cycle 2: predict-the-next-step, quizzes, case studies.
 
 ## Layout of `src/`
 
-- `app/` shell: `App`, `TopNav` (course button on narrow screens, search, "How to use" popover, theme), `CourseSidebar`, `CourseDrawer` (the course tree as a modal `<dialog>` on narrow screens), `SearchDialog` (Ctrl+K, native `<dialog>`), `LessonPage` (route `/:lessonId/:step?`, step is 1-based in the URL, `#/stack/5`; a custom run adds `?in=<input>` so it can be shared), `CodeCard` (language tablist, highlighted lines scroll inside the code box only).
+- `app/` shell: `App`, `TopNav` (course button on narrow screens, search, "How to use" popover, theme), `CourseSidebar`, `CourseDrawer` (the course tree as a modal `<dialog>` on narrow screens), `SearchDialog` (Ctrl+K, native `<dialog>`), `LessonPage` (routes `/:lessonId/:step?` and `/:lessonId/learn`, step is 1-based in the URL, `#/stack/5`; a custom run adds `?in=<input>` so it can be shared), `GuidePage` (route `/guide/:sectionId`; `#/` opens the Foundations guide), `TheoryView` with `LessonTabs` (the theory and trace tabs), `CodeCard` (language tablist, highlighted lines scroll inside the code box only).
 - `engine/` `types.ts` (the lesson contract), `anchors.ts`, `usePlayer.ts` (autoplay over a URL-owned index).
 - `hooks/` `useKeyboard`, `useTheme`, `useProgress`, `useLang`. All persisted in localStorage (`tracepoint-*`) inside try/catch.
 - `iso/` isometric SVG primitives: `project.ts` (2:1 projection), `IsoScene`, `IsoBlock`/`IsoPlate`, `IsoPointer`, `Blocks` + `useGhosts` (enter/leave animation), `fitBox` for a fallback viewBox. `SceneFit` draws every step of the run off-screen once and reports each step's bounds; `IsoScene` runs a camera (`camera.ts`, `follow`) through `CameraContext` that glides to each step: it holds the shot while the drawing fits, pans just enough when it does not, zooms out when the drawing outgrows the stage, and zooms back in only for a real gain (never past `MAX_SCALE`). The grid floor is drawn in scene units inside the SVG, so it moves with the camera. Reusable scene pieces: `CellRow` (`rowFrame`, indexed cells, null draws stale), `LinkedNodes` (`listFrame`, next/prev links, back links curve), `Buckets` (`bucketFrame`), `FrameStack` (call frames, newest on top).
@@ -28,7 +30,7 @@ Code is shown in Java, Python and C++. Each source file tags lines with `// @a n
 
 ### Theory layer
 
-Every lesson has a theory, and every section with a live lesson has a guide. Routes: `#/` is the Foundations guide, `#/guide/:sectionId` is a folder guide (the `README.md` entry in the explorer), `#/:lessonId/learn` is the lesson's theory tab. The writing rules are in `docs/specs/theory-layer.md`: write for a beginner, define a word before you use it, keep sentences to 25 words and paragraphs to 80, never talk down, and use only `code`, `**bold**` and `[[links]]`. `checkText` tests the mechanical ones.
+Every lesson has a theory, and every section with a live lesson has a guide. Routes: `#/` is the Foundations guide, `#/guide/:sectionId` is a folder guide (the `README.md` entry in the explorer), `#/:lessonId/learn` is the lesson's theory tab. The writing rules are in `docs/specs/theory-layer.md`: write for a beginner, define a word before you use it, keep sentences to 25 words and paragraphs to 80, never talk down, and use only `code`, `**bold**` and `[[links]]`, and use no exclamation marks. The spec has the full list of banned words. `checkText` tests the mechanical ones. In the explorer, an unstarted lesson links to its theory tab. Search finds guides as "<Section> guide". Guides and theory tabs do not count toward progress.
 
 ### Add a lesson
 

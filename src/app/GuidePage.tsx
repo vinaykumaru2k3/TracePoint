@@ -130,7 +130,7 @@ export default function GuidePage({ progress, courseOpen, onCloseCourse, section
     <header className="lesson-head guide-head" key="head">
       <div className="crumb" aria-label="Path">
         <i className="sec-swatch" style={{ background: sec.color }} aria-hidden="true" />
-        <span>dsa</span><span aria-hidden="true">/</span><span>{folderName(sec)}</span><span aria-hidden="true">/</span><span className="cur">README.md</span>
+        <span>dsa</span><span aria-hidden="true">/</span><span>{folderName(sec).replace(/\/$/, "")}</span><span aria-hidden="true">/</span><span className="cur">README.md</span>
       </div>
       <h1>{sec.name}</h1>
       {guide && <p className="sub"><Rich text={guide.tagline} /></p>}

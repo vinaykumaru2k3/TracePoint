@@ -427,7 +427,7 @@ a { color: inherit; text-decoration: none; }
 .cheat { border-collapse: collapse; width: 100%; min-width: 34rem; font-size: 13px; line-height: 1.5; }
 .cheat th, .cheat td { padding: 6px 10px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
 .cheat th { font-family: var(--mono); font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); border-bottom-color: var(--line-strong); white-space: nowrap; }
-.cheat td:not(:first-child):not(:last-child), .cheat th:not(:first-child):not(:last-child) { white-space: nowrap; }
+.cheat td:not(:first-child):not(:last-child) { white-space: nowrap; }
 .cheat tbody tr:nth-child(even) { background: var(--surface-2); }
 .prose .pairs { list-style: none; padding: 0; }
 .pairs li { display: grid; gap: 2px; padding-left: 12px; border-left: 2px solid var(--line-strong); }

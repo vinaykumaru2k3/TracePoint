@@ -84,7 +84,7 @@ flowchart LR
 | Path | Responsibility |
 |---|---|
 | [`src/main.tsx`](src/main.tsx) | Entry point. Applies the saved theme, mounts `App` inside a `HashRouter`. |
-| [`src/app/`](src/app) | Shell and pages. `App` holds the routes, `TopNav`, the course sidebar and drawer, `SearchDialog`, `LessonPage` (layout and the step URL) and `CodeCard` (language tabs, highlighted lines). |
+| [`src/app/`](src/app) | Shell and pages. `App` holds the routes, `TopNav`, the course sidebar and drawer, `SearchDialog`, `GuidePage` (folder guides), `TheoryView` (the theory tab), `LessonPage` (layout and the step URL) and `CodeCard` (language tabs, highlighted lines). |
 | [`src/engine/`](src/engine) | The lesson contract ([`types.ts`](src/engine/types.ts)), anchor parsing ([`anchors.ts`](src/engine/anchors.ts)) and the step player ([`usePlayer.ts`](src/engine/usePlayer.ts)). Nothing in here knows about any specific lesson. |
 | [`src/lessons/`](src/lessons) | One folder per lesson, plus the registry ([`index.ts`](src/lessons/index.ts)), the shared input parser (`parseOps.ts`), test helpers (`testkit.ts`), the shared sort kit (`sortkit.ts` state, metrics and trace builder; `SortScene.tsx` the array plus an aux row) and the contract test that covers every lesson (`lessons.test.ts`). |
 | [`src/iso/`](src/iso) | Isometric SVG primitives: the projection (`project.ts`), `IsoScene` (the camera and grid floor), blocks, pointers, and reusable pieces (`CellRow`, `LinkedNodes`, `Buckets`, `FrameStack` for call frames). Also `SceneFit` (measures each step) and `camera.ts` (pure framing math). |
@@ -95,6 +95,8 @@ flowchart LR
 | [`src/app.css`](src/app.css) | Layout, including the narrow single-column mode below 1120px wide or 680px tall. |
 
 How `lessons/` and `iso/` divide the work: a lesson's `Scene.tsx` decides *what* to draw from its own `state`. `iso/` decides *how* it looks and where the camera points.
+
+Two more routes show the reading layer: `#/guide/:sectionId` renders a folder guide, and `#/:lessonId/learn` renders a lesson's theory tab. `#/` opens the Foundations guide.
 
 ### Data flow: opening `#/stack/5`
 

@@ -73,6 +73,16 @@ describe("search", () => {
 
 const css: string = readFileSync("src/app.css", "utf8");
 
+describe("guide crumb", () => {
+  it("separates folder and file with a single slash", () => {
+    const full = at("/guide/sorting");
+    const html = full.slice(full.indexOf('class="crumb"'), full.indexOf("</h1>"));
+    expect(html).toContain("05-sorting</span>");
+    expect(html).not.toContain("05-sorting/</span>");
+    expect(html).not.toMatch(/\/<\/span><span aria-hidden="true">\/<\/span>/);
+  });
+});
+
 describe("guide css", () => {
   it("has no !important in guide rules and keeps list padding", () => {
     const guide = css.slice(css.indexOf("/* ---------- guide"));
@@ -86,5 +96,8 @@ describe("guide css", () => {
   it("makes the cheat table scroll in its wrapper", () => {
     expect(css).toMatch(/\.cheat \{[^}]*min-width: 34rem/);
     expect(css).toMatch(/\.table-wrap \{ overflow-x: auto/);
+  });
+  it("keeps cost cells on one line but lets the first and last columns wrap", () => {
+    expect(css).toMatch(/\.cheat td:not\(:first-child\):not\(:last-child\)\s*\{[^}]*white-space:\s*nowrap/);
   });
 });
