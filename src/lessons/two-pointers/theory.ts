@@ -6,7 +6,8 @@ const theory: LessonTheory = {
   analogy:
     "Picture a line of people sorted by height, shortest on the left. Two friends start at the two ends, looking for a pair whose heights add up to a set total. If the pair is too short, the left friend steps right. If it is too tall, the right friend steps left.",
   steps: [
-    "Sort the array if it is not sorted. Set `lo = 0` and `hi = n - 1`.",
+    "Sort the array if it is not sorted. Sorting adds O(n log n) time, so the O(n) cost assumes sorted input. See [[guide:foundations]] for `log n`.",
+    "Set `lo = 0` and `hi = n - 1`.",
     "While `lo < hi`, add `a[lo] + a[hi]`.",
     "If the sum equals the target, return `lo` and `hi`.",
     "If the sum is too small, move `lo` one step right. `a[hi]` is the largest value left, so `a[lo]` is too small with every partner.",
@@ -30,6 +31,7 @@ const theory: LessonTheory = {
   ],
   pitfalls: [
     "Running it on unsorted data. The moves rely on order, so they can skip past the answer.",
+    "Quoting O(n) when you had to sort first. The sort costs O(n log n), so the whole job is O(n log n).",
     "Looping while `lo <= hi`. Then both pointers can land on one item and count it twice.",
     "Moving both pointers at once. Move only the one the comparison rules out."
   ]
