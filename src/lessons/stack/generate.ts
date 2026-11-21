@@ -30,9 +30,9 @@ export function generateStack(ops: Op[]): Step<StackState>[] {
 
   const steps: Step<StackState>[] = [snap({
     kind: "problem", op: null, anchors: [], notes: {},
-    title: "Start empty",
+    title: "Last in, first out",
     idea: "A stack is an array plus one index called top.",
-    text: "An empty stack. Items go on and come off the same end, called the top. The class keeps them in an int array and tracks the top index."
+    text: `Goal: build a stack where push, pop and peek each cost O(1). Items go on and come off the same end, called the top. The class keeps them in an int array of ${cap} slots and tracks the top index. It starts empty.`
   })];
 
   for (const { name, v = 0 } of ops) {

@@ -50,13 +50,13 @@ export function generateTwoPointers({ nums: raw, k }: NumsInput): Step<TwoPtrSta
       kind: "check", op: `${nums[lo]} + ${nums[hi]}`,
       anchors: ["tp.sig", "tp.loop", "tp.sum", small ? "tp.lo" : "tp.hi"],
       notes: { "tp.sum": `${nums[lo]} + ${nums[hi]} = ${sum}, target ${target}`, [small ? "tp.lo" : "tp.hi"]: small ? `too small, lo becomes ${lo + 1}` : `too big, hi becomes ${hi - 1}` },
-      title: small ? "Too small: move lo right" : "Too big: move hi left",
+      title: small ? `${sum} < ${target}: rule out ${nums[lo]}` : `${sum} > ${target}: rule out ${nums[hi]}`,
       idea: small
         ? `Even the largest partner leaves ${nums[lo]} short, so ${nums[lo]} cannot be in any pair.`
         : `Even the smallest partner makes ${nums[hi]} overshoot, so ${nums[hi]} cannot be in any pair.`,
       text: small
-        ? `${nums[lo]} + ${nums[hi]} = ${sum}, less than ${target}. A bigger sum needs a bigger left value, so lo steps right.`
-        : `${nums[lo]} + ${nums[hi]} = ${sum}, more than ${target}. A smaller sum needs a smaller right value, so hi steps left.`
+        ? `${nums[lo]} + ${nums[hi]} = ${sum}, less than ${target}. A bigger sum needs a bigger left value, so lo steps right on the next check.`
+        : `${nums[lo]} + ${nums[hi]} = ${sum}, more than ${target}. A smaller sum needs a smaller right value, so hi steps left on the next check.`
     }, { sum, moved: small ? "lo" : "hi" }));
     if (small) lo++; else hi--;
   }

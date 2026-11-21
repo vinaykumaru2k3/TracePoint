@@ -36,7 +36,7 @@ export default defineLesson<NumsInput, TwoPtrState>({
   memory: ({ state: s }): MemoryView => ({
     title: "In memory: int[] a (sorted)",
     note: "Nothing is copied or moved. Two integers, lo and hi, are all the extra memory: O(1).",
-    cells: s.nums.map((v, k) => ({ v, live: k >= s.lo && k <= s.hi, act: k === s.lo || k === s.hi, marks: [k === s.lo ? "lo" : "", k === s.hi ? "hi" : ""].filter(Boolean) }))
+    cells: s.nums.map((v, k) => ({ v, live: k >= s.lo && k <= s.hi, act: k === s.lo || k === s.hi, tone: s.hit ? "found" : "compare", marks: [k === s.lo ? "lo" : "", k === s.hi ? "hi" : ""].filter(Boolean) }))
   }),
   vars: ({ state: s }) => `lo = ${s.lo}   hi = ${s.hi}`,
   costs: [["time", "O(n)"], ["extra space", "O(1)"]],

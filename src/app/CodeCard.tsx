@@ -1,12 +1,12 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { linesFor, parseAll } from "../engine/anchors";
 import { LANGS, type AnyLesson, type AnyStep, type Lang } from "../engine/types";
 import { useLang } from "../hooks/useLang";
 
 const KEYWORDS: Record<Lang, string> = {
-  java: "class|private|void|int|if|throw|new|return|null",
-  python: "class|def|if|raise|return|None|self",
-  cpp: "class|private|public|void|int|if|throw|new|return|const|nullptr"
+  java: "class|private|public|static|final|void|int|boolean|long|if|else|for|while|break|continue|throw|new|return|null|true|false|this",
+  python: "class|def|if|elif|else|for|while|in|is|not|and|or|break|continue|raise|return|None|True|False|self|pass",
+  cpp: "class|struct|private|public|static|constexpr|void|int|bool|auto|if|else|for|while|break|continue|throw|new|return|const|nullptr|true|false|this"
 };
 const COMMENT: Record<Lang, string> = { java: "//.*", python: "#.*", cpp: "//.*|#include.*" };
 const RES = Object.fromEntries(LANGS.map(({ id }) => [id,
@@ -55,33 +55,63 @@ export default function CodeCard({ lesson, step, idx }: Props) {
     return () => timers.forEach(clearTimeout);
   }, [step, total]);
 
-  /* Keep the first executed line in view when the code box scrolls. */
+  /* Keep every line this step runs in view. Rows are measured against the scroller's own box
+     (offsetTop would be relative to the page, since the pre is not positioned). Only the code box
+     scrolls, never the page. */
   useEffect(() => {
     const el = codeRef.current;
     if (!el || !total || el.scrollHeight <= el.clientHeight) return;
-    const row = el.children[lines[0] - 1] as HTMLElement | undefined;
-    if (row) el.scrollTop = Math.max(0, row.offsetTop - el.clientHeight / 3);
+    const first = el.children[Math.min(...lines) - 1] as HTMLElement | undefined;
+    const lastRow = el.children[Math.max(...lines) - 1] as HTMLElement | undefined;
+    if (!first || !lastRow) return;
+    const box = el.getBoundingClientRect();
+    const top = first.getBoundingClientRect().top - box.top + el.scrollTop;
+    const bottom = lastRow.getBoundingClientRect().bottom - box.top + el.scrollTop;
+    const room = el.clientHeight, margin = Math.min(48, room / 6);
+    const visible = top >= el.scrollTop + margin / 2 && bottom <= el.scrollTop + room - margin / 2;
+    if (visible) return;
+    const span = bottom - top;
+    const want = span + 2 * margin <= room ? top - (room - span) / 2 : top - margin;
+    el.scrollTo({ top: Math.max(0, want), behavior: reduced() ? "auto" : "smooth" });
   }, [step, lang]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const on = new Set(lines.slice(0, shown));
   const rows = step.anchors.filter((a) => step.notes[a] && parsed.anchors[a] && on.has(parsed.anchors[a][0]));
 
+  /* Tabs: arrows, Home and End move focus and selection together; only the selected tab is a Tab stop. */
+  const tabsRef = useRef<HTMLDivElement>(null);
+  const onTabKey = (e: KeyboardEvent) => {
+    const i = LANGS.findIndex((l) => l.id === lang);
+    const to = e.key === "ArrowRight" ? (i + 1) % LANGS.length : e.key === "ArrowLeft" ? (i + LANGS.length - 1) % LANGS.length
+      : e.key === "Home" ? 0 : e.key === "End" ? LANGS.length - 1 : -1;
+    if (to < 0) return;
+    e.preventDefault();
+    setLang(LANGS[to].id);
+    tabsRef.current?.querySelectorAll<HTMLButtonElement>("[role='tab']")[to]?.focus();
+  };
+
   return (
     <section className="card codewrap" aria-label="Code">
-      <div className="codetabs" role="tablist" aria-label="Language">
-        {LANGS.map(({ id, label }) => (
-          <button key={id} role="tab" aria-selected={lang === id} onClick={() => setLang(id)}>{label}</button>
-        ))}
+      <div className="codetabs">
+        <div role="tablist" aria-label="Language" ref={tabsRef} onKeyDown={onTabKey}>
+          {LANGS.map(({ id, label }) => (
+            <button key={id} id={`tab-${id}`} type="button" role="tab" aria-selected={lang === id} tabIndex={lang === id ? 0 : -1} onClick={() => setLang(id)}>{label}</button>
+          ))}
+        </div>
         <span className="vars">{lesson.vars(step)}</span>
       </div>
-      <pre className="code" ref={codeRef}>
-        {parsed.lines.map((line, k) => (
-          <div className={"ln" + (on.has(k + 1) ? " on" : "")} key={k}>
-            <span className="no">{k + 1}</span><span>{colour(line, lang)}</span>
-          </div>
-        ))}
+      <pre className="code" ref={codeRef} role="tabpanel" aria-labelledby={`tab-${lang}`} tabIndex={0}>
+        {parsed.lines.map((line, k) => {
+          const indent = line.length - line.trimStart().length;
+          return (
+            <div className={"ln" + (on.has(k + 1) ? " on" : "")} key={k}>
+              <span className="no">{k + 1}</span>
+              <span className="src" style={indent ? { paddingLeft: `${indent + 2}ch` } : undefined}>{colour(line.slice(indent), lang)}</span>
+            </div>
+          );
+        })}
       </pre>
-      <div className="trace" aria-live="polite">
+      <div className="trace">
         {!total
           ? <div className="idle">Step forward to see which lines run.</div>
           : rows.map((a) => <div className="row" key={a}><b>line {parsed.anchors[a][0]}</b><span>{step.notes[a]}</span></div>)}
