@@ -5,6 +5,7 @@ import { generateQueens, type QueensState } from "./generate";
 import java from "./code/Main.java?raw";
 import python from "./code/main.py?raw";
 import cpp from "./code/main.cpp?raw";
+import theory from "./theory";
 
 export default defineLesson<NumsInput, QueensState>({
   id: "n-queens",
@@ -48,6 +49,8 @@ export default defineLesson<NumsInput, QueensState>({
     ["a dead end lifts the last queen", (s) => s.kind === "remove"],
     ["some boards have no solution", (s) => s.kind === "empty"]
   ],
+
+  theory,
 
   code: { java, python, cpp }
 });
