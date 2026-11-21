@@ -146,16 +146,22 @@ function LessonView({ lesson, stepParam, progress, onVisit }: Props & { lesson: 
 
         <CodeCard lesson={lesson} step={step} idx={idx} />
 
-        <section className="card learn" aria-label="You will learn">
-          <h3>You will learn</h3>
-          <ul>
-            {lesson.learn.map(([t, test]) => (
-              <li key={t} className={steps.slice(0, reached + 1).some(test) ? "ok" : ""}>{t}</li>
-            ))}
-          </ul>
-        </section>
+        <LearnList items={lesson.learn.map(([t, test]) => [t, steps.slice(0, reached + 1).some(test)] as const)} />
       </aside>
     </div>
+  );
+}
+
+/** Folded by default so the code box keeps the height; the summary still shows progress. */
+function LearnList({ items }: { items: (readonly [string, boolean])[] }) {
+  const done = items.filter(([, ok]) => ok).length;
+  return (
+    <details className="card learn">
+      <summary><span className="lbl">You will learn</span><span className="muted">{done} / {items.length}</span></summary>
+      <ul>
+        {items.map(([t, ok]) => <li key={t} className={ok ? "ok" : ""}>{t}</li>)}
+      </ul>
+    </details>
   );
 }
 

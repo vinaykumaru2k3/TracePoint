@@ -20,14 +20,12 @@ export default function Scene({ step }: { step: Step<StackState> }) {
   }));
   const a = -PAD, b = 2 + PAD, f = 0.35;
   const foot = [project(a - f, a - f, 0), project(b + f, a - f, 0), project(b + f, b + f, 0), project(a - f, b + f, 0)];
-  const note = project(1, 1, WELL_H);
   const topZ = items.length ? level(items.length - 1) + BH / 2 : FLOOR;
 
   return (
     <IsoScene viewBox={VIEW} label="Isometric stack: blocks pile up on a base">
       <polygon className="foot" points={poly(foot)} />
       <IsoPlate x={a} y={a} w={b - a} d={b - a} h={FLOOR} />
-      <text className="scene-note" x={note.x} y={note.y - 22} textAnchor="middle">push / pop here</text>
       <Blocks blocks={blocks} enter={[0, -70]} leave={[0, -60]} />
       <IsoPointer x={2} y={0} z={topZ} dir="right" label={items.length ? `top = ${top}` : "top = -1"} dim={!items.length} />
     </IsoScene>

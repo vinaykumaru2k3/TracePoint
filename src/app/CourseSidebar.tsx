@@ -18,10 +18,10 @@ export default function CourseSidebar({ currentId, currentIdx, progress }: Props
       <div className="side-title">Course <small>{planned} lessons</small></div>
       {CURRICULUM.map((sec) => {
         const live = sec.lessons.filter((l) => LESSON_BY_ID[l.id]);
-        const open = live.length > 0;
+        const open = sec.lessons.some((l) => l.id === currentId);
         return (
           <details className="sec" key={sec.id} open={open} style={{ "--sec": sec.color } as React.CSSProperties}>
-            <summary><i className="folder" aria-hidden="true" />{sec.n}. {sec.name}<small>{live.length}/{sec.lessons.length}</small></summary>
+            <summary><i className="folder" aria-hidden="true" /><span className="sec-name" title={sec.name}>{sec.n}. {sec.name}</span><small>{live.length}/{sec.lessons.length}</small></summary>
             <ul>
               {sec.lessons.map((l) => {
                 if (!LESSON_BY_ID[l.id]) {
