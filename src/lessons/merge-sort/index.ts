@@ -6,6 +6,7 @@ import { generateMerge } from "./generate";
 import java from "./code/Main.java?raw";
 import python from "./code/main.py?raw";
 import cpp from "./code/main.cpp?raw";
+import theory from "./theory";
 
 export default defineLesson<NumsInput, SortState>({
   id: "merge-sort",
@@ -36,6 +37,8 @@ export default defineLesson<NumsInput, SortState>({
     ["merge takes the smaller head", (s) => s.kind === "check"],
     ["<= keeps equal values in order (stable)", (s) => s.kind === "check" && /^(\d+) = \1:/.test(s.title)]
   ],
+
+  theory,
 
   code: { java, python, cpp }
 });

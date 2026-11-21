@@ -3,10 +3,11 @@ import foundations from "./guides/foundations";
 import hashing from "./guides/hashing";
 import linear from "./guides/linear";
 import recursion from "./guides/recursion";
+import sorting from "./guides/sorting";
 import type { Guide } from "./types";
 
 /** One guide per section, keyed by section id. Filled in by the content tasks. */
-export const GUIDES: Record<string, Guide> = { foundations, linear, hashing, recursion };
+export const GUIDES: Record<string, Guide> = { foundations, linear, hashing, recursion, sorting };
 
 /** Every link target that resolves: live lesson ids and `guide:<id>` for each guide. */
 export const linkIds = (): Set<string> =>

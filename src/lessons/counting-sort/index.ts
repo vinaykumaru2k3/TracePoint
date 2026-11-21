@@ -6,6 +6,7 @@ import { generateCounting } from "./generate";
 import java from "./code/Main.java?raw";
 import python from "./code/main.py?raw";
 import cpp from "./code/main.cpp?raw";
+import theory from "./theory";
 
 export default defineLesson<NumsInput, SortState>({
   id: "counting-sort",
@@ -36,6 +37,8 @@ export default defineLesson<NumsInput, SortState>({
     ["counters are read back in order", (s) => s.kind === "move"],
     ["no comparisons: O(n + k)", (s) => s.op === "sorted" && s.state.compares === 0]
   ],
+
+  theory,
 
   code: { java, python, cpp }
 });

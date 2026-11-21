@@ -6,6 +6,7 @@ import { generateSelection } from "./generate";
 import java from "./code/Main.java?raw";
 import python from "./code/main.py?raw";
 import cpp from "./code/main.cpp?raw";
+import theory from "./theory";
 
 export default defineLesson<NumsInput, SortState>({
   id: "selection-sort",
@@ -36,6 +37,8 @@ export default defineLesson<NumsInput, SortState>({
     ["swap it into the front", (s) => s.kind === "add"],
     ["at most n - 1 swaps", (s) => s.op === "sorted" && s.state.swaps <= s.state.a.length - 1]
   ],
+
+  theory,
 
   code: { java, python, cpp }
 });

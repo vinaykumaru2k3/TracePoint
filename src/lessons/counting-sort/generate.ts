@@ -59,5 +59,5 @@ export function generateCounting({ nums }: NumsInput): Step<SortState>[] {
 
   return t.finish("cnt.done",
     "Counting sort is O(n + k) with no comparisons, but it needs k + 1 counters, so it only suits small value ranges.",
-    `${n} values counted and ${n} written, with ${t.s.compares} compares. The cost is O(n + k), where k = ${max} is the largest value. It beats O(n log n) when k is small, and wastes memory when k is huge.`);
+    `${n} values counted and ${n} written, with ${t.s.compares} compares. The cost is O(n + k), where k = ${max + 1} is the number of counters, one per value from 0 to ${max}. It beats O(n log n) when k is small, and wastes memory when k is huge.`);
 }
