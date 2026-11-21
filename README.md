@@ -4,7 +4,7 @@ Tracepoint teaches data structures and algorithms through interactive lessons th
 
 ## Features
 
-- 15 lessons across three sections, browsed in an explorer tree under `DSA/`:
+- 26 lessons across five sections, browsed in an explorer tree under `DSA/`:
   - **Foundations:** Big-O by counting, arrays, strings, two pointers, sliding window, prefix sums.
   - **Linear structures:** stack, queue, deque, singly and doubly linked lists, fast and slow pointers.
   - **Hashing:** chaining, open addressing, frequency map and two-sum.
@@ -85,8 +85,8 @@ flowchart LR
 | [`src/main.tsx`](src/main.tsx) | Entry point. Applies the saved theme, mounts `App` inside a `HashRouter`. |
 | [`src/app/`](src/app) | Shell and pages. `App` holds the routes, `TopNav`, the course sidebar and drawer, `SearchDialog`, `LessonPage` (layout and the step URL) and `CodeCard` (language tabs, highlighted lines). |
 | [`src/engine/`](src/engine) | The lesson contract ([`types.ts`](src/engine/types.ts)), anchor parsing ([`anchors.ts`](src/engine/anchors.ts)) and the step player ([`usePlayer.ts`](src/engine/usePlayer.ts)). Nothing in here knows about any specific lesson. |
-| [`src/lessons/`](src/lessons) | One folder per lesson, plus the registry ([`index.ts`](src/lessons/index.ts)), the shared input parser (`parseOps.ts`), test helpers (`testkit.ts`) and the contract test that covers every lesson (`lessons.test.ts`). |
-| [`src/iso/`](src/iso) | Isometric SVG primitives: the projection (`project.ts`), `IsoScene` (the camera and grid floor), blocks, pointers, and reusable pieces (`CellRow`, `LinkedNodes`, `Buckets`). Also `SceneFit` (measures each step) and `camera.ts` (pure framing math). |
+| [`src/lessons/`](src/lessons) | One folder per lesson, plus the registry ([`index.ts`](src/lessons/index.ts)), the shared input parser (`parseOps.ts`), test helpers (`testkit.ts`), the shared sort kit (`sortkit.ts` state, metrics and trace builder; `SortScene.tsx` the array plus an aux row) and the contract test that covers every lesson (`lessons.test.ts`). |
+| [`src/iso/`](src/iso) | Isometric SVG primitives: the projection (`project.ts`), `IsoScene` (the camera and grid floor), blocks, pointers, and reusable pieces (`CellRow`, `LinkedNodes`, `Buckets`, `FrameStack` for call frames). Also `SceneFit` (measures each step) and `camera.ts` (pure framing math). |
 | [`src/hooks/`](src/hooks) | `useKeyboard`, `useTheme`, `useProgress`, `useLang`, `useMedia`. Persisted values go in `localStorage` under `tracepoint-*`. |
 | [`src/design/`](src/design) | `tokens.css` holds every colour as a token, with light and dark values. `ui.tsx` holds shared bits (`Icon`, `Badge`, `Kbd`, …). |
 | [`src/curriculum.ts`](src/curriculum.ts) | The full course outline. Lessons that aren't built yet show as "soon". |
