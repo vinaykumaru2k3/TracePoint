@@ -1,0 +1,59 @@
+/* Design tokens. Cream and ink in light mode, warm dark otherwise. Follows prefers-color-scheme until the viewer picks a theme. */
+:root {
+  --font: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+  --bg: #f3eee1;
+  --surface: #fffdf5;
+  --surface-2: #ebe4d2;
+  --ink: #17150f;
+  --muted: #655f50;
+  --line: #17150f;
+  --shadow: #17150f;
+  --on-c: #17150f;
+
+  --c-green: #8fe3a0;
+  --c-amber: #ffd466;
+  --c-blue: #a8d0ff;
+  --c-pink: #ffadc0;
+  --c-lav: #d9d0fb;
+
+  /* Isometric scene */
+  --stroke: #17150f;
+  --wall: rgba(23, 21, 15, 0.07);
+  --plate-t: #efe8d6;
+  --plate-l: #d6cdb6;
+  --plate-r: #c4baa0;
+
+  --radius: 14px;
+  --offset: 4px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1a1814;
+    --surface: #25221d;
+    --surface-2: #312d26;
+    --ink: #f3eee1;
+    --muted: #a8a190;
+    --line: #f3eee1;
+    --shadow: #000;
+    --wall: rgba(243, 238, 225, 0.06);
+    --plate-t: #403a2f;
+    --plate-l: #2e2a21;
+    --plate-r: #231f18;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #1a1814;
+  --surface: #25221d;
+  --surface-2: #312d26;
+  --ink: #f3eee1;
+  --muted: #a8a190;
+  --line: #f3eee1;
+  --shadow: #000;
+  --wall: rgba(243, 238, 225, 0.06);
+  --plate-t: #403a2f;
+  --plate-l: #2e2a21;
+  --plate-r: #231f18;
+}
