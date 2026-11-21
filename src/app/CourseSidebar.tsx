@@ -15,12 +15,13 @@ export default function CourseSidebar({ currentId, currentIdx, progress }: Props
 
   return (
     <aside className="side" aria-label="Course">
+      <div className="side-title">Course <small>{planned} lessons</small></div>
       {CURRICULUM.map((sec) => {
         const live = sec.lessons.filter((l) => LESSON_BY_ID[l.id]);
         const open = live.length > 0;
         return (
           <details className="sec" key={sec.id} open={open} style={{ "--sec": sec.color } as React.CSSProperties}>
-            <summary>{sec.n} {sec.name}<small>{live.length}/{sec.lessons.length}</small></summary>
+            <summary><i className="folder" aria-hidden="true" />{sec.n}. {sec.name}<small>{live.length}/{sec.lessons.length}</small></summary>
             <ul>
               {sec.lessons.map((l) => {
                 if (!LESSON_BY_ID[l.id]) {
@@ -42,8 +43,8 @@ export default function CourseSidebar({ currentId, currentIdx, progress }: Props
           </details>
         );
       })}
-      <div className="side-foot">
-        {completed} of {LESSONS.length} lessons done · {planned} planned
+      <div className="side-foot card">
+        <span className="lbl">Progress</span> <b>{completed} / {LESSONS.length}</b> live lessons done
         <div className="bar" role="progressbar" aria-valuemin={0} aria-valuemax={LESSONS.length} aria-valuenow={completed}>
           <i style={{ width: `${(completed / LESSONS.length) * 100}%` }} />
         </div>

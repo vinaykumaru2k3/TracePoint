@@ -60,44 +60,33 @@ function LessonView({ lesson, stepParam, progress, onVisit }: Props & { lesson: 
     <div className="page">
       <CourseSidebar currentId={lesson.id} currentIdx={idx} progress={progress} />
 
-      <main className="center" aria-label="Lesson">
-        <header>
-          <div className="crumb">{sec ? `${sec.n} ${sec.name} · lesson ${inSec} of ${sec.lessons.length}` : ""}</div>
-          <h1>{lesson.title}</h1>
-          <p className="sub">{lesson.subtitle}</p>
-          <div className="badges">
-            <Badge>≈ {lesson.minutes} min</Badge>
-            <Badge tone="var(--c-green)">{lesson.level}</Badge>
-            <Badge>{last} steps</Badge>
-          </div>
-        </header>
-
-        <div className="metrics" aria-label="Live values">
-          {lesson.metrics(step).map((m: { label: string; value: string | number }) => <MetricCard key={m.label} {...m} />)}
-        </div>
-
-        <form className="run" onSubmit={(e) => { e.preventDefault(); run(draft); }}>
-          <label htmlFor="ops">{lesson.inputLabel}</label>
-          <input id="ops" type="text" value={draft} onChange={(e) => setDraft(e.target.value)} spellCheck={false} autoComplete="off" aria-describedby="ops-hint" aria-invalid={!!error} />
-          <button className="btn primary" type="submit">Run</button>
-          <select aria-label="Examples" value="" onChange={(e) => e.target.value && run(e.target.value)}>
-            <option value="">Examples…</option>
-            <option value={lesson.defaultText}>Default run</option>
-            {lesson.presets.map((p: { label: string; text: string }) => <option key={p.label} value={p.text}>{p.label}</option>)}
-          </select>
-          {error ? <p className="err" role="alert">{error}</p> : <p className="hint" id="ops-hint">{lesson.inputHint}</p>}
-        </form>
-
-        <section className="card stagecard" aria-label="Animated diagram">
-          <div className="stagebar">
-            <button className="btn" onClick={player.reset}>Reset</button>
-            <button className="btn primary" onClick={player.toggle}>{player.playing ? "Pause" : idx === last ? "Replay" : "Play"}</button>
-            <div className="legend" aria-hidden="true">
-              {lesson.legend.map((l: { cls: string; label: string }) => <span key={l.label}><i className={`swatch ${l.cls}`} />{l.label}</span>)}
+      <div className="center">
+      <main className="lesson card" aria-label="Lesson">
+        <header className="lesson-head">
+          <div className="crumb">{sec ? `${sec.n}. ${sec.name}` : ""}<span aria-hidden="true">/</span>{sec ? `Lesson ${inSec} of ${sec.lessons.length}` : ""}</div>
+          <div className="title-row">
+            <h1>{lesson.title}</h1>
+            <div className="badges">
+              <Badge tone="var(--c-amber)">{lesson.minutes} min</Badge>
+              <Badge tone="var(--c-green)">{lesson.level}</Badge>
+              <Badge tone="var(--c-lav)">{last} steps</Badge>
             </div>
           </div>
+          <p className="sub">{lesson.subtitle}</p>
+        </header>
+
+        <section className="stagecard" aria-label="Animated diagram">
           <div className="stage">
             <lesson.Scene step={step} />
+            <div className="stage-top">
+              <div className="metrics" aria-label="Live values">
+                {lesson.metrics(step).map((m: { label: string; value: string | number }) => <MetricCard key={m.label} {...m} />)}
+              </div>
+              <div className="stage-ctl">
+                <button className="btn sm" onClick={player.reset}>Reset</button>
+                <button className="btn sm" onClick={player.toggle}>{player.playing ? "Pause" : idx === last ? "Replay" : "Play"}</button>
+              </div>
+            </div>
             {step.op && (
               <div className="result">
                 <small>{step.op} returns</small>
@@ -105,33 +94,54 @@ function LessonView({ lesson, stepParam, progress, onVisit }: Props & { lesson: 
                 {step.retNote && <em>{step.retNote}</em>}
               </div>
             )}
+            <div className="legend" aria-hidden="true">
+              {lesson.legend.map((l: { cls: string; label: string }) => <span key={l.label}><i className={`swatch ${l.cls}`} />{l.label}</span>)}
+            </div>
           </div>
         </section>
 
-        <MemoryStrip lesson={lesson} step={step} />
-
         <div className="rail-wrap">
-          <span className="lbl">In this lesson</span>
-          <div className="rail">
+          <div className="rail-head"><span className="lbl">In this lesson</span><span className="muted">Step {idx + 1} of {steps.length}</span></div>
+          <ol className="rail">
             {steps.map((_, i) => (
-              <button key={i} className={i === idx ? "cur" : i <= reached ? "seen" : ""} aria-current={i === idx ? "step" : undefined}
-                onClick={() => player.jump(i)}>{i + 1}. {label(i)}</button>
+              <li key={i} className={i === idx ? "cur" : i <= reached ? "seen" : ""}>
+                <button aria-current={i === idx ? "step" : undefined} onClick={() => player.jump(i)}>
+                  <span className="num">{i + 1}</span><span className="name">{label(i)}</span>
+                </button>
+              </li>
             ))}
-          </div>
+          </ol>
         </div>
+
+        <form className="run" onSubmit={(e) => { e.preventDefault(); run(draft); }}>
+          <label htmlFor="ops">{lesson.inputLabel}</label>
+          <div className="run-row">
+            <input id="ops" type="text" value={draft} onChange={(e) => setDraft(e.target.value)} spellCheck={false} autoComplete="off" aria-describedby="ops-hint" aria-invalid={!!error} />
+            <select aria-label="Examples" value="" onChange={(e) => e.target.value && run(e.target.value)}>
+              <option value="">Examples…</option>
+              <option value={lesson.defaultText}>Default run</option>
+              {lesson.presets.map((p: { label: string; text: string }) => <option key={p.label} value={p.text}>{p.label}</option>)}
+            </select>
+            <button className="btn sm" type="submit">Run</button>
+          </div>
+          {error ? <p className="err" role="alert">{error}</p> : <p className="hint" id="ops-hint">{lesson.inputHint}</p>}
+        </form>
+
+        <MemoryStrip lesson={lesson} step={step} />
       </main>
+      </div>
 
       <aside className="right" aria-label="Explanation and code">
         <section className="card explain">
           <div className="head"><span>Step {idx + 1} / {steps.length}</span><KindChip kind={step.kind} /></div>
           <h2>{step.title}</h2>
           <p aria-live="polite">{step.text}</p>
-          <div className="idea"><small>Key idea</small>{step.idea}</div>
+          <div className="idea"><i aria-hidden="true">✦</i><div><small>Key idea</small>{step.idea}</div></div>
           <div className="nav">
-            <button className="btn" onClick={player.back} disabled={idx === 0}>Back <Kbd>←</Kbd></button>
-            <button className="btn primary" onClick={player.next}>{idx >= last ? "Start over" : `Next: ${label(idx + 1)}`} <Kbd>→</Kbd></button>
+            <button className="btn" onClick={player.back} disabled={idx === 0}>← Back</button>
+            <button className="btn primary" onClick={player.next}><span>{idx >= last ? "Start over" : `Next: ${label(idx + 1)}`}</span><span aria-hidden="true">→</span></button>
           </div>
-          <p className="memnote"><Kbd>Space</Kbd> play · <Kbd>R</Kbd> reset · <Kbd>Ctrl K</Kbd> search</p>
+          <p className="keys"><Kbd>←</Kbd><Kbd>→</Kbd> step · <Kbd>Space</Kbd> play · <Kbd>R</Kbd> reset</p>
         </section>
 
         <CodeCard lesson={lesson} step={step} idx={idx} />

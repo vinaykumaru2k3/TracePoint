@@ -1,59 +1,95 @@
-/* Design tokens. Cream and ink in light mode, warm dark otherwise. Follows prefers-color-scheme until the viewer picks a theme. */
+/* Design tokens. Warm paper and soft ink; hairline borders and soft shadows on panels,
+   a small hard "pop" shadow only on pills and the primary button. Follows
+   prefers-color-scheme until the viewer picks a theme. */
 :root {
   --font: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
 
-  --bg: #f3eee1;
-  --surface: #fffdf5;
-  --surface-2: #ebe4d2;
-  --ink: #17150f;
-  --muted: #655f50;
-  --line: #17150f;
-  --shadow: #17150f;
-  --on-c: #17150f;
+  --bg: #f4ebe0;          /* page */
+  --surface: #f9f2e8;     /* cards */
+  --surface-2: #f3eadd;   /* wells, hovers */
+  --ink: #1d1b18;
+  --muted: #6f6961;
+  --muted-2: #8b847a;
+  --line: #ddd3c5;        /* hairlines */
+  --line-strong: #c6bbac;
+  --edge: #46413b;        /* outline of pills and buttons */
+  --drop: #1d1b18;        /* pop shadow colour */
+  --on-c: #1d1b18;
+  --danger: #c0392b;
 
-  --c-green: #8fe3a0;
-  --c-amber: #ffd466;
-  --c-blue: #a8d0ff;
-  --c-pink: #ffadc0;
-  --c-lav: #d9d0fb;
+  --c-green: #cfe3b2;
+  --c-green-2: #b2d491;
+  --c-green-3: #7fc278;
+  --c-amber: #fde3a7;
+  --c-amber-2: #e8a33a;
+  --c-blue: #d6e5f6;
+  --c-pink: #f6cfc7;
+  --c-lav: #e7ddf5;
 
-  /* Isometric scene */
-  --stroke: #17150f;
-  --wall: rgba(23, 21, 15, 0.07);
-  --plate-t: #efe8d6;
-  --plate-l: #d6cdb6;
-  --plate-r: #c4baa0;
+  --card-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65), 0 1px 0 rgba(80, 60, 35, 0.06), 0 18px 40px -30px rgba(80, 60, 35, 0.45);
+  --pop: 1.5px 2.5px 0 var(--drop);
+  --grid-line: rgba(80, 60, 35, 0.09);
 
-  --radius: 14px;
-  --offset: 4px;
+  /* Isometric scene: warm neutrals, colour only for state */
+  --stroke: #3b3631;
+  --slab-t: #fbf8f4;
+  --slab-l: #e4d9cb;
+  --slab-r: #d3c7b7;
+  --plate-t: #efe6da;
+  --plate-l: #ddd1c1;
+  --plate-r: #cbbfae;
+  --foot: rgba(127, 194, 120, 0.18);
+  --foot-line: #7fc278;
+
+  --radius: 12px;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #1a1814;
-    --surface: #25221d;
-    --surface-2: #312d26;
-    --ink: #f3eee1;
-    --muted: #a8a190;
-    --line: #f3eee1;
-    --shadow: #000;
-    --wall: rgba(243, 238, 225, 0.06);
-    --plate-t: #403a2f;
-    --plate-l: #2e2a21;
-    --plate-r: #231f18;
+    --bg: #1b1916;
+    --surface: #23201c;
+    --surface-2: #2b2823;
+    --ink: #efe8de;
+    --muted: #a59d92;
+    --muted-2: #847d73;
+    --line: #38332d;
+    --line-strong: #4a443c;
+    --edge: #a59d92;
+    --drop: #0c0b0a;
+    --danger: #f08a7e;
+    --card-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03), 0 18px 40px -30px rgba(0, 0, 0, 0.8);
+    --grid-line: rgba(239, 232, 222, 0.06);
+    --stroke: #15130f;
+    --slab-t: #d9d0c4;
+    --slab-l: #b0a596;
+    --slab-r: #958a7b;
+    --plate-t: #3a3530;
+    --plate-l: #2f2b26;
+    --plate-r: #26231f;
+    --foot: rgba(127, 194, 120, 0.12);
   }
 }
 
 :root[data-theme="dark"] {
-  --bg: #1a1814;
-  --surface: #25221d;
-  --surface-2: #312d26;
-  --ink: #f3eee1;
-  --muted: #a8a190;
-  --line: #f3eee1;
-  --shadow: #000;
-  --wall: rgba(243, 238, 225, 0.06);
-  --plate-t: #403a2f;
-  --plate-l: #2e2a21;
-  --plate-r: #231f18;
+  --bg: #1b1916;
+  --surface: #23201c;
+  --surface-2: #2b2823;
+  --ink: #efe8de;
+  --muted: #a59d92;
+  --muted-2: #847d73;
+  --line: #38332d;
+  --line-strong: #4a443c;
+  --edge: #a59d92;
+  --drop: #0c0b0a;
+  --danger: #f08a7e;
+  --card-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03), 0 18px 40px -30px rgba(0, 0, 0, 0.8);
+  --grid-line: rgba(239, 232, 222, 0.06);
+  --stroke: #15130f;
+  --slab-t: #d9d0c4;
+  --slab-l: #b0a596;
+  --slab-r: #958a7b;
+  --plate-t: #3a3530;
+  --plate-l: #2f2b26;
+  --plate-r: #26231f;
+  --foot: rgba(127, 194, 120, 0.12);
 }

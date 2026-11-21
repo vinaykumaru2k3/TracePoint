@@ -18,16 +18,14 @@ export default function Scene({ step }: { step: Step<StackState> }) {
     id: it.id, v: it.v, x: 0, y: 0, z: level(i), w: 2, d: 2, h: BH, labelOn: "front",
     state: hl === it.id ? (mode === "peek" ? "found" : "active") : "default"
   }));
-  const a = -PAD, b = 2 + PAD;
-  const wallBack = [project(a, a, 0), project(b, a, 0), project(b, a, WELL_H), project(a, a, WELL_H)];
-  const wallSide = [project(a, a, 0), project(a, b, 0), project(a, b, WELL_H), project(a, a, WELL_H)];
+  const a = -PAD, b = 2 + PAD, f = 0.35;
+  const foot = [project(a - f, a - f, 0), project(b + f, a - f, 0), project(b + f, b + f, 0), project(a - f, b + f, 0)];
   const note = project(1, 1, WELL_H);
   const topZ = items.length ? level(items.length - 1) + BH / 2 : FLOOR;
 
   return (
-    <IsoScene viewBox={VIEW} label="Isometric stack: blocks pile up inside a well">
-      <polygon className="wall" points={poly(wallBack)} />
-      <polygon className="wall" points={poly(wallSide)} />
+    <IsoScene viewBox={VIEW} label="Isometric stack: blocks pile up on a base">
+      <polygon className="foot" points={poly(foot)} />
       <IsoPlate x={a} y={a} w={b - a} d={b - a} h={FLOOR} />
       <text className="scene-note" x={note.x} y={note.y - 22} textAnchor="middle">push / pop here</text>
       <Blocks blocks={blocks} enter={[0, -70]} leave={[0, -60]} />

@@ -2,7 +2,7 @@ import Blocks, { type BlockSpec } from "../../iso/Blocks";
 import { IsoPlate } from "../../iso/IsoBlock";
 import IsoPointer from "../../iso/IsoPointer";
 import IsoScene from "../../iso/IsoScene";
-import { fitBox } from "../../iso/project";
+import { fitBox, poly, project } from "../../iso/project";
 import type { Step } from "../../engine/types";
 import { QUEUE_CAP, type QueueState } from "./generate";
 
@@ -27,6 +27,7 @@ export default function Scene({ step }: { step: Step<QueueState> }) {
 
   return (
     <IsoScene viewBox={VIEW} label="Isometric circular queue: four slots in a row">
+      <polygon className="foot" points={poly([project(-0.4, -0.4, 0), project(slotX(cap - 1) + 2.4, -0.4, 0), project(slotX(cap - 1) + 2.4, 2.4, 0), project(-0.4, 2.4, 0)])} />
       {Array.from({ length: cap }, (_, k) => <IsoPlate key={k} x={slotX(k)} y={0} w={2} d={2} index={k} state={k === step.state.cell && mode ? "visited" : "default"} />)}
       <Blocks blocks={blocks} enter={[70, 35]} leave={[-70, -35]} />
       {Object.entries(flags).map(([k, names]) => (
