@@ -48,12 +48,13 @@ export function generateMerge({ nums }: NumsInput): Step<SortState>[] {
       auxPtrs: k < tmp.length ? [{ at: k, label: "k" }] : []
     });
     const take = (from: number, rest: boolean) => {
+      const anchor = `ms.${rest ? "rest" : "take"}${from <= m ? "L" : "R"}`;
       const v = a[from];
       tmp[k++] = v;
       t.s.swaps++;
       t.push({
-        kind: "add", op: `take ${v}`, anchors: [rest ? "ms.rest" : "ms.take"],
-        notes: { [rest ? "ms.rest" : "ms.take"]: `tmp[${k - 1}] = ${v}` },
+        kind: "add", op: `take ${v}`, anchors: [anchor],
+        notes: { [anchor]: `tmp[${k - 1}] = ${v}` },
         title: rest ? `Copy the leftover ${v}` : `${v} goes into tmp`,
         idea: rest ? "Once one half runs out, the rest of the other half is already in order." : "The smaller head is the smallest value left in both halves.",
         text: rest ? `One half is empty, so ${v} is copied straight across.` : `${v} is the smaller head, so it is next in the merged run: ${fmt(tmp.slice(0, k))}.`

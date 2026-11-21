@@ -8,10 +8,12 @@ void mergeSort(std::vector<int>& a, int l, int r) {      // @a ms.sig
     std::vector<int> tmp;
     int i = l, j = m + 1;
     while (i <= m && j <= r) {
-        if (a[i] <= a[j]) tmp.push_back(a[i++]);         // @a ms.cmp
-        else tmp.push_back(a[j++]);                      // @a ms.take
+        if (a[i] <= a[j])                                // @a ms.cmp
+            tmp.push_back(a[i++]);                       // @a ms.takeL
+        else
+            tmp.push_back(a[j++]);                       // @a ms.takeR
     }
-    while (i <= m) tmp.push_back(a[i++]);                // @a ms.rest
-    while (j <= r) tmp.push_back(a[j++]);
+    while (i <= m) tmp.push_back(a[i++]);                // @a ms.restL
+    while (j <= r) tmp.push_back(a[j++]);                // @a ms.restR
     for (int k = 0; k < (int)tmp.size(); k++) a[l + k] = tmp[k];  // @a ms.copy
 }

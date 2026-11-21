@@ -7,11 +7,13 @@ class Sort {
         int[] tmp = new int[r - l + 1];
         int i = l, j = m + 1, k = 0;
         while (i <= m && j <= r) {
-            if (a[i] <= a[j]) tmp[k++] = a[i++];          // @a ms.cmp
-            else tmp[k++] = a[j++];                       // @a ms.take
+            if (a[i] <= a[j])                             // @a ms.cmp
+                tmp[k++] = a[i++];                        // @a ms.takeL
+            else
+                tmp[k++] = a[j++];                        // @a ms.takeR
         }
-        while (i <= m) tmp[k++] = a[i++];                 // @a ms.rest
-        while (j <= r) tmp[k++] = a[j++];
+        while (i <= m) tmp[k++] = a[i++];                 // @a ms.restL
+        while (j <= r) tmp[k++] = a[j++];                 // @a ms.restR
         System.arraycopy(tmp, 0, a, l, tmp.length);       // @a ms.copy
     }
 }

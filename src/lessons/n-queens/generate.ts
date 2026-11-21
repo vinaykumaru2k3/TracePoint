@@ -60,14 +60,18 @@ export function generateQueens({ nums }: NumsInput): Step<QueensState>[] {
         idea: "A safe square is a choice, not a commitment. We go to the next row and find out.",
         text: `Nothing attacks row ${row}, column ${c}. Put a queen there${row + 1 < n ? ` and move on to row ${row + 1}` : ""}.`
       }, { row, col: c }));
+      const before = steps.length;
       if (solve(row + 1)) return true;
+      const triedBelow = steps.slice(before).some((x) => x.kind === "add" && x.state.row === row + 1);
       cols.pop();
       steps.push(snap({
         kind: "remove", op: `lift ${row},${c}`,
-        anchors: ["nq.lift"], notes: { "nq.lift": `row ${row + 1} has no safe square, cols = ${fmt(cols)}` },
+        anchors: ["nq.lift"], notes: { "nq.lift": `${triedBelow ? `every queen in row ${row + 1} hit a dead end` : `row ${row + 1} has no safe square`}, cols = ${fmt(cols)}` },
         title: `Dead end: lift ${row},${c}`,
         idea: "Backtrack: undo the most recent choice and try the next option for it.",
-        text: `Every square in row ${row + 1} is attacked with a queen at ${row},${c}. Lift it and try further right in row ${row}.`
+        text: triedBelow
+          ? `Every safe square in row ${row + 1} was tried and led to a dead end, so the queen at ${row},${c} cannot be part of a solution. Lift it and try further right in row ${row}.`
+          : `Every square in row ${row + 1} is attacked with a queen at ${row},${c}. Lift it and try further right in row ${row}.`
       }, { row, col: c, lifted: [row, c] }));
     }
     return false;

@@ -22,4 +22,19 @@ describe("merge-sort generator", () => {
   it("gives two values a full lesson", () => {
     expect(run(lesson, "1 2").length).toBeGreaterThanOrEqual(6);
   });
+  it("highlights the left or right take line for the half the value came from", () => {
+    for (const [f, src] of Object.entries(lesson.code)) {
+      const lines = (src as string).split("\n");
+      const line = (a: string) => lines.find((l: string) => new RegExp(`@a ${a.replace(".", "\\.")}\\b`).test(l)) ?? "";
+      expect(line("ms.takeL"), f).toMatch(/a\[i/);
+      expect(line("ms.takeR"), f).toMatch(/a\[j/);
+      expect(line("ms.restL"), f).toMatch(/a\[i/);
+      expect(line("ms.restR"), f).toMatch(/a\[j/);
+    }
+    const steps = run(lesson, "5 1 4 2 8 3");
+    const takes = steps.filter((s) => s.kind === "add");
+    expect(takes.some((s) => s.anchors.includes("ms.takeL"))).toBe(true);
+    expect(takes.some((s) => s.anchors.includes("ms.takeR"))).toBe(true);
+    expect(takes.some((s) => s.anchors.includes("ms.restL") || s.anchors.includes("ms.restR"))).toBe(true);
+  });
 });
