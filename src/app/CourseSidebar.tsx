@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { CURRICULUM } from "../curriculum";
+import { COURSE, folderName } from "../curriculum";
+import { Icon } from "../design/ui";
 import { DEFAULT_STEP_COUNT, LESSON_BY_ID, LESSONS } from "../lessons";
 import type { Progress } from "../hooks/useProgress";
 
@@ -11,17 +12,21 @@ const doneOf = (id: string, reached: number) => reached >= (DEFAULT_STEP_COUNT[i
 /** The course tree. Lessons that exist link to their first step, the rest are listed as "soon". */
 export default function CourseSidebar({ currentId, currentIdx, progress }: Props) {
   const completed = LESSONS.filter((l) => doneOf(l.id, reachedOf(l.id, progress, currentId, currentIdx))).length;
-  const planned = CURRICULUM.reduce((n, s) => n + s.lessons.length, 0);
+  const planned = COURSE.sections.reduce((n, s) => n + s.lessons.length, 0);
 
   return (
     <nav className="side" aria-label="Course">
-      <div className="side-title">Course <small>{planned} lessons</small></div>
-      {CURRICULUM.map((sec) => {
+      <div className="pane-title">EXPLORER</div>
+      <div className="tree">
+      <details open className="root">
+        <summary><Icon name="folder" size={14} /><span className="sec-name">{COURSE.name}/</span><small>{planned} lessons</small></summary>
+        <div className="root-body">
+      {COURSE.sections.map((sec) => {
         const live = sec.lessons.filter((l) => LESSON_BY_ID[l.id]);
         const open = sec.lessons.some((l) => l.id === currentId);
         return (
           <details className="sec" key={sec.id} open={open} style={{ "--sec": sec.color } as React.CSSProperties}>
-            <summary><i className="folder" aria-hidden="true" /><span className="sec-name" title={sec.name}>{sec.n}. {sec.name}</span><small>{live.length ? `${live.length}/${sec.lessons.length}` : "soon"}</small></summary>
+            <summary><Icon name="folder" size={14} /><span className="sec-name" title={sec.name}>{folderName(sec)}</span><small>{live.length ? `${live.length}/${sec.lessons.length}` : "soon"}</small></summary>
             <ul>
               {sec.lessons.map((l) => {
                 if (!LESSON_BY_ID[l.id]) {
@@ -43,7 +48,10 @@ export default function CourseSidebar({ currentId, currentIdx, progress }: Props
           </details>
         );
       })}
-      <div className="side-foot card">
+        </div>
+      </details>
+      </div>
+      <div className="side-foot">
         <span className="lbl">Progress</span> <b>{completed} / {LESSONS.length}</b> live lessons done
         <div className="bar" role="progressbar" aria-valuemin={0} aria-valuemax={LESSONS.length} aria-valuenow={completed}>
           <i style={{ width: `${(completed / LESSONS.length) * 100}%` }} />
