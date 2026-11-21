@@ -5,7 +5,7 @@ import type { Step } from "../engine/types";
 import type { SortState } from "./sortkit";
 
 /** How far below the array the aux row sits, in grid units. */
-export const AUX_Y = 4.2;
+export const AUX_Y = 6.4;
 
 /** The array as a row; done cells are green and marks override. An optional aux row sits underneath. */
 export default function SortScene({ step }: { step: Step<SortState> }) {
