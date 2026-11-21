@@ -27,10 +27,6 @@ export function Icon({ name, size = 14 }: { name: IconName; size?: number }) {
   );
 }
 
-export function Badge({ children, tone }: { children: ReactNode; tone?: string }) {
-  return <span className="badge" style={tone ? { background: tone } : undefined}>{children}</span>;
-}
-
 export function Kbd({ children }: { children: ReactNode }) {
   return <kbd className="kbd">{children}</kbd>;
 }

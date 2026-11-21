@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { sectionOf } from "../curriculum";
-import { Badge, Icon, Kbd, KindChip, MetricCard } from "../design/ui";
+import { Icon, Kbd, KindChip, MetricCard } from "../design/ui";
 import { usePlayer } from "../engine/usePlayer";
 import type { AnyLesson, MemoryCell } from "../engine/types";
 import { useKeyboard } from "../hooks/useKeyboard";
@@ -90,7 +90,6 @@ function LessonView({ lesson, stepParam, progress, onVisit, courseOpen, onCloseC
   const step = steps[idx];
   const reached = Math.min(last, isDefault ? Math.max(progress[lesson.id] ?? 0, idx) : customMax);
   const sec = sectionOf(lesson.section);
-  const inSec = sec ? sec.lessons.findIndex((l) => l.id === lesson.id) + 1 : 0;
   const label = (i: number) => steps[i].op ?? (i === 0 ? "start" : "recap");
   const railName = (i: number) => steps[i].short ?? label(i);
 
@@ -130,15 +129,13 @@ function LessonView({ lesson, stepParam, progress, onVisit, courseOpen, onCloseC
 
   const head = (
     <header className="lesson-head" key="head">
-      <div className="crumb">{sec ? `${sec.n}. ${sec.name}` : ""}<span aria-hidden="true">/</span>{sec ? `Lesson ${inSec} of ${sec.lessons.length}` : ""}</div>
-      <div className="title-row">
-        <h1>{lesson.title}</h1>
-        <div className="badges">
-          <Badge tone="var(--c-amber)">{lesson.minutes} min</Badge>
-          <Badge tone="var(--c-green)">{lesson.level}</Badge>
-          <Badge tone="var(--c-lav)">{steps.length} steps</Badge>
-        </div>
-      </div>
+      <nav className="crumb" aria-label="Breadcrumb">
+        <span>dsa</span><span className="sep" aria-hidden="true">/</span>
+        {sec && <><span>{sec.id}</span><span className="sep" aria-hidden="true">/</span></>}
+        <span className="cur" aria-current="page">{lesson.id}</span>
+      </nav>
+      <h1>{lesson.title}</h1>
+      <p className="meta">{lesson.minutes} min · {lesson.level} · {steps.length} steps</p>
       <p className="sub">{lesson.subtitle}</p>
     </header>
   );
@@ -226,6 +223,7 @@ function LessonView({ lesson, stepParam, progress, onVisit, courseOpen, onCloseC
 
   const explain = (
     <section className="card explain" aria-label="Explanation" key="explain">
+      <div className="pane-title">TRACE</div>
       <div className="head"><span>{stepOf}</span><KindChip kind={step.kind} /></div>
       <h2>{step.title}</h2>
       <p aria-live="polite">{step.text}</p>

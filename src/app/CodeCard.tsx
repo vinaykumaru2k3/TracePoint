@@ -93,6 +93,7 @@ export default function CodeCard({ lesson, step, idx }: Props) {
   return (
     <section className="card codewrap" aria-label="Code">
       <div className="codetabs">
+        <span className="pane-title-label" aria-hidden="true">CODE</span>
         <div role="tablist" aria-label="Language" ref={tabsRef} onKeyDown={onTabKey}>
           {LANGS.map(({ id, label }) => (
             <button key={id} id={`tab-${id}`} type="button" role="tab" aria-selected={lang === id} tabIndex={lang === id ? 0 : -1} onClick={() => setLang(id)}>{label}</button>

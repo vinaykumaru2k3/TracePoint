@@ -7,7 +7,7 @@ export const LANGS: { id: Lang; label: string }[] = [
   { id: "cpp", label: "C++" }
 ];
 
-/** What a step is about. The badge uses it, and cycle 2 can build "predict the next step" from it. */
+/** What a step is about. The kind chip uses it, and cycle 2 can build "predict the next step" from it. */
 export type StepKind = "problem" | "add" | "remove" | "peek" | "empty" | "check" | "move" | "found" | "recap";
 
 export interface Step<S> {
