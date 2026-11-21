@@ -14,12 +14,25 @@ import fastSlow from "./fast-and-slow-pointers";
 import chaining from "./hash-table-chaining";
 import openAddressing from "./open-addressing";
 import freqMap from "./frequency-map-and-two-sum";
+import callStack from "./call-stack";
+import backtracking from "./backtracking";
+import nQueens from "./n-queens";
+import linearSearch from "./linear-search";
+import binarySearch from "./binary-search";
+import bubbleSort from "./bubble-sort";
+import selectionSort from "./selection-sort";
+import insertionSort from "./insertion-sort";
+import mergeSort from "./merge-sort";
+import quickSort from "./quick-sort";
+import countingSort from "./counting-sort";
 
 /** Playable lessons, in course order. Add a lesson here and it lights up in the course tree. */
 export const LESSONS: AnyLesson[] = [
   bigO, arrays, strings, twoPointers, slidingWindow, prefixSums,
   stack, queue, deque, sll, dll, fastSlow,
-  chaining, openAddressing, freqMap
+  chaining, openAddressing, freqMap,
+  callStack, backtracking, nQueens,
+  linearSearch, binarySearch, bubbleSort, selectionSort, insertionSort, mergeSort, quickSort, countingSort
 ];
 
 export const LESSON_BY_ID: Record<string, AnyLesson> = Object.fromEntries(LESSONS.map((l) => [l.id, l]));
