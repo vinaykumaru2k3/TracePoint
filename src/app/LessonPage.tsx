@@ -71,6 +71,17 @@ function LessonView({ lesson, stepParam, progress, onVisit, courseOpen, onCloseC
     setDraft(text);
   }, [text]);
 
+  /* A new lesson starts at the top of the page on narrow screens, where the page scrolls. */
+  useEffect(() => { if (narrow) window.scrollTo({ top: 0 }); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  /* A Run error is about the input that failed; once the step moves on it is stale. */
+  const seenIdx = useRef(idx);
+  useEffect(() => {
+    if (seenIdx.current === idx) return;
+    seenIdx.current = idx;
+    setError("");
+  }, [idx]);
+
   /* Widening the window brings the in-page course back, so the drawer is done. */
   useEffect(() => { if (!narrow) onCloseCourse(); }, [narrow, onCloseCourse]);
 
@@ -81,6 +92,7 @@ function LessonView({ lesson, stepParam, progress, onVisit, courseOpen, onCloseC
   const sec = sectionOf(lesson.section);
   const inSec = sec ? sec.lessons.findIndex((l) => l.id === lesson.id) + 1 : 0;
   const label = (i: number) => steps[i].op ?? (i === 0 ? "start" : "recap");
+  const railName = (i: number) => steps[i].short ?? label(i);
 
   const run = (raw: string) => {
     const r = lesson.parse(raw);
@@ -90,6 +102,8 @@ function LessonView({ lesson, stepParam, progress, onVisit, courseOpen, onCloseC
     setDraft(raw);
     player.stop();
     navigate(`/${lesson.id}/1${raw === lesson.defaultText ? "" : `?in=${encodeURIComponent(raw)}`}`);
+    /* On one column the input sits below the drawing, so bring the new run into view. */
+    if (narrow) requestAnimationFrame(() => document.getElementById("stage")?.scrollIntoView({ block: "start", behavior: reduced() ? "auto" : "smooth" }));
   };
   /* Checked as you type, shown quietly; the alert is kept for a failed Run. */
   const check = useMemo(() => (draft === text ? null : lesson.parse(draft)), [draft, text, lesson]);
@@ -130,7 +144,7 @@ function LessonView({ lesson, stepParam, progress, onVisit, courseOpen, onCloseC
   );
 
   const stage = (
-    <section className="stagecard" aria-label="Animated diagram" key="stage">
+    <section className="stagecard" id="stage" aria-label="Animated diagram" key="stage">
       <div className="stage">
         <div className="stage-top">
           <div className="metrics" aria-label="Live values">
@@ -178,7 +192,7 @@ function LessonView({ lesson, stepParam, progress, onVisit, courseOpen, onCloseC
           return (
             <li key={i} className={i === idx ? "cur" : i <= reached ? "seen" : ""}>
               <button type="button" aria-current={i === idx ? "step" : undefined} onClick={() => player.jump(i)} title={`Step ${i + 1}: ${label(i)}`} aria-label={`Step ${i + 1}: ${label(i)}${state}`}>
-                <span className="num">{i + 1}</span><span className="name">{label(i)}</span>
+                <span className="num">{i + 1}</span><span className="name">{railName(i)}</span>
               </button>
             </li>
           );
@@ -235,6 +249,12 @@ function LessonView({ lesson, stepParam, progress, onVisit, courseOpen, onCloseC
         <main className="flow-main" aria-label="Lesson">
           {[head, stage, explain, rail, code, form, memory, learn]}
         </main>
+        {/* Back and Next stay under the thumb while the page scrolls. */}
+        <nav className="stepbar" aria-label="Step controls">
+          <button className="btn" type="button" onClick={player.back} disabled={idx === 0} aria-label="Back"><Icon name="left" /></button>
+          <span className="stepbar-at">Step {idx + 1}/{steps.length} · <b>{label(idx)}</b></span>
+          <button className="btn primary" type="button" onClick={player.next}><span>{idx >= last ? "Start over" : "Next"}</span><Icon name={idx >= last ? "replay" : "right"} /></button>
+        </nav>
       </div>
     );
   }
@@ -250,10 +270,10 @@ function LessonView({ lesson, stepParam, progress, onVisit, courseOpen, onCloseC
   );
 }
 
-/** Open on tall screens; folded on short ones so the code box keeps its height. The summary still shows progress. */
+/** Open only on tall screens (1000px and up); folded on short ones so the code box keeps its height. The summary still shows progress. */
 function LearnList({ items }: { items: (readonly [string, boolean])[] }) {
   const done = items.filter(([, ok]) => ok).length;
-  const [open] = useState(() => window.innerHeight >= 860);
+  const [open] = useState(() => window.innerHeight >= 1000);
   return (
     <details className="card learn" open={open}>
       <summary><span className="lbl">You will learn</span><span className="muted">{done} / {items.length}</span></summary>
@@ -274,7 +294,7 @@ function MemoryStrip({ lesson, step }: { lesson: AnyLesson; step: ReturnType<Any
       </div>
       <div className="cells" style={{ gridTemplateColumns: `repeat(${mem.cells.length}, minmax(0, 1fr))` }}>
         {mem.cells.map((c: MemoryCell, i: number) => (
-          <div key={i} className={"cell" + (c.v === null ? " empty" : c.live ? "" : " stale") + (c.act ? " act" : "") + (c.tone ? ` t-${c.tone}` : "")}>
+          <div key={i} className={"cell" + (c.v === null ? " empty" : c.live ? "" : " stale") + (c.act ? " act" + (c.tone ? ` t-${c.tone}` : "") : "")}>
             <div className="box">{c.v === null ? "·" : c.v}</div>
             <div className="idx">{c.tag ?? `[${i}]`}</div>
             <div className="mk">{c.marks.join(" ")}</div>

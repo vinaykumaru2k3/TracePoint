@@ -26,7 +26,7 @@ export default defineLesson<Op[], QueueState>({
   generate: generateQueue,
 
   Scene,
-  legend: [{ cls: "s-active", label: "just offered" }, { cls: "s-found", label: "peeked" }, { cls: "s-default", label: "waiting" }],
+  legend: [{ cls: "s-active", label: "just offered" }, { cls: "s-visited", label: "slot touched" }, { cls: "s-found", label: "peeked" }, { cls: "s-default", label: "waiting" }],
   metrics: ({ state: s }) => [
     { label: "Size", value: s.size },
     { label: "Head", value: s.head },
@@ -40,7 +40,7 @@ export default defineLesson<Op[], QueueState>({
       const marks: string[] = [];
       if (s.size > 0 && i === s.head) marks.push("head");
       if (s.size < s.cap && i === (s.head + s.size) % s.cap) marks.push("next");
-      return { v, live: (i - s.head + s.cap) % s.cap < s.size, act: i === s.cell, marks };
+      return { v, live: (i - s.head + s.cap) % s.cap < s.size, act: i === s.cell, tone: s.mode === "peek" ? "found" : s.mode === "out" ? "visited" : undefined, marks };
     })
   }),
   vars: ({ state: s }) => `head = ${s.head}   size = ${s.size}`,

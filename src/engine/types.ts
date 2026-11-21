@@ -19,6 +19,8 @@ export interface Step<S> {
   idea: string;
   /** The call being made, e.g. "push(4)". Null for problem and recap steps. */
   op: string | null;
+  /** A shorter name for the step rail, when several ops would truncate to the same text. */
+  short?: string;
   /** Anchor names (from the code files) that run in this step. Never line numbers. */
   anchors: string[];
   /** Per-anchor trace text with real values. */
@@ -34,7 +36,12 @@ export interface Metric { label: string; value: string | number }
 
 /** One memory cell. `tag` replaces the default "[i]" label, e.g. a node address "@3".
  *  `tone` colours an active cell like the matching scene state (default amber "active"). */
-export interface MemoryCell { v: number | string | null; live: boolean; act: boolean; marks: string[]; tag?: string; tone?: "active" | "compare" | "found" }
+export type Tone = "active" | "compare" | "found" | "visited";
+/** `tone` colours the cell only when `act` is set; without one an active cell is amber. */
+export interface MemoryCell { v: number | string | null; live: boolean; act: boolean; marks: string[]; tag?: string; tone?: Tone }
+/** The memory tone for a scene state, so a highlighted cell uses the same colour as the drawing. */
+export const toneOf = (state?: string | null): Tone | undefined =>
+  state === "found" || state === "compare" || state === "visited" ? state : undefined;
 export interface MemoryView { title: string; cells: MemoryCell[]; note: string }
 
 export type ParseResult<I> = { ok: true; input: I } | { ok: false; error: string };

@@ -41,6 +41,7 @@ export default function TopNav({ dark, onTheme, onSearch, courseOpen, onCourse }
           <li><i className="swatch s-active" />amber: the thing this step touches</li>
           <li><i className="swatch s-compare" />blue: being compared</li>
           <li><i className="swatch s-found" />green: found or done</li>
+          <li><i className="swatch s-visited" />sand: a slot or node that was just looked at</li>
         </ul>
         <h3>Your own input</h3>
         <p>Type values under the diagram and press Run. Copy link shares that exact run.</p>

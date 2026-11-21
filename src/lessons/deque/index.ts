@@ -47,7 +47,7 @@ export default defineLesson<Op[], DequeState>({
       const marks: string[] = [];
       if (s.size > 0 && i === s.head) marks.push("front");
       if (s.size > 0 && i === (s.head + s.size - 1) % s.cap) marks.push("back");
-      return { v, live: (i - s.head + s.cap) % s.cap < s.size, act: i === s.cell, marks };
+      return { v, live: (i - s.head + s.cap) % s.cap < s.size, act: i === s.cell, tone: s.hl === null && s.mode ? "visited" : undefined, marks };
     })
   }),
   vars: ({ state: s }) => `head = ${s.head}   size = ${s.size}`,

@@ -33,10 +33,10 @@ export default defineLesson<NumsInput, WindowState>({
     { label: "Best", value: s.best ?? "-" },
     { label: "Best starts", value: s.best === null ? "-" : s.bestLo }
   ],
-  memory: ({ state: s }): MemoryView => ({
+  memory: ({ state: s, kind }): MemoryView => ({
     title: "In memory: int[] a",
     note: "The window is just two indexes and a running sum. No sub-array is ever copied.",
-    cells: s.nums.map((v, k) => ({ v, live: k >= s.lo && k <= s.hi, act: k === s.hi, marks: [k === s.lo && s.hi >= 0 ? "lo" : "", k === s.hi ? "hi" : ""].filter(Boolean) }))
+    cells: s.nums.map((v, k) => ({ v, live: k >= s.lo && k <= s.hi, act: k === s.hi, tone: kind === "found" || kind === "recap" ? "found" : undefined, marks: [k === s.lo && s.hi >= 0 ? "lo" : "", k === s.hi ? "hi" : ""].filter(Boolean) }))
   }),
   vars: ({ state: s }) => `sum = ${s.sum}   best = ${s.best ?? "-"}`,
   costs: [["time", "O(n)"], ["extra space", "O(1)"]],
