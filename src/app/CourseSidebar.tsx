@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import { COURSE, folderName } from "../curriculum";
 import { Icon } from "../design/ui";
@@ -46,7 +46,7 @@ export default function CourseSidebar({ currentId, currentIdx, progress, guideId
         const allDone = live.length > 0 && doneHere === live.length;
         const open = sec.id === guideId || sec.lessons.some((l) => l.id === currentId);
         return (
-          <details className="sec" key={sec.id} open={open}>
+          <details className="sec" key={sec.id} open={open} style={{ "--sec": sec.color } as CSSProperties}>
             <summary>
               <Icon name="folder" size={14} /><span className="sec-name" title={sec.name}>{folderName(sec)}</span>
               {!live.length ? <small>soon</small>
