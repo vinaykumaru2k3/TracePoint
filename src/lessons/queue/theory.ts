@@ -9,7 +9,7 @@ const theory: LessonTheory = {
     "The queue keeps an array of `cap` slots, an index `head` for the front item, and a count `size`. Both start at 0.",
     "To enqueue `x`, called `offer` here, check that `size` is below `cap`. Write `x` into slot `(head + size) % cap`, then add 1 to `size`.",
     "The `%` (remainder) makes the index wrap. Past the last slot, the next write lands in slot 0. That ring is called a circular buffer.",
-    "To dequeue, called `poll` here, return null if `size` is 0. Otherwise read `data[head]`, move `head` to `(head + 1) % cap`, and subtract 1 from `size`.",
+    "To dequeue, called `poll` here, return null, meaning no value, if `size` is 0. Otherwise read `data[head]`, move `head` to `(head + 1) % cap`, and subtract 1 from `size`.",
     "To peek, return `data[head]` without changing anything, or null if the queue is empty."
   ],
   ops: [

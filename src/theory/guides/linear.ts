@@ -2,11 +2,11 @@ import type { Guide } from "../types";
 
 const linear: Guide = {
   section: "linear",
-  tagline: "Structures that keep items in a line and let you add or remove them only at chosen places, each in one step.",
+  tagline: "Structures that keep items in a line and let you add or remove them only at chosen places, with each end operation in one step.",
   core: [
     "Stack plates 4, 9 and 2, then take one. You get 2, the last one you put down. Stand people in a line instead, and the first to arrive is served first. Those two rules are the stack and the queue.",
-    "A linear structure keeps its items in a sequence and limits where you may add or remove them. A stack works at one end only. A queue adds at the back and removes at the front. A deque does both at both ends. Because each operation touches only an end, it costs O(1) at any size.",
-    "There are two ways to build the line. An array keeps items side by side, as in [[guide:foundations]]. A linked list stores each item in its own node, which holds a pointer to the next node. Lists never shift items, but reaching the k-th item means following k pointers."
+    "A linear structure keeps its items in a sequence and limits where you may add or remove them. A stack works at one end only. A queue adds at the back and removes at the front. A deque does both at both ends. Because each operation touches only an end, it costs O(1) at any size, or O(1) amortized when an array has to grow.",
+    "There are two ways to build the line. An array keeps items side by side, as in [[guide:foundations]]. A linked list stores each item in its own node, which holds a pointer to the next node. Lists never shift items. But the nodes can sit anywhere in memory, so unlike `a[i]` there is no way to compute where the k-th one is. You must follow k pointers, one at a time."
   ],
   analogy:
     "Picture a train. Each carriage is coupled only to the one behind it. To add a carriage at the front, you couple it on and the rest stay put. To reach the tenth carriage, you walk through the nine before it. A linked list behaves like that train. A stack is a siding with one way in and out. A queue is a tunnel you enter at one end and leave at the other.",
@@ -19,7 +19,7 @@ const linear: Guide = {
     ["LIFO", "Last in, first out. The item added most recently leaves first. A stack is LIFO."],
     ["queue", "A collection where items join at the back, or rear, and leave from the front. A line at a ticket desk is a queue."],
     ["FIFO", "First in, first out. The item that has waited longest leaves first. A queue is FIFO."],
-    ["deque", "Short for double-ended queue, said \"deck\". You can add and remove at both the front and the back."],
+    ["deque", "Short for double-ended queue, said \"deck\". You can add and remove at both the front and the back. It is not the same as dequeue, the queue operation."],
     ["push", "Add an item to the top of a stack. Deques use it for either end, as in `pushFront`."],
     ["pop", "Remove the top item of a stack and return it."],
     ["peek", "Read the next item to leave, the top of a stack or the front of a queue, without removing it."],
@@ -34,7 +34,7 @@ const linear: Guide = {
     ["cycle", "A loop in a linked list: following next pointers brings you back to a node you already passed, so you never reach null."],
     ["circular buffer", "An array used as a ring. After the last slot, the next write goes to slot 0, so a queue never has to shift items."],
     ["amortized", "Averaged over a long run of operations. A rare slow step, such as copying into a bigger array, is spread across many fast ones."],
-    ["hash map", "A table that finds a value by its key in about one step on average. Python's `dict` and Java's `HashMap` are hash maps."],
+    ["hash map", "A table that finds a value by its key, the label you look it up by, in about one step on average. Python's `dict` and Java's `HashMap` are hash maps."],
     ["LRU", "Least recently used. An LRU cache, a small fast store of recent results, throws out the item nobody has touched for longest."]
   ],
   cheat: {
@@ -54,7 +54,7 @@ const linear: Guide = {
     ["Matching brackets such as `([])`, or an undo button.", "Use a stack. The last thing opened, or done, is the first to close, or undo. See [[stack]]."],
     ["Handle items in the order they arrive, or explore level by level.", "Use a queue. See [[queue]]."],
     ["Add and remove at both ends, such as the maximum of a sliding window.", "Use a deque. See [[deque]]."],
-    ["Does a linked list loop, or where is its middle.", "Use fast and slow pointers. See [[fast-and-slow-pointers]]."]
+    ["You must find whether a linked list loops, or where its middle is.", "Use fast and slow pointers. See [[fast-and-slow-pointers]]."]
   ],
   tips: [
     "Check for empty before you pop, peek or dequeue. An empty stack has no top, and the code throws or returns null.",
@@ -67,7 +67,7 @@ const linear: Guide = {
     {
       title: "The browser back button",
       setting: "You open page A, then B, then C. Pressing back should show B, then A.",
-      idea: "The browser pushes each page onto a stack as you leave it. Back pops the top page and shows it.",
+      idea: "The browser pushes each page onto a stack as you leave it. Back pops the top page and shows it. Forward uses a second stack of the pages you backed out of.",
       why: "The page you want is always the one you saw most recently. That is LIFO, and push and pop each cost O(1)."
     },
     {
@@ -80,7 +80,7 @@ const linear: Guide = {
       title: "An LRU cache",
       setting: "A server keeps the 1,000 most recent results in memory. When it is full and a new result arrives, it must drop the least recently used one.",
       idea: "A doubly linked list keeps results in order of use, newest at the head. A hash map, keyed by request, points to each result's node.",
-      why: "The hash map finds the node in O(1) on average. The doubly linked list then moves it to the head, or drops the tail, in O(1)."
+      why: "The hash map finds the node in O(1) on average. The list is doubly linked because the node's `prev` pointer lets it unlink the node from the middle. Moving it to the head then costs O(1). Each node also stores its key, so dropping the tail removes that key from the map too."
     }
   ],
   hooks: {

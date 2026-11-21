@@ -2,10 +2,12 @@ import type { LessonTheory } from "../../theory/types";
 
 const theory: LessonTheory = {
   definition:
-    "Fast and slow pointers walk a linked list at two speeds, with `slow` moving one node per round and `fast` moving two. If the list has a cycle, a loop that never reaches null, they meet.",
+    "Fast and slow pointers walk a linked list, a chain of linked nodes, with `slow` moving one node per round and `fast` moving two. If the list has a cycle, a loop that never reaches the end, they meet.",
   analogy:
     "Think of two runners on a track. On a straight road the faster one pulls ahead for good. On a circular track the faster one laps the slower one and runs up behind them.",
   steps: [
+    "A linked list is a chain of nodes, small objects that each hold a value and a pointer to the next node. See [[singly-linked-list]].",
+    "A pointer is a reference to where another node lives in memory. The last node's pointer is null, meaning it points at nothing.",
     "Start both `slow` and `fast` at `head`, the first node.",
     "Each round, check `fast` and `fast.next`. If either is null, the list ends, so return false.",
     "Move `slow` one node forward, along `next`, the pointer to the following node.",
@@ -13,7 +15,7 @@ const theory: LessonTheory = {
     "If `slow` and `fast` now point at the same node, the list has a cycle, so return true. Otherwise start the next round."
   ],
   ops: [
-    ["cycle check, time", "O(n)", "Once both are in the loop, `fast` gains one node per round, so it catches `slow` within one lap."],
+    ["cycle check, time", "O(n)", "`slow` enters the loop within `n` rounds. Then the gap shrinks by exactly one node per round, so it reaches zero instead of jumping past."],
     ["cycle check, extra space", "O(1)", "Two pointers, and no set of visited nodes."]
   ],
   useWhen: [

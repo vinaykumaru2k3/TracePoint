@@ -2,7 +2,7 @@ import type { LessonTheory } from "../../theory/types";
 
 const theory: LessonTheory = {
   definition:
-    "A deque, short for double-ended queue and said \"deck\", lets you add and remove items at both the front and the back. It can act as a stack or as a queue.",
+    "A deque, short for double-ended queue and said \"deck\", lets you add and remove items at both the front and the back. It can act as a [[stack]] (last in, first out) or as a [[queue]] (first in, first out).",
   analogy:
     "Think of a train carriage with a door at each end. Passengers can board or leave through either door, but nobody climbs in through the middle.",
   steps: [

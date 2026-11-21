@@ -8,14 +8,14 @@ const theory: LessonTheory = {
   steps: [
     "Each node holds a value, a `next` pointer and a `prev` pointer. A pointer is a reference to where another node lives, and null means it points at nothing.",
     "The first node's `prev` is null and the last node's `next` is null.",
-    "To add at the front, set the new node's `next` to `head` and the old head's `prev` to the new node. Then move `head`.",
+    "To add at the front, set the new node's `next` to `head` and the old head's `prev` to the new node. Then move `head`. If the list was empty, `tail` points at the new node too.",
     "To add at the back, do the same with `tail`, swapping the roles of `prev` and `next`.",
     "To remove at the back, move `tail` to `tail.prev`, then set the new tail's `next` to null. No walk from `head` is needed.",
     "Removing the only node sets both `head` and `tail` to null. Removing from an empty list throws."
   ],
   ops: [
-    ["`addFirst(x)`", "O(1)", "Up to four pointer writes."],
-    ["`addLast(x)`", "O(1)", "Up to four pointer writes."],
+    ["`addFirst(x)`", "O(1)", "Three pointer writes."],
+    ["`addLast(x)`", "O(1)", "Three pointer writes."],
     ["`removeFirst()`", "O(1)", "Moves `head`, then clears the new head's `prev`."],
     ["`removeLast()`", "O(1)", "Uses `tail.prev`, so there is no walk."],
     ["delete a node you hold", "O(1)", "Its `prev` and `next` give both neighbours. This lesson does not trace it."]
@@ -29,7 +29,7 @@ const theory: LessonTheory = {
     "You read items by position. Reaching the k-th node still costs O(k)."
   ],
   example: [
-    "`addLast 5` and `addLast 8` build null ⇄ 5 ⇄ 8 ⇄ null. Then `addFirst 3` gives 3 ⇄ 5 ⇄ 8.",
+    "`addLast 5` and `addLast 8` build null ← 5 ⇄ 8 → null. Then `addFirst 3` gives 3 ⇄ 5 ⇄ 8.",
     "`removeLast` moves `tail` from 8 to `8.prev`, which is 5. Then `5.next` becomes null, so 8 is gone.",
     "`removeFirst` moves `head` from 3 to 5 and sets `5.prev` to null. The list is the single node 5.",
     "`addFirst 1` links 1 and 5 both ways, giving 1 ⇄ 5."

@@ -2,7 +2,7 @@ import type { LessonTheory } from "../../theory/types";
 
 const theory: LessonTheory = {
   definition:
-    "A stack is a collection where you add and remove items at one end only, called the top. The last item pushed is the first one popped, which is called LIFO (last in, first out).",
+    "A stack is a collection where you add and remove items at one end only, called the top. The last item you add (push) is the first one you remove (pop), which is called LIFO (last in, first out).",
   analogy:
     "Think of a pile of plates in a kitchen. You put a clean plate on top, and you take the top plate when you need one. The plate at the bottom waited longest, but it comes out last.",
   steps: [
@@ -20,7 +20,7 @@ const theory: LessonTheory = {
   useWhen: [
     "The newest item must be handled first, such as an undo history.",
     "You match pairs that nest, such as `(` with `)` in `(a[b])`.",
-    "You need to come back to where you were, as a function call does when it returns."
+    "You need to come back to where you were, as a function call does when it returns. See [[call-stack]]."
   ],
   avoidWhen: [
     "Items must leave in the order they arrived. Use a [[queue]] instead.",
@@ -35,7 +35,7 @@ const theory: LessonTheory = {
   ],
   pitfalls: [
     "Popping or peeking an empty stack. Check that it is not empty first.",
-    "Pushing onto a full fixed array. Check the capacity, or use a dynamic array that grows by copying, so push is O(1) amortized, meaning on average.",
+    "Pushing onto a full fixed array. Check the capacity, or use a dynamic array that grows by copying, so push is O(1) amortized. That means the rare copy is spread across many cheap pushes, so a long run averages O(1) each.",
     "Treating stale slots as live. Values above `top` are leftovers, not part of the stack."
   ]
 };
