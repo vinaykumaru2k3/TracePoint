@@ -26,4 +26,10 @@ export const CURRICULUM: Section[] = [
     L("Bit manipulation"), L("Greedy intervals"), L("Segment tree")] }
 ];
 
+/** The single root folder the explorer renders. */
+export const COURSE = { id: "dsa", name: "DSA", sections: CURRICULUM } as const;
+
+/** Explorer folder label for a section, e.g. "01-foundations/". */
+export const folderName = (sec: Pick<Section, "n" | "id">) => `${sec.n}-${sec.id}/`;
+
 export const sectionOf = (id: string) => CURRICULUM.find((s) => s.id === id);

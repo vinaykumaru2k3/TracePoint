@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { sectionOf } from "../curriculum";
-import { Badge, Icon, Kbd, KindChip, MetricCard } from "../design/ui";
+import { Icon, Kbd, KindChip, MetricCard } from "../design/ui";
 import { usePlayer } from "../engine/usePlayer";
 import type { AnyLesson, MemoryCell } from "../engine/types";
 import { useKeyboard } from "../hooks/useKeyboard";
@@ -90,8 +90,8 @@ function LessonView({ lesson, stepParam, progress, onVisit, courseOpen, onCloseC
   const step = steps[idx];
   const reached = Math.min(last, isDefault ? Math.max(progress[lesson.id] ?? 0, idx) : customMax);
   const sec = sectionOf(lesson.section);
-  const inSec = sec ? sec.lessons.findIndex((l) => l.id === lesson.id) + 1 : 0;
   const label = (i: number) => steps[i].op ?? (i === 0 ? "start" : "recap");
+  const nn = (i: number) => String(i + 1).padStart(steps.length > 99 ? 3 : 2, "0");
   const railName = (i: number) => steps[i].short ?? label(i);
 
   const run = (raw: string) => {
@@ -130,15 +130,13 @@ function LessonView({ lesson, stepParam, progress, onVisit, courseOpen, onCloseC
 
   const head = (
     <header className="lesson-head" key="head">
-      <div className="crumb">{sec ? `${sec.n}. ${sec.name}` : ""}<span aria-hidden="true">/</span>{sec ? `Lesson ${inSec} of ${sec.lessons.length}` : ""}</div>
-      <div className="title-row">
-        <h1>{lesson.title}</h1>
-        <div className="badges">
-          <Badge tone="var(--c-amber)">{lesson.minutes} min</Badge>
-          <Badge tone="var(--c-green)">{lesson.level}</Badge>
-          <Badge tone="var(--c-lav)">{steps.length} steps</Badge>
-        </div>
-      </div>
+      <nav className="crumb" aria-label="Breadcrumb">
+        <span>dsa</span><span className="sep" aria-hidden="true">/</span>
+        {sec && <><span>{sec.id}</span><span className="sep" aria-hidden="true">/</span></>}
+        <span className="cur" aria-current="page">{lesson.id}</span>
+      </nav>
+      <h1>{lesson.title}</h1>
+      <p className="meta">{lesson.minutes} min · {lesson.level} · {steps.length} steps</p>
       <p className="sub">{lesson.subtitle}</p>
     </header>
   );
@@ -180,19 +178,23 @@ function LessonView({ lesson, stepParam, progress, onVisit, courseOpen, onCloseC
     </section>
   );
 
+  /* The timeline: one stop per step on a track; the track is filled up to the playhead (the current step). */
   const rail = (
     <div className="rail-wrap" key="rail">
       <div className="rail-head">
-        <span className="lbl">In this lesson</span>
+        <span className="lbl">Timeline</span>
         <span className="muted">{stepOf} · <b>{label(idx)}</b></span>
       </div>
-      <ol className="rail" ref={railRef}>
+      <ol className="rail" ref={railRef} aria-label="Steps">
         {steps.map((_, i) => {
-          const state = i === idx ? "" : i <= reached ? ", seen" : "";
+          const cls = i === idx ? "cur" : i < idx ? "past" : i <= reached ? "seen" : "";
+          const state = i < idx ? ", done" : i > idx && i <= reached ? ", seen" : "";
           return (
-            <li key={i} className={i === idx ? "cur" : i <= reached ? "seen" : ""}>
+            <li key={i} className={cls}>
               <button type="button" aria-current={i === idx ? "step" : undefined} onClick={() => player.jump(i)} title={`Step ${i + 1}: ${label(i)}`} aria-label={`Step ${i + 1}: ${label(i)}${state}`}>
-                <span className="num">{i + 1}</span><span className="name">{railName(i)}</span>
+                <span className="ix">{nn(i)}</span>
+                <span className="node" aria-hidden="true" />
+                <span className="name">{railName(i)}</span>
               </button>
             </li>
           );
@@ -226,10 +228,11 @@ function LessonView({ lesson, stepParam, progress, onVisit, courseOpen, onCloseC
 
   const explain = (
     <section className="card explain" aria-label="Explanation" key="explain">
-      <div className="head"><span>{stepOf}</span><KindChip kind={step.kind} /></div>
+      <div className="pane-title" aria-hidden="true">TRACE</div>
+      <div className="head"><span className="stephead"><b>#{nn(idx)}</b>{" "}{label(idx)}</span><KindChip kind={step.kind} /></div>
       <h2>{step.title}</h2>
       <p aria-live="polite">{step.text}</p>
-      <div className="idea"><i aria-hidden="true"><Icon name="spark" size={13} /></i><div><small>Key idea</small>{step.idea}</div></div>
+      <div className="idea"><small>watch</small><div>{step.idea}</div></div>
       <div className="nav">
         <button className="btn" type="button" onClick={player.back} disabled={idx === 0}><Icon name="left" />Back</button>
         <button className="btn primary" type="button" onClick={player.next}><span>{idx >= last ? "Start over" : `Next: ${label(idx + 1)}`}</span><Icon name={idx >= last ? "replay" : "right"} /></button>
@@ -276,9 +279,9 @@ function LearnList({ items }: { items: (readonly [string, boolean])[] }) {
   const [open] = useState(() => window.innerHeight >= 1000);
   return (
     <details className="card learn" open={open}>
-      <summary><span className="lbl">You will learn</span><span className="muted">{done} / {items.length}</span></summary>
+      <summary>Checkpoints · {done}/{items.length} hit</summary>
       <ul>
-        {items.map(([t, ok]) => <li key={t} className={ok ? "ok" : ""}>{t}<span className="sr">{ok ? ", done" : ""}</span></li>)}
+        {items.map(([t, ok]) => <li key={t} className={ok ? "ok" : ""}><span className="mk" aria-hidden="true">{ok && <Icon name="check" size={10} />}</span><span>{t}</span><span className="sr">{ok ? ", done" : ""}</span></li>)}
       </ul>
     </details>
   );

@@ -13,7 +13,9 @@ const PATHS = {
   spark: "M8 2v3M8 11v3M2 8h3M11 8h3M8 5.5 9 7l1.5 1L9 9l-1 1.5L7 9 5.5 8 7 7z",
   course: "M2.5 4h11M2.5 8h11M2.5 12h7",
   close: "M4 4l8 8M12 4l-8 8",
+  folder: "M2 4.5a1 1 0 0 1 1-1h3.2l1.5 1.7H13a1 1 0 0 1 1 1V11.5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z",
   help: "M8 14.5a6.5 6.5 0 1 0 0-13 6.5 6.5 0 0 0 0 13zM6.2 6.3a1.9 1.9 0 1 1 2.6 1.8c-.5.2-.8.6-.8 1.1v.4M8 11.6v.1",
+  check: "M3.5 8.4 6.6 11.5 12.5 4.8",
   link: "M6.8 9.2a2.6 2.6 0 0 0 3.7 0l2.2-2.2a2.6 2.6 0 0 0-3.7-3.7l-.6.6M9.2 6.8a2.6 2.6 0 0 0-3.7 0L3.3 9a2.6 2.6 0 0 0 3.7 3.7l.6-.6"
 } as const;
 export type IconName = keyof typeof PATHS;
@@ -25,10 +27,6 @@ export function Icon({ name, size = 14 }: { name: IconName; size?: number }) {
       <path d={PATHS[name]} fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
-}
-
-export function Badge({ children, tone }: { children: ReactNode; tone?: string }) {
-  return <span className="badge" style={tone ? { background: tone } : undefined}>{children}</span>;
 }
 
 export function Kbd({ children }: { children: ReactNode }) {

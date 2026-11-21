@@ -10,7 +10,7 @@ export default function TopNav({ dark, onTheme, onSearch, courseOpen, onCourse }
       <button className="icon-btn course-btn" type="button" onClick={onCourse} aria-expanded={courseOpen} aria-controls="course-drawer" aria-label="Course">
         <Icon name="course" size={16} />
       </button>
-      <Link to={`/${DEFAULT_LESSON}/1`} className="brand" aria-label="Tracepoint home"><i aria-hidden="true" />Tracepoint</Link>
+      <Link to={`/${DEFAULT_LESSON}/1`} className="brand" aria-label="Tracepoint home"><i aria-hidden="true" />tracepoint</Link>
       <nav className="tabs" aria-label="Sections">
         <span className="tab on" aria-current="page">Learn</span>
         <span className="tab soon" aria-disabled="true">Practice<small>soon</small></span>
