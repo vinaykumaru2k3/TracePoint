@@ -14,8 +14,8 @@ const theory: LessonTheory = {
     "Check before you store. Then `x` is only compared with earlier values, so it never pairs with itself."
   ],
   ops: [
-    ["count", "O(n) time", "One pass, with one O(1) average map update per value."],
-    ["two-sum", "O(n) time, O(n) space", "One lookup and one store per value. `seen` may end up holding every value."],
+    ["count", "O(n) average time", "One pass, with one O(1) average map update per value. O(n²) worst if every key collides."],
+    ["two-sum", "O(n) average time, O(n) space", "One lookup and one store per value. `seen` may end up holding every value."],
     ["brute force two-sum", "O(n²) time, O(1) space", "Checking every pair means about n²/2 sums, with no map."]
   ],
   useWhen: [
@@ -25,7 +25,7 @@ const theory: LessonTheory = {
   ],
   avoidWhen: [
     "Memory is very tight. The map can grow to one entry per value.",
-    "The array is already sorted. Two pointers from both ends find a pair in O(n) time and O(1) space. See [[two-pointers]]."
+    "The array is already sorted. Two pointers from both ends find a pair in O(n) time and O(1) space, with no hashing. See [[two-pointers]]."
   ],
   example: [
     "Take `[3, 5, 1, 5, 8, 4]` with target 9. Counting gives `{3: 1, 5: 2, 1: 1, 8: 1, 4: 1}`, so 5 appears twice.",

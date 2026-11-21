@@ -2,12 +2,12 @@ import type { LessonTheory } from "../../theory/types";
 
 const theory: LessonTheory = {
   definition:
-    "A hash table with chaining is an array of buckets, where each bucket holds a short list, its chain, of the keys that hash there. A hash function turns each key into a bucket number, so a lookup scans one chain instead of every key.",
+    "A hash table with chaining is an array of buckets, where each bucket holds a short list, its chain, of the keys that land there. A hash function turns each key into a bucket number, so a lookup scans one chain instead of every key.",
   analogy:
     "Think of a wall of mail slots sorted by the last digit of a flat number. To find mail for flat 27, you go straight to slot 7. Several flats share that slot, so you leaf through the few letters in it. You never touch the other slots.",
   steps: [
     "A key is the thing you store or look up. Here the table is a set, a collection that holds each key once, and the keys are numbers.",
-    "The table is an array of 5 buckets, slots that each hold a chain. A chain is a linked list: nodes, small objects that each hold a key and a pointer to the next node. See [[singly-linked-list]].",
+    "The table is an array of 5 buckets, slots that each hold a chain. A chain is a linked list: nodes, small objects that each hold a key and a pointer, the address of the next node. See [[singly-linked-list]].",
     "To place a key, hash it with `key % 5`, the remainder after dividing by 5. That number is the key's bucket. `12 % 5` is 2, so 12 goes in bucket 2.",
     "Two keys that land in the same bucket are a collision. Both stay in that bucket's chain, one after the other.",
     "To add, scan the bucket's chain. If the key is there, return false, because a set keeps one copy. Otherwise append it and return true.",
@@ -18,7 +18,7 @@ const theory: LessonTheory = {
     ["`add(k)`", "O(1) average, O(n) worst", "Average means typical inputs, with keys spread across buckets. The worst case is every key in one chain, so you scan them all."],
     ["`contains(k)`", "O(1) average, O(n) worst", "A miss scans the whole chain, which stays short while keys are spread out."],
     ["`remove(k)`", "O(1) average, O(n) worst", "Find the node in its chain, then unlink it. Other buckets are untouched."],
-    ["resize", "O(n) once, O(1) amortized per add", "Every key is hashed again into a bigger array. It is rare, so its cost spreads across many adds."]
+    ["resize", "O(n) once, O(1) amortized per add", "Real tables double the array and hash every key again. Doubling makes this rare, so averaged over many adds (amortized) it costs O(1) each."]
   ],
   useWhen: [
     "You need to ask \"is this key here?\" many times, and fast. A list would scan every key each time.",

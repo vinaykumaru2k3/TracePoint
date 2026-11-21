@@ -4,7 +4,7 @@ const hashing: Guide = {
   section: "hashing",
   tagline: "How a hash function turns a key into an array index, so you can store and find items in about one step on average.",
   core: [
-    "Say you store the numbers 12, 7 and 3, and later ask whether 7 is there. Scanning a list checks every item. Instead, compute `7 % 5 = 2` and look only in slot 2 of an array. The question costs one calculation and a short look, however many numbers you stored.",
+    "Say you store the numbers 12, 7 and 3, and later ask whether 7 is there. Scanning a list checks every item. Instead, compute `7 % 5 = 2` and look only in slot 2 of an array. The question costs one calculation and a short look on average, however many numbers you stored, as long as the table grows as it fills.",
     "That calculation is a hash function. It turns a key, the thing you look up, into a bucket number, an index into an array. A set stores keys only. A map stores a value with each key, such as a name with a phone number. Both are built this way.",
     "Two keys can land in the same bucket, as 12 and 7 do with `% 5`. That is a collision. Chaining keeps a short list in each bucket. Open addressing puts the key in the next free slot. While buckets stay short, insert, lookup and delete cost O(1) on average. If every key collides, they cost O(n)."
   ],
@@ -38,8 +38,8 @@ const hashing: Guide = {
     rows: [
       ["Insert, lookup, delete", "O(1) average, O(n) worst", "O(1)", "One hash, then a short bucket. The worst case is every key in one bucket, so you scan them all."],
       ["Resize (rehash)", "O(n) once, O(1) amortized per insert", "O(n)", "Every key moves to the new array. Doubling the size makes resizes rare, so the cost spreads across many inserts."],
-      ["Count frequencies", "O(n)", "O(k) for `k` distinct values", "One pass over the input, with one O(1) average map update per item."],
-      ["Two-sum with a map", "O(n)", "O(n)", "One pass and one lookup per item. Checking every pair instead costs O(n²) time."]
+      ["Count frequencies", "O(n) average", "O(k) for `k` distinct values", "One pass over the input, with one O(1) average map update per item. O(n²) worst if every key collides."],
+      ["Two-sum with a map", "O(n) average", "O(n)", "One pass and one lookup per item. Checking every pair instead costs O(n²) time."]
     ]
   },
   patterns: [
@@ -65,13 +65,13 @@ const hashing: Guide = {
       title: "Caching a slow lookup",
       setting: "A weather app asks a slow server for each city's forecast. Many people ask about the same few cities.",
       idea: "A map from city name to forecast keeps each answer once it arrives. A later request checks the map before calling the server.",
-      why: "A map hit costs O(1) on average, far less than a trip to the server. The [[guide:linear|LRU cache]] adds a list to drop old answers."
+      why: "A map hit costs O(1) on average, far less than a trip to the server. The [[guide:linear|LRU cache]], which drops the answer unused for longest, adds a list to do that."
     },
     {
       title: "Counting word frequency in a text",
       setting: "You want the ten most common words in a book of 100,000 words.",
       idea: "Walk the text once. For each word, add 1 to its count in a map from word to count.",
-      why: "Each update is O(1) on average, so the whole count is O(n). Comparing every word with every other word would cost O(n²)."
+      why: "Each update is O(1) on average, so the whole count is O(n) on average. Comparing every word with every other word would cost O(n²)."
     }
   ],
   hooks: {
