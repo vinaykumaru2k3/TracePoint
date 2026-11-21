@@ -71,6 +71,13 @@ The guide and theory pages are reading surfaces inside the existing debugger she
 - The cheat sheet is the one table that gets `--surface-2` row striping.
 - Colour comes from tokens only, and no unicode glyph is used as an icon.
 
+**Folder colours.** Each explorer folder has its own hue, one per section, so the course reads as ten distinct topics at a glance:
+- The folder icon is filled with the section's hue, and its outline stays ink.
+- The open folder's nested list gets a 1px indent guide in the same hue.
+- The guide page's crumb shows a small swatch of it.
+
+The hues are tokens `--sec-01` … `--sec-10`, with light and dark values. They are muted fills in the slab family, so they are decorative and never carry text; the ink outline and the label hold contrast. This is the one place colour marks identity instead of state, and CLAUDE.md's design rules say so.
+
 The explorer's `README.md` entry uses a document icon. When the current page is a guide, its entry shows the 2px signal bar. Below 1120px the guide is one column, the same as lessons.
 
 ## Out of scope for now

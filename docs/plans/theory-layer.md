@@ -193,6 +193,29 @@ Content each piece must state correctly. Wording is the implementer's, under the
 - [ ] **Step 5: Check in the browser** at `#/guide/foundations`: desktop, then 375px wide, light and dark. Expected: no horizontal page scroll, and the table scrolls in its wrapper.
 - [ ] **Step 6: Commit** "theory: guide page, README entries, home and search".
 
+### Task 4b: Folder colours
+
+**Files:** `src/design/tokens.css`, `src/curriculum.ts`, `src/app/CourseSidebar.tsx`, `src/app/GuidePage.tsx` (crumb swatch), `src/app.css`, `src/app/sidebar.test.tsx` (create, or extend an existing sidebar test)
+
+**Interfaces:**
+- Produces:
+  - Tokens `--sec-01` … `--sec-10` in `tokens.css`, each with a dark value in both dark blocks (the `prefers-color-scheme` block and the `data-theme="dark"` block).
+  - The ten hues are distinct from each other, warm-leaning and muted, and sit in the slab family.
+  - `Section.color` in `curriculum.ts` becomes `var(--sec-NN)`, using the section's own `n`, so all ten differ.
+  - Each folder `<details className="sec">` carries `style={{ "--sec": sec.color }}`.
+  - CSS fills the folder icon's path with `var(--sec)` and keeps the stroke at `currentColor`. The `ul` inside an open folder gets a `border-left: 1px solid var(--sec)` indent guide.
+  - The `GuidePage` crumb gets a 8×8 `--radius`-rounded swatch in the section's hue, `aria-hidden`.
+
+- [ ] **Step 1: Write the failing tests:**
+  - Every `CURRICULUM` section's `color` matches `/^var\(--sec-\d\d\)$/`, and all ten values are unique.
+  - `tokens.css`, imported `?raw`, defines `--sec-01` … `--sec-10` at least three times each: light, the dark media block and the `data-theme` dark block.
+  - The `CourseSidebar` markup contains `--sec:var(--sec-01)` on the foundations folder.
+- [ ] **Step 2: Run.** Expected: FAIL.
+- [ ] **Step 3: Implement.** Also update CLAUDE.md's design rules: folder hues are the one identity colour, decorative fills only, never text.
+- [ ] **Step 4: Run the test command.** Expected: PASS.
+- [ ] **Step 5: Check in the browser.** Look at the explorer in light and dark. Expected: ten distinguishable folder fills. Folder labels keep 4.5:1 contrast, and the icon outline reads on both themes.
+- [ ] **Step 6: Commit** "explorer: colour-coded folders".
+
 ### Task 5: Lesson theory tab
 
 **Files:**
