@@ -21,6 +21,7 @@ import linearSearch from "./linear-search";
 import binarySearch from "./binary-search";
 import bubbleSort from "./bubble-sort";
 import selectionSort from "./selection-sort";
+import insertionSort from "./insertion-sort";
 
 /** Playable lessons, in course order. Add a lesson here and it lights up in the course tree. */
 export const LESSONS: AnyLesson[] = [
@@ -28,7 +29,7 @@ export const LESSONS: AnyLesson[] = [
   stack, queue, deque, sll, dll, fastSlow,
   chaining, openAddressing, freqMap,
   callStack, backtracking, nQueens,
-  linearSearch, binarySearch, bubbleSort, selectionSort
+  linearSearch, binarySearch, bubbleSort, selectionSort, insertionSort
 ];
 
 export const LESSON_BY_ID: Record<string, AnyLesson> = Object.fromEntries(LESSONS.map((l) => [l.id, l]));
