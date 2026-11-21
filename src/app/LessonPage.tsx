@@ -83,8 +83,12 @@ function LessonView({ lesson, stepParam, progress, onVisit }: Props & { lesson: 
                 {lesson.metrics(step).map((m: { label: string; value: string | number }) => <MetricCard key={m.label} {...m} />)}
               </div>
               <div className="stage-ctl">
-                <button className="btn sm" onClick={player.reset}>Reset</button>
-                <button className="btn sm" onClick={player.toggle}>{player.playing ? "Pause" : idx === last ? "Replay" : "Play"}</button>
+                <button className="btn sm" onClick={player.reset} disabled={idx === 0}>Reset</button>
+                <button className="btn sm speed" onClick={player.cycleSpeed} aria-label={`Speed ${player.speed} times, change`}>{player.speed}×</button>
+                <button className="btn primary play" onClick={player.toggle} aria-pressed={player.playing}>
+                  <span aria-hidden="true">{player.playing ? "❚❚" : idx === last ? "↺" : "▶"}</span>
+                  {player.playing ? "Pause" : idx === last ? "Replay" : idx === 0 ? "Play all" : "Play"}
+                </button>
               </div>
             </div>
             {step.op && (
@@ -94,6 +98,7 @@ function LessonView({ lesson, stepParam, progress, onVisit }: Props & { lesson: 
                 {step.retNote && <em>{step.retNote}</em>}
               </div>
             )}
+            {player.playing && <div className="tick" key={idx} style={{ animationDuration: `${player.ms}ms` }} aria-hidden="true" />}
             <div className="legend" aria-hidden="true">
               {lesson.legend.map((l: { cls: string; label: string }) => <span key={l.label}><i className={`swatch ${l.cls}`} />{l.label}</span>)}
             </div>

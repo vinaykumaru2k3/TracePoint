@@ -93,7 +93,13 @@ a { color: inherit; text-decoration: none; }
 .stage-top { position: absolute; left: 10px; right: 10px; top: 10px; display: flex; align-items: flex-start; gap: 10px; }
 .metrics { display: flex; gap: 6px; flex-wrap: wrap; }
 .metrics .metric { min-width: 86px; }
-.stage-ctl { margin-left: auto; display: flex; gap: 6px; }
+.stage-ctl { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+.stage-ctl .speed { min-width: 44px; font-variant-numeric: tabular-nums; }
+.stage-ctl .play { padding: 5px 14px; gap: 8px; justify-content: center; }
+.stage-ctl .play span { font-size: 10px; }
+/* countdown to the next step while playing */
+.tick { position: absolute; left: 0; bottom: 0; height: 3px; width: 100%; background: var(--c-green-3); transform-origin: left; animation: tick linear both; }
+@keyframes tick { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 .legend { position: absolute; left: 12px; bottom: 10px; display: flex; gap: 14px; font-size: 11px; color: var(--muted); }
 .legend span { display: inline-flex; align-items: center; gap: 6px; }
 .swatch { width: 10px; height: 10px; border: 1px solid var(--stroke); border-radius: 50%; background: var(--top); }
@@ -241,6 +247,7 @@ a { color: inherit; text-decoration: none; }
 @media (prefers-reduced-motion: reduce) {
   .box, .ptr, .bar i, .btn, .ln { transition: none; }
   .enter { animation: none; }
+  .tick { display: none; }
   .leaving { display: none; }
 }
 
