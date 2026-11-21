@@ -76,7 +76,8 @@ export default function IsoScene({ viewBox, label, children }: Props) {
           <defs>
             {/* One tile of the 2:1 grid in scene units, so the floor pans and zooms with the camera. */}
             <pattern id={`grid-${id}`} width={2 * U} height={U} patternUnits="userSpaceOnUse">
-              <circle cx={0} cy={0} r={1.2} />
+              <circle cx={0} cy={0} r={1.6} />
+              <circle cx={U} cy={U / 2} r={1.6} />
             </pattern>
             <radialGradient id={`fade-${id}`} cx="0.5" cy="0.55" r="0.62">
               <stop offset="0.45" stopColor="#fff" />
