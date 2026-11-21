@@ -154,20 +154,15 @@ a { color: inherit; text-decoration: none; }
 .rail-wrap { display: grid; gap: 6px; min-width: 0; }
 .rail-head { display: flex; justify-content: space-between; gap: 12px; font-size: 12px; }
 .rail-head b { color: var(--ink); font-weight: 600; }
-.rail { position: relative; list-style: none; margin: 0; padding: 0 0 6px; display: flex; overflow-x: auto; scroll-snap-type: inline proximity; scrollbar-width: thin; overscroll-behavior-inline: contain; }
-.rail li { flex: 1 0 36px; min-width: 36px; position: relative; display: flex; justify-content: center; scroll-snap-align: center; container-type: inline-size; }
-/* the connector sits behind the circles; the stretch already walked turns green */
-.rail li + li::before { content: ""; position: absolute; z-index: 0; top: 13px; right: 50%; width: 100%; height: 2px; border-radius: 2px; background: var(--line); }
-.rail li.seen + li.seen::before, .rail li.seen + li.cur::before, .rail li.cur + li.seen::before { background: var(--c-green-3); }
-.rail button { position: relative; z-index: 1; display: grid; justify-items: center; gap: 4px; min-width: 0; max-width: 100%; padding: 0 2px; border: 0; background: none; cursor: pointer; color: var(--muted); }
-.rail .num { width: 28px; height: 28px; display: grid; place-items: center; border: 1px solid var(--line-strong); border-radius: 50%; background: var(--surface); font-size: 11px; font-weight: 600; transition: background 0.2s, border-color 0.2s; }
-.rail .name { font-size: 11px; white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
-@container (max-width: 64px) { .rail .name { display: none; } }
-.rail li.seen .num { border-color: var(--c-green-3); background: color-mix(in oklab, var(--c-green-3) 22%, var(--surface)); color: var(--ink); }
-.rail li.cur .num { border-color: var(--inv-bg); background: var(--inv-bg); color: var(--inv-fg); font-weight: 600; }
-.rail li.cur .name { color: var(--ink); font-weight: 600; }
-.rail button:hover .num { border-color: var(--edge); }
-.rail button:hover .name { color: var(--ink); }
+.rail { position: relative; list-style: none; margin: 0; padding: 0 0 6px; display: flex; gap: 2px; overflow-x: auto; scroll-snap-type: inline proximity; scrollbar-width: thin; overscroll-behavior-inline: contain; }
+.rail li { flex: none; position: relative; scroll-snap-align: center; }
+.rail button { display: flex; align-items: center; gap: 6px; padding: 5px 9px; border: 1px solid transparent; border-radius: var(--radius); background: none; cursor: pointer; color: var(--muted); font-family: var(--mono); font-size: 11px; white-space: nowrap; }
+.rail .ix { display: inline-flex; align-items: center; gap: 5px; font-weight: 500; }
+.rail .name { max-width: 14ch; overflow: hidden; text-overflow: ellipsis; }
+.rail li.seen button { color: var(--ink); }
+.rail li.cur button { background: var(--inv-bg); color: var(--inv-fg); border-color: var(--inv-bg); }
+.rail li.cur .ix::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--signal); flex: none; }
+.rail li:not(.cur) button:hover { background: var(--surface-2); border-color: var(--line); color: var(--ink); }
 
 .run { display: grid; gap: 6px; }
 .run label { font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }
@@ -207,10 +202,11 @@ a { color: inherit; text-decoration: none; }
 .explain .head { display: flex; align-items: center; justify-content: space-between; font-family: var(--mono); font-size: 11px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
 .explain h2 { font-size: 17px; line-height: 1.3; font-weight: 600; }
 .explain p { color: var(--ink); }
-/* key idea: an icon tile and a label, no box of its own inside the card */
-.idea { display: flex; gap: 10px; padding-top: 10px; border-top: 1px solid var(--line); font-size: 12px; }
-.idea > i { width: 24px; height: 24px; flex: none; display: grid; place-items: center; border: 1px solid var(--edge); border-radius: 6px; background: var(--c-lav); color: var(--on-c); }
-.idea small { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+/* key idea: a watch block, a mono label and a 2px left rule */
+.idea { padding-left: 12px; border-left: 2px solid var(--line-strong); font-size: 12px; }
+.idea small { display: block; margin-bottom: 2px; font-family: var(--mono); font-size: 11px; font-weight: 500; color: var(--muted); letter-spacing: 0.04em; }
+.explain .stephead { font-size: 12px; text-transform: none; letter-spacing: 0; color: var(--ink); }
+.explain .stephead b { margin-right: 10px; font-weight: 600; color: var(--muted); }
 .nav { display: flex; gap: 8px; align-items: center; margin-top: 4px; }
 .nav .btn.primary { flex: 1; min-width: 0; }
 .nav .btn.primary span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -246,16 +242,15 @@ a { color: inherit; text-decoration: none; }
 .trace .idle { color: var(--muted); }
 
 .learn { padding: 0; }
-.learn summary { display: flex; align-items: center; gap: 8px; padding: 10px 16px; cursor: pointer; list-style: none; }
+.learn summary { display: flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 11px; font-weight: 500; color: var(--muted); letter-spacing: 0.04em; padding: 10px 16px; cursor: pointer; list-style: none; }
 .learn summary::-webkit-details-marker { display: none; }
 .learn summary::before { content: ""; width: 6px; height: 6px; flex: none; border: solid var(--muted); border-width: 0 1.5px 1.5px 0; transform: rotate(-45deg); transition: transform 0.15s; }
 .learn[open] summary::before { transform: rotate(45deg); }
-.learn summary .muted { margin-left: auto; font-size: 11px; }
-.learn ul { list-style: none; margin: 0; padding: 0 16px 12px; display: grid; gap: 6px; }
-.learn li { display: flex; gap: 10px; align-items: flex-start; color: var(--muted); font-size: 12px; }
-.learn li::before { content: ""; width: 13px; height: 13px; margin-top: 2px; border: 1px solid var(--line-strong); border-radius: 3px; flex: none; background: var(--surface); }
+.learn ul { list-style: none; margin: 0; padding: 0 16px 12px; display: grid; gap: 4px; }
+.learn li { display: flex; gap: 8px; align-items: flex-start; color: var(--muted); font-size: 12px; }
+.learn .mk { width: 14px; height: 14px; margin-top: 1px; display: grid; place-items: center; flex: none; border: 1px solid var(--line-strong); border-radius: 3px; color: var(--inv-fg); }
 .learn li.ok { color: var(--ink); }
-.learn li.ok::before { border-color: var(--edge); background: var(--c-green) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M2 5.2 4.2 7.4 8 2.8' fill='none' stroke='%231d1b18' stroke-width='1.6'/%3E%3C/svg%3E") center / 9px no-repeat; }
+.learn li.ok .mk { background: var(--inv-bg); border-color: var(--inv-bg); }
 
 /* ---------- search dialog ---------- */
 .search { width: min(520px, calc(100vw - 32px)); padding: 0; border: 1px solid var(--line-strong); border-radius: var(--radius); background: var(--surface); color: var(--ink); box-shadow: var(--float-shadow); }
@@ -312,7 +307,7 @@ a { color: inherit; text-decoration: none; }
 }
 
 @media (forced-colors: active) {
-  .rail li.cur .num, .cell.act .box, .codetabs button[aria-selected="true"], .lnk.on, .tab.on, .btn.primary { outline: 2px solid CanvasText; }
+  .rail li.cur button, .cell.act .box, .codetabs button[aria-selected="true"], .lnk.on, .tab.on, .btn.primary { outline: 2px solid CanvasText; }
   .ln.on { border-left-color: Highlight; }
 }
 
@@ -367,11 +362,9 @@ a { color: inherit; text-decoration: none; }
   .icon-btn { width: 40px; height: 40px; }
   .btn.sm, .btn { min-height: 40px; }
   .run select, .run input[type="text"] { min-height: 40px; }
-  .rail li { flex-basis: 40px; min-width: 40px; }
+  .rail button { min-height: 40px; padding: 5px 11px; }
   .search-btn { width: 40px; height: 40px; }
   .copy-state { flex-basis: 100%; }
   .copy-state:empty { display: none; }
-  .rail .num { width: 32px; height: 32px; }
-  .rail li + li::before { top: 15px; }
   .topnav { height: 56px; }
 }

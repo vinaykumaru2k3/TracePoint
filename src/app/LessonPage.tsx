@@ -91,7 +91,8 @@ function LessonView({ lesson, stepParam, progress, onVisit, courseOpen, onCloseC
   const reached = Math.min(last, isDefault ? Math.max(progress[lesson.id] ?? 0, idx) : customMax);
   const sec = sectionOf(lesson.section);
   const label = (i: number) => steps[i].op ?? (i === 0 ? "start" : "recap");
-  const railName = (i: number) => steps[i].short ?? label(i);
+  const nn = (i: number) => String(i + 1).padStart(steps.length > 99 ? 3 : 2, "0");
+  const railName =(i: number) => steps[i].short ?? label(i);
 
   const run = (raw: string) => {
     const r = lesson.parse(raw);
@@ -189,7 +190,7 @@ function LessonView({ lesson, stepParam, progress, onVisit, courseOpen, onCloseC
           return (
             <li key={i} className={i === idx ? "cur" : i <= reached ? "seen" : ""}>
               <button type="button" aria-current={i === idx ? "step" : undefined} onClick={() => player.jump(i)} title={`Step ${i + 1}: ${label(i)}`} aria-label={`Step ${i + 1}: ${label(i)}${state}`}>
-                <span className="num">{i + 1}</span><span className="name">{railName(i)}</span>
+                <span className="ix">{nn(i)}</span><span className="name">{railName(i)}</span>
               </button>
             </li>
           );
@@ -223,11 +224,11 @@ function LessonView({ lesson, stepParam, progress, onVisit, courseOpen, onCloseC
 
   const explain = (
     <section className="card explain" aria-label="Explanation" key="explain">
-      <div className="pane-title">TRACE</div>
-      <div className="head"><span>{stepOf}</span><KindChip kind={step.kind} /></div>
+      <div className="pane-title" aria-hidden="true">TRACE</div>
+      <div className="head"><span className="stephead"><b>#{nn(idx)}</b>{label(idx)}</span><KindChip kind={step.kind} /></div>
       <h2>{step.title}</h2>
       <p aria-live="polite">{step.text}</p>
-      <div className="idea"><i aria-hidden="true"><Icon name="spark" size={13} /></i><div><small>Key idea</small>{step.idea}</div></div>
+      <div className="idea"><small>watch</small><div>{step.idea}</div></div>
       <div className="nav">
         <button className="btn" type="button" onClick={player.back} disabled={idx === 0}><Icon name="left" />Back</button>
         <button className="btn primary" type="button" onClick={player.next}><span>{idx >= last ? "Start over" : `Next: ${label(idx + 1)}`}</span><Icon name={idx >= last ? "replay" : "right"} /></button>
@@ -274,9 +275,9 @@ function LearnList({ items }: { items: (readonly [string, boolean])[] }) {
   const [open] = useState(() => window.innerHeight >= 1000);
   return (
     <details className="card learn" open={open}>
-      <summary><span className="lbl">You will learn</span><span className="muted">{done} / {items.length}</span></summary>
+      <summary><span className="lbl">Checkpoints · {done}/{items.length} hit</span></summary>
       <ul>
-        {items.map(([t, ok]) => <li key={t} className={ok ? "ok" : ""}>{t}<span className="sr">{ok ? ", done" : ""}</span></li>)}
+        {items.map(([t, ok]) => <li key={t} className={ok ? "ok" : ""}><span className="mk" aria-hidden="true">{ok && <Icon name="check" size={10} />}</span><span>{t}</span><span className="sr">{ok ? ", done" : ""}</span></li>)}
       </ul>
     </details>
   );
