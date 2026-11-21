@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
+// @ts-expect-error the project has no node typings; vitest runs in node
+import { readFileSync } from "node:fs";
 import { MemoryRouter } from "react-router-dom";
 import { CURRICULUM } from "../curriculum";
 import { GUIDES } from "../theory";
@@ -66,5 +68,23 @@ describe("search", () => {
   it("lists guides and keeps lesson links", () => {
     expect(SEARCH_ITEMS).toContainEqual({ name: "Foundations guide", section: "Foundations", to: "/guide/foundations" });
     expect(SEARCH_ITEMS.some((i) => i.to === "/stack/1")).toBe(true);
+  });
+});
+
+const css: string = readFileSync("src/app.css", "utf8");
+
+describe("guide css", () => {
+  it("has no !important in guide rules and keeps list padding", () => {
+    const guide = css.slice(css.indexOf("/* ---------- guide"));
+    expect(guide).not.toContain("!important");
+    expect(guide).toMatch(/\.guide-lessons \.glessons\.glessons \{[^}]*padding: 10px 14px/);
+  });
+  it("keeps the short-window rule off the guide head", () => {
+    expect(css).toContain(".lesson-head:not(.guide-head) .sub");
+    expect(css).not.toMatch(/\n\s*\.sub, \.memnote, \.crumb \{ display: none/);
+  });
+  it("makes the cheat table scroll in its wrapper", () => {
+    expect(css).toMatch(/\.cheat \{[^}]*min-width: 34rem/);
+    expect(css).toMatch(/\.table-wrap \{ overflow-x: auto/);
   });
 });

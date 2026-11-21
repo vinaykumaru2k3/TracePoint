@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { folderName, sectionOf } from "../curriculum";
 import { LESSON_BY_ID } from "../lessons";
@@ -117,6 +118,8 @@ export default function GuidePage({ progress, courseOpen, onCloseCourse, section
   const params = useParams();
   const sectionId = fixed ?? params.sectionId ?? "";
   const narrow = useMedia(NARROW);
+  /* A new guide starts at the top of the page on narrow screens, where the page scrolls. */
+  useEffect(() => { if (narrow) window.scrollTo({ top: 0 }); }, [sectionId]); // eslint-disable-line react-hooks/exhaustive-deps
   const kind = resolveGuide(sectionId);
   if (kind === "redirect") return <Navigate to="/" replace />;
   const sec = sectionOf(sectionId)!;
