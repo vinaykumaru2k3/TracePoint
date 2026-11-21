@@ -15,7 +15,7 @@ const theory: LessonTheory = {
   ],
   ops: [
     ["best case", "O(1)", "The first middle cell holds the target."],
-    ["average and worst case", "O(log n)", "Each probe halves the range. log₂ n, the logarithm, counts how many halvings take n down to 1. So about log₂ n + 1 probes always suffice."],
+    ["average and worst case", "O(log n)", "Each probe, one look at a middle cell, halves the range. log₂ n, the logarithm, counts how many halvings take n down to 1. So about log₂ n + 1 probes always suffice."],
     ["extra space", "O(1)", "Only `lo`, `mid` and `hi` are kept."],
     ["sort first", "O(n log n)", "Needed only if the data is not sorted yet. It pays off when you search the same data many times."]
   ],

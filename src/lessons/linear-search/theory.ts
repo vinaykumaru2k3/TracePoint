@@ -21,7 +21,7 @@ const theory: LessonTheory = {
   useWhen: [
     "The data is not sorted, and you search it only once or a few times. Sorting it first would cost more than the searches.",
     "The array is small. A handful of checks costs less than any setup.",
-    "You need the first match from the left, such as the earliest entry in a log."
+    "You need the first match from the left, such as the earliest entry in a list of events."
   ],
   avoidWhen: [
     "You search the same large array many times, and it is sorted, in order from smallest to largest. [[binary-search]] needs about log₂ n checks, the number of halvings that take n down to 1.",

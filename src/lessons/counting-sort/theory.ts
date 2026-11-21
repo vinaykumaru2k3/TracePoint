@@ -15,7 +15,7 @@ const theory: LessonTheory = {
   ops: [
     ["time, every case", "O(n + k)", "Here k is the largest value plus 1, the number of counters. Counting reads n values, and writing back walks k counters and writes n values."],
     ["extra space", "O(k)", "The count array has one slot per possible value, however few values there are."],
-    ["stable", "n/a", "It rewrites values instead of moving records. A version that moves whole records, placing each by a running total per value, can be stable."]
+    ["stable", "n/a", "It rewrites values instead of moving records, items that carry other data along with the number. A version that moves whole records, placing each by a running total per value, can be stable."]
   ],
   useWhen: [
     "Values are whole numbers from a small range, such as ages, grades or digits 0 to 9.",

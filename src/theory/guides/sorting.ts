@@ -5,7 +5,7 @@ const sorting: Guide = {
   tagline: "How to find a value in an array, and how to put an array in order so that later searches get faster.",
   core: [
     "Say you look for 4 in [7, 3, 9, 4, 1, 8]. The values are in no order, so you check them one by one from the left. That is linear search, and it can take n checks. If the array is sorted, smallest to largest, you can check the middle first. One comparison then rules out half the array. That is binary search, and it needs about log₂ n checks.",
-    "The simple sorts, bubble, selection and insertion, compare pairs and move values a short way. They take O(n²) time in the worst case, because each value may pass up to n others. Merge sort and quick sort use divide and conquer: split the array, sort the parts, then combine them. Halving gives about log₂ n levels of O(n) work each. So merge sort always takes O(n log n), and quick sort does on average.",
+    "The simple sorts, bubble, selection and insertion, compare values pair by pair. They take O(n²) time in the worst case, because each value may be compared with up to n others. Merge sort and quick sort use divide and conquer: split the array, sort the parts, then combine them. Halving gives about log₂ n levels of O(n) work each. So merge sort always takes O(n log n), and quick sort does on average.",
     "No comparison sort beats O(n log n) in the worst case. n values can stand in `n!` orders, where `n!` (n factorial) is n × (n − 1) × … × 1. Each comparison has two outcomes, so telling the orders apart takes about n log₂ n comparisons. Counting sort escapes that limit because it never compares. It counts each small whole number, then writes the values back in order."
   ],
   analogy:
@@ -27,7 +27,8 @@ const sorting: Guide = {
     ["logarithm", "log₂ n is how many halvings reach 1, starting from n. Halving 8 gives 4, 2, 1, so log₂ 8 is 3. It grows very slowly."],
     ["best, average and worst case", "The cost on the luckiest input, on typical inputs, and on the unluckiest input. A cost with no label is the worst case."],
     ["comparison sort", "A sort that learns the order only by comparing pairs of values. Every sort here except counting sort is one."],
-    ["merge", "Combining two sorted runs into one sorted run by taking the smaller front value again and again."]
+    ["record", "An item that carries other data along with the value it is sorted by, such as a row with a name and an age."],
+    ["merge", "Combining two sorted runs (stretches already in order) into one sorted run by taking the smaller front value again and again."]
   ],
   cheat: {
     head: ["Algorithm", "Best", "Average", "Worst", "Extra space", "Stable"],
@@ -43,7 +44,7 @@ const sorting: Guide = {
     ]
   },
   patterns: [
-    ["You have sorted data and need to look up a value, or show it is absent.", "Use binary search. Each probe halves the range. See [[binary-search]]."],
+    ["You have sorted data and need to look up a value, or show it is absent.", "Use binary search. Each probe, one look at a middle cell, halves the range. See [[binary-search]]."],
     ["The input is small, or nearly sorted already.", "Use insertion sort. Each value stops after a few comparisons. See [[insertion-sort]]."],
     ["The sort must be stable and must stay O(n log n) on every input.", "Use merge sort. See [[merge-sort]]."],
     ["The values are whole numbers from a small range, such as 0 to 9.", "Use counting sort, which never compares. See [[counting-sort]]."]
@@ -60,7 +61,7 @@ const sorting: Guide = {
     {
       title: "Finding a bad commit with `git bisect`",
       setting: "Git is a tool that records a project's history as commits, saved snapshots of the code in time order. A bug appeared somewhere in the last 1,000 commits.",
-      idea: "`git bisect` is a Git command that runs binary search over the commits. It checks out the middle commit, and you test it. If the bug is there, the bad commit is at or before it. Otherwise it is after.",
+      idea: "`git bisect` is a Git command that runs binary search over the commits. It checks out the middle commit, putting that version of the code in your folder, and you test it. If the bug is there, the bad commit is at or before it. Otherwise it is after.",
       why: "Once the bug is in, every later commit has it, so the commits run good then bad, like sorted data. Each test rules out half, so about 10 tests cover 1,000 commits."
     },
     {
