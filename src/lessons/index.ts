@@ -24,6 +24,7 @@ import selectionSort from "./selection-sort";
 import insertionSort from "./insertion-sort";
 import mergeSort from "./merge-sort";
 import quickSort from "./quick-sort";
+import countingSort from "./counting-sort";
 
 /** Playable lessons, in course order. Add a lesson here and it lights up in the course tree. */
 export const LESSONS: AnyLesson[] = [
@@ -31,7 +32,7 @@ export const LESSONS: AnyLesson[] = [
   stack, queue, deque, sll, dll, fastSlow,
   chaining, openAddressing, freqMap,
   callStack, backtracking, nQueens,
-  linearSearch, binarySearch, bubbleSort, selectionSort, insertionSort, mergeSort, quickSort
+  linearSearch, binarySearch, bubbleSort, selectionSort, insertionSort, mergeSort, quickSort, countingSort
 ];
 
 export const LESSON_BY_ID: Record<string, AnyLesson> = Object.fromEntries(LESSONS.map((l) => [l.id, l]));
