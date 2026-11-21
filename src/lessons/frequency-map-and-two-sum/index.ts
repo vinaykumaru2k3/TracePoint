@@ -5,6 +5,7 @@ import { FM_MAX, generateFm, type FmState } from "./generate";
 import java from "./code/Main.java?raw";
 import python from "./code/main.py?raw";
 import cpp from "./code/main.cpp?raw";
+import theory from "./theory";
 
 export default defineLesson<NumsInput, FmState>({
   id: "frequency-map-and-two-sum",
@@ -51,6 +52,8 @@ export default defineLesson<NumsInput, FmState>({
     ["a map hit returns the pair", (s) => s.kind === "found"],
     ["no pair means one full pass", (s) => s.anchors.includes("two.none")]
   ],
+
+  theory,
 
   code: { java, python, cpp }
 });

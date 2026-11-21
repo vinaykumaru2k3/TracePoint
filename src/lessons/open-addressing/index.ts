@@ -5,6 +5,7 @@ import { SLOTS, TOMB, generateOa, type OaState } from "./generate";
 import java from "./code/Main.java?raw";
 import python from "./code/main.py?raw";
 import cpp from "./code/main.cpp?raw";
+import theory from "./theory";
 
 export default defineLesson<Op[], OaState>({
   id: "open-addressing",
@@ -50,6 +51,8 @@ export default defineLesson<Op[], OaState>({
     ["add reuses the first tombstone", (s) => !!s.state.reused],
     ["a full table rejects new keys", (s) => s.retNote === "table is full"]
   ],
+
+  theory,
 
   code: { java, python, cpp }
 });

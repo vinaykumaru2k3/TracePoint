@@ -79,7 +79,7 @@ const linear: Guide = {
     {
       title: "An LRU cache",
       setting: "A server keeps the 1,000 most recent results in memory. When it is full and a new result arrives, it must drop the least recently used one.",
-      idea: "A doubly linked list keeps results in order of use, newest at the head. A hash map, keyed by request, points to each result's node.",
+      idea: "A doubly linked list keeps results in order of use, newest at the head. A [[guide:hashing|hash map]], keyed by request, points to each result's node.",
       why: "The hash map finds the node in O(1) on average. The list is doubly linked because the node's `prev` pointer lets it unlink the node from the middle. Moving it to the head then costs O(1). Each node also stores its key, so dropping the tail removes that key from the map too."
     }
   ],
