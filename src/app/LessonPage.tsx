@@ -3,7 +3,7 @@ import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { sectionOf } from "../curriculum";
 import { Badge, Kbd, KindChip, MetricCard } from "../design/ui";
 import { usePlayer } from "../engine/usePlayer";
-import type { AnyLesson } from "../engine/types";
+import type { AnyLesson, MemoryCell } from "../engine/types";
 import { useKeyboard } from "../hooks/useKeyboard";
 import type { Progress } from "../hooks/useProgress";
 import { DEFAULT_LESSON, LESSON_BY_ID } from "../lessons";
@@ -91,7 +91,7 @@ function LessonView({ lesson, stepParam, progress, onVisit }: Props & { lesson: 
                 </button>
               </div>
             </div>
-            {step.op && (
+            {step.op && step.ret !== undefined && (
               <div className="result">
                 <small>{step.op} returns</small>
                 <b className={step.ret === "void" ? "void" : step.ret === "throws" ? "throws" : ""}>{step.ret}</b>
@@ -179,10 +179,10 @@ function MemoryStrip({ lesson, step }: { lesson: AnyLesson; step: ReturnType<Any
         <span className="costs">{lesson.costs.map(([n, c]: [string, string]) => <span key={n}><b>{c}</b> {n}</span>)}</span>
       </div>
       <div className="cells" style={{ gridTemplateColumns: `repeat(${mem.cells.length}, minmax(0, 1fr))` }}>
-        {mem.cells.map((c: { v: number | null; live: boolean; act: boolean; marks: string[] }, i: number) => (
+        {mem.cells.map((c: MemoryCell, i: number) => (
           <div key={i} className={"cell" + (c.v === null ? " empty" : c.live ? "" : " stale") + (c.act ? " act" : "")}>
             <div className="box">{c.v === null ? "·" : c.v}</div>
-            <div className="idx">[{i}]</div>
+            <div className="idx">{c.tag ?? `[${i}]`}</div>
             <div className="mk">{c.marks.join(" ")}</div>
           </div>
         ))}

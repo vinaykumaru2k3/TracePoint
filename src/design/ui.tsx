@@ -18,7 +18,8 @@ export function MetricCard({ label, value }: { label: string; value: string | nu
 }
 
 const CHIP: Record<string, string> = {
-  problem: "var(--c-lav)", add: "var(--c-green)", remove: "var(--c-pink)", peek: "var(--c-blue)", empty: "var(--c-amber)", recap: "var(--c-lav)"
+  problem: "var(--c-lav)", add: "var(--c-green)", remove: "var(--c-pink)", peek: "var(--c-blue)", empty: "var(--c-amber)",
+  check: "var(--c-blue)", move: "var(--c-amber)", found: "var(--c-green)", recap: "var(--c-lav)"
 };
 
 /** The step-kind chip. Cycle 2 reuses the kinds to build "predict the next step" choices. */

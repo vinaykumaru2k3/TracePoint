@@ -8,7 +8,7 @@ export const LANGS: { id: Lang; label: string }[] = [
 ];
 
 /** What a step is about. The badge uses it, and cycle 2 can build "predict the next step" from it. */
-export type StepKind = "problem" | "add" | "remove" | "peek" | "empty" | "recap";
+export type StepKind = "problem" | "add" | "remove" | "peek" | "empty" | "check" | "move" | "found" | "recap";
 
 export interface Step<S> {
   kind: StepKind;
@@ -32,7 +32,8 @@ export interface Step<S> {
 
 export interface Metric { label: string; value: string | number }
 
-export interface MemoryCell { v: number | null; live: boolean; act: boolean; marks: string[] }
+/** One memory cell. `tag` replaces the default "[i]" label, e.g. a node address "@3". */
+export interface MemoryCell { v: number | string | null; live: boolean; act: boolean; marks: string[]; tag?: string }
 export interface MemoryView { title: string; cells: MemoryCell[]; note: string }
 
 export type ParseResult<I> = { ok: true; input: I } | { ok: false; error: string };
