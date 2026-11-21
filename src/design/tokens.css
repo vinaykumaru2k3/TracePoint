@@ -1,22 +1,26 @@
-/* Design tokens. Warm paper and soft ink; hairline borders and soft shadows on panels,
-   a small hard "pop" shadow only on the active thing. Follows prefers-color-scheme until
-   the viewer picks a theme. Every text colour holds 4.5:1 on --surface and --bg. */
+/* Design tokens. Cool graphite, flat panes separated by 1px lines, one breakpoint-red
+   signal accent, inverted ink chrome for the active thing. Follows prefers-color-scheme
+   until the viewer picks a theme. Every text colour holds 4.5:1 on --surface and --bg. */
 :root {
   color-scheme: light dark;
-  --font: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --font: "IBM Plex Sans", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, monospace;
 
-  --bg: #f4ebe0;          /* page */
-  --surface: #f9f2e8;     /* cards */
-  --surface-2: #f3eadd;   /* wells, hovers */
-  --ink: #1d1b18;
-  --muted: #5f5951;
-  --muted-2: #6f6961;
-  --line: #ddd3c5;        /* hairlines */
-  --line-strong: #c6bbac;
-  --edge: #46413b;        /* outline of pills and buttons */
-  --drop: #1d1b18;        /* pop shadow colour */
-  --on-c: #1d1b18;
+  --bg: #f3f4f6;          /* page */
+  --surface: #ffffff;     /* panes */
+  --surface-2: #f7f8fa;   /* wells, hovers */
+  --ink: #14171c;
+  --muted: #545c68;
+  --muted-2: #646c78;
+  --line: #e1e4e9;        /* 1px pane borders */
+  --line-strong: #c9ced6;
+  --edge: #2a2f37;        /* outlines of flags and controls */
+  --drop: #14171c;
+  --on-c: #14171c;
   --danger: #b03224;
+  --signal: #d63a2f;      /* breakpoint red: markers only, never a fill or text */
+  --inv-bg: var(--ink);   /* inverted chrome: primary button, current rail entry, selected tab */
+  --inv-fg: var(--surface);
 
   --c-green: #cfe3b2;
   --c-green-2: #b2d491;
@@ -27,85 +31,94 @@
   --c-pink: #f6cfc7;
   --c-lav: #e7ddf5;
 
-  --card-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65), 0 1px 0 rgba(80, 60, 35, 0.06), 0 18px 40px -30px rgba(80, 60, 35, 0.45);
-  --pop: 1.5px 2.5px 0 var(--drop);
-  --grid-line: rgba(80, 60, 35, 0.2);
-  --scrim: rgba(29, 27, 24, 0.35);
+  --card-shadow: none;
+  --pop: none;
+  --float-shadow: 0 12px 32px -12px rgba(20, 23, 28, 0.28), 0 2px 6px rgba(20, 23, 28, 0.08);
+  --grid-line: rgba(20, 23, 28, 0.14);
+  --grid-dot: rgba(20, 23, 28, 0.32);
+  --win-fill: rgba(42, 47, 55, 0.1);
+  --scrim: rgba(14, 17, 21, 0.4);
 
   /* Code */
   --syn-k: #6a4fc4;
-  --syn-t: #2a7a3d;
+  --syn-t: #1f7a45;
   --syn-n: #a3521f;
   --syn-s: #a33553;
   --ln-on: color-mix(in oklab, var(--c-amber) 60%, transparent);
 
-  /* Isometric scene: warm neutrals, colour only for state */
-  --stroke: #3b3631;
-  --slab-ink: #1d1b18;
-  --stale-ink: #5f5951;
-  --slab-t: #fbf8f4;
-  --slab-l: #e4d9cb;
-  --slab-r: #d3c7b7;
-  --plate-t: #efe6da;
-  --plate-l: #ddd1c1;
-  --plate-r: #cbbfae;
-  --foot: rgba(127, 194, 120, 0.18);
-  --foot-line: #7fc278;
+  /* Isometric scene: cool greys, colour only for state */
+  --stroke: #2a2f37;
+  --slab-ink: #14171c;
+  --stale-ink: #545c68;
+  --slab-t: #f6f7f9;
+  --slab-l: #d9dde3;
+  --slab-r: #c1c7d0;
+  --plate-t: #eceef2;
+  --plate-l: #d6dae1;
+  --plate-r: #c0c6cf;
+  --foot: transparent;
+  --foot-line: #c9ced6;
   --edge-active: #c48a2c;
 
   --st-active-t: #fde3a7; --st-active-l: #efc56a; --st-active-r: #d9a84a;
-  --st-found-t: #dcefd2; --st-found-l: #b2d491; --st-found-r: #8fbf73;
-  --st-compare-t: #d6e5f6; --st-compare-l: #a9c5e8; --st-compare-r: #86a9d4;
+  --st-found-t: #d5ecd0; --st-found-l: #a9d19a; --st-found-r: #86b87a;
+  --st-compare-t: #d3e4f8; --st-compare-l: #a3c3ea; --st-compare-r: #7fa5d4;
   --st-swap-t: #f8d5cf; --st-swap-l: #ebb0a4; --st-swap-r: #d98f82;
-  --st-visited-t: #f6e6c9; --st-visited-l: #e1cba3; --st-visited-r: #c9b189;
-  --st-stale-t: #e6ddd0; --st-stale-l: #cfc4b4; --st-stale-r: #b9ad9c;
+  --st-visited-t: #f1e6cc; --st-visited-l: #dccba6; --st-visited-r: #c3b08a;
+  --st-stale-t: #e3e6eb; --st-stale-l: #cdd2d9; --st-stale-r: #b6bcc6;
 
-  --radius: 12px;
+  --radius: 6px;
 }
 
 /* Dark: the same values twice, for the system preference and for an explicit choice. Keep them in step. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #1b1916; --surface: #23201c; --surface-2: #2b2823;
-    --ink: #efe8de; --muted: #b3ab9f; --muted-2: #9a9287;
-    --line: #38332d; --line-strong: #4a443c; --edge: #a59d92; --drop: #0c0b0a; --danger: #f08a7e;
+    --bg: #0e1115; --surface: #151920; --surface-2: #1b2028;
+    --ink: #e7eaef; --muted: #a1a9b5; --muted-2: #8f98a5;
+    --line: #252b34; --line-strong: #353c47; --edge: #c7ccd4; --drop: #05070a; --on-c: #14171c; --danger: #f08a7e;
+    --signal: #ff6b5e; --inv-bg: var(--ink); --inv-fg: var(--surface);
     --c-green: #b9d69a; --c-green-2: #a3c884; --c-amber: #ecc979; --c-blue: #b9cfe9; --c-pink: #e8b4a9; --c-lav: #cdbfe6;
-    --card-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03), 0 18px 40px -30px rgba(0, 0, 0, 0.8);
-    --grid-line: rgba(239, 232, 222, 0.12); --scrim: rgba(0, 0, 0, 0.55);
-    --syn-k: #b7a6ff; --syn-t: #9fd49a; --syn-n: #f0a978; --syn-s: #f2a3b8;
+    --card-shadow: none; --pop: none;
+    --float-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.7), 0 2px 8px rgba(0, 0, 0, 0.4);
+    --grid-line: rgba(231, 234, 239, 0.1); --grid-dot: rgba(231, 234, 239, 0.3);
+    --win-fill: rgba(199, 204, 212, 0.14); --scrim: rgba(0, 0, 0, 0.6);
+    --syn-k: #b7a6ff; --syn-t: #8fd4a4; --syn-n: #f0a978; --syn-s: #f2a3b8;
     --ln-on: rgba(232, 163, 58, 0.18);
-    --stroke: #15130f; --slab-ink: #1d1b18; --stale-ink: #e6ded2;
-    --slab-t: #a89e90; --slab-l: #8d8477; --slab-r: #6a6258;
-    --plate-t: #3a3530; --plate-l: #2f2b26; --plate-r: #26231f;
-    --foot: rgba(127, 194, 120, 0.12); --edge-active: #e0b25a;
+    --stroke: #b9c0cb; --slab-ink: #14171c; --stale-ink: #d5dae2;
+    --slab-t: #aab2be; --slab-l: #8e97a5; --slab-r: #6f7886;
+    --plate-t: #343b46; --plate-l: #2a313b; --plate-r: #222831;
+    --foot: transparent; --foot-line: #353c47; --edge-active: #e0b25a;
     --st-active-t: #d4a94f; --st-active-l: #a9823a; --st-active-r: #8c6a2c;
     --st-found-t: #9cc58a; --st-found-l: #77a066; --st-found-r: #5f8452;
     --st-compare-t: #93b3d9; --st-compare-l: #6f8fb6; --st-compare-r: #5a7799;
     --st-swap-t: #d99a8e; --st-swap-l: #b07769; --st-swap-r: #915f53;
-    --st-visited-t: #c2ad86; --st-visited-l: #9a8865; --st-visited-r: #7f6f51;
-    --st-stale-t: #6e665c; --st-stale-l: #5a534a; --st-stale-r: #4a443c;
+    --st-visited-t: #b9aa88; --st-visited-l: #968a6c; --st-visited-r: #7b7058;
+    --st-stale-t: #596270; --st-stale-l: #485060; --st-stale-r: #3a424e;
   }
 }
 
 :root[data-theme="light"] { color-scheme: light; }
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #1b1916; --surface: #23201c; --surface-2: #2b2823;
-  --ink: #efe8de; --muted: #b3ab9f; --muted-2: #9a9287;
-  --line: #38332d; --line-strong: #4a443c; --edge: #a59d92; --drop: #0c0b0a; --danger: #f08a7e;
+  --bg: #0e1115; --surface: #151920; --surface-2: #1b2028;
+  --ink: #e7eaef; --muted: #a1a9b5; --muted-2: #8f98a5;
+  --line: #252b34; --line-strong: #353c47; --edge: #c7ccd4; --drop: #05070a; --on-c: #14171c; --danger: #f08a7e;
+  --signal: #ff6b5e; --inv-bg: var(--ink); --inv-fg: var(--surface);
   --c-green: #b9d69a; --c-green-2: #a3c884; --c-amber: #ecc979; --c-blue: #b9cfe9; --c-pink: #e8b4a9; --c-lav: #cdbfe6;
-  --card-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03), 0 18px 40px -30px rgba(0, 0, 0, 0.8);
-  --grid-line: rgba(239, 232, 222, 0.12); --scrim: rgba(0, 0, 0, 0.55);
-  --syn-k: #b7a6ff; --syn-t: #9fd49a; --syn-n: #f0a978; --syn-s: #f2a3b8;
+  --card-shadow: none; --pop: none;
+  --float-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.7), 0 2px 8px rgba(0, 0, 0, 0.4);
+  --grid-line: rgba(231, 234, 239, 0.1); --grid-dot: rgba(231, 234, 239, 0.3);
+  --win-fill: rgba(199, 204, 212, 0.14); --scrim: rgba(0, 0, 0, 0.6);
+  --syn-k: #b7a6ff; --syn-t: #8fd4a4; --syn-n: #f0a978; --syn-s: #f2a3b8;
   --ln-on: rgba(232, 163, 58, 0.18);
-  --stroke: #15130f; --slab-ink: #1d1b18; --stale-ink: #e6ded2;
-  --slab-t: #a89e90; --slab-l: #8d8477; --slab-r: #6a6258;
-  --plate-t: #3a3530; --plate-l: #2f2b26; --plate-r: #26231f;
-  --foot: rgba(127, 194, 120, 0.12); --edge-active: #e0b25a;
+  --stroke: #b9c0cb; --slab-ink: #14171c; --stale-ink: #d5dae2;
+  --slab-t: #aab2be; --slab-l: #8e97a5; --slab-r: #6f7886;
+  --plate-t: #343b46; --plate-l: #2a313b; --plate-r: #222831;
+  --foot: transparent; --foot-line: #353c47; --edge-active: #e0b25a;
   --st-active-t: #d4a94f; --st-active-l: #a9823a; --st-active-r: #8c6a2c;
   --st-found-t: #9cc58a; --st-found-l: #77a066; --st-found-r: #5f8452;
   --st-compare-t: #93b3d9; --st-compare-l: #6f8fb6; --st-compare-r: #5a7799;
   --st-swap-t: #d99a8e; --st-swap-l: #b07769; --st-swap-r: #915f53;
-  --st-visited-t: #c2ad86; --st-visited-l: #9a8865; --st-visited-r: #7f6f51;
-  --st-stale-t: #6e665c; --st-stale-l: #5a534a; --st-stale-r: #4a443c;
+  --st-visited-t: #b9aa88; --st-visited-l: #968a6c; --st-visited-r: #7b7058;
+  --st-stale-t: #596270; --st-stale-l: #485060; --st-stale-r: #3a424e;
 }
