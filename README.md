@@ -4,7 +4,7 @@ Tracepoint teaches data structures and algorithms through interactive lessons th
 
 ## Features
 
-- 15 lessons across three sections:
+- 15 lessons across three sections, browsed in an explorer tree under `DSA/`:
   - **Foundations:** Big-O by counting, arrays, strings, two pointers, sliding window, prefix sums.
   - **Linear structures:** stack, queue, deque, singly and doubly linked lists, fast and slow pointers.
   - **Hashing:** chaining, open addressing, frequency map and two-sum.
@@ -125,7 +125,7 @@ How `lessons/` and `iso/` divide the work: a lesson's `Scene.tsx` decides *what*
 3. Register the lesson in [`src/lessons/index.ts`](src/lessons/index.ts). It then appears in the course tree, and `lessons.test.ts` checks it automatically: default input parses, every anchor exists, the checklist is valid, and the lesson is in the curriculum.
 4. Run `npm run typecheck` and `npm test`.
 
-Design rules for scenes and UI are in [CLAUDE.md](CLAUDE.md#design-rules). In short: calm warm surfaces, colour only for state, text contrast of at least 4.5:1, and respect for reduced motion.
+Design rules for scenes and UI are in [CLAUDE.md](CLAUDE.md#design-rules). In short: a debugger look (graphite surfaces, a red breakpoint marker, IBM Plex Sans and Mono), colour only for state, text contrast of at least 4.5:1, and respect for reduced motion.
 
 ## Deployment
 
