@@ -16,7 +16,7 @@ export default function CourseSidebar({ currentId, currentIdx, progress }: Props
 
   return (
     <nav className="side" aria-label="Course">
-      <div className="pane-title">EXPLORER</div>
+      <div className="pane-title" aria-hidden="true">EXPLORER</div>
       <div className="tree">
       <details open className="root">
         <summary><Icon name="folder" size={14} /><span className="sec-name">{COURSE.name}/</span><small>{planned} lessons</small></summary>

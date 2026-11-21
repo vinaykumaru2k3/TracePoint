@@ -159,6 +159,7 @@ a { color: inherit; text-decoration: none; }
 .rail button { display: flex; align-items: center; gap: 6px; padding: 5px 9px; border: 1px solid transparent; border-radius: var(--radius); background: none; cursor: pointer; color: var(--muted); font-family: var(--mono); font-size: 11px; white-space: nowrap; }
 .rail .ix { display: inline-flex; align-items: center; gap: 5px; font-weight: 500; }
 .rail .name { max-width: 14ch; overflow: hidden; text-overflow: ellipsis; }
+.rail li:not(.cur) .ix { color: var(--muted); }
 .rail li.seen button { color: var(--ink); }
 .rail li.cur button { background: var(--inv-bg); color: var(--inv-fg); border-color: var(--inv-bg); }
 .rail li.cur .ix::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--signal); flex: none; }

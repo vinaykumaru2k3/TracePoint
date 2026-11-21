@@ -27,7 +27,7 @@ Desktop browser first, also usable on a phone. Learners step with the keyboard (
 - Lessons: 15 live across sections 1-3 (foundations, linear structures, hashing); about 49 planned across 10 sections (`src/curriculum.ts`).
 - Stack: React 18, Vite, TypeScript, SVG diagrams, deploy on Vercel.
 - Code highlighting with Java / Python / C++ tabs and the running line highlighted must stay (user, 2026-11-21).
-- Diagrams look like designed-to-scale.vercel.app: soft shaded isometric slabs in warm neutrals, hairline outlines, a faint fading grid, colour only for state (user, 2026-11-21). Rejected: the earlier harsh iso (thick borders, saturated blocks, dashed walls) and flat textbook 2D diagrams.
+- Diagrams follow the debugger direction: flat outlined cool-grey isometric slabs with 1px outlines, a dot grid floor locked to the camera, a dashed footprint outline, colour only for state (user, 2026-11-21). Rejected: the earlier harsh iso (thick borders, saturated blocks, dashed walls) and flat textbook 2D diagrams.
 - Later: predict-the-next-step, quizzes, case studies.
 
 ## Brand Commitments

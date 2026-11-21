@@ -92,7 +92,7 @@ function LessonView({ lesson, stepParam, progress, onVisit, courseOpen, onCloseC
   const sec = sectionOf(lesson.section);
   const label = (i: number) => steps[i].op ?? (i === 0 ? "start" : "recap");
   const nn = (i: number) => String(i + 1).padStart(steps.length > 99 ? 3 : 2, "0");
-  const railName =(i: number) => steps[i].short ?? label(i);
+  const railName = (i: number) => steps[i].short ?? label(i);
 
   const run = (raw: string) => {
     const r = lesson.parse(raw);
@@ -225,7 +225,7 @@ function LessonView({ lesson, stepParam, progress, onVisit, courseOpen, onCloseC
   const explain = (
     <section className="card explain" aria-label="Explanation" key="explain">
       <div className="pane-title" aria-hidden="true">TRACE</div>
-      <div className="head"><span className="stephead"><b>#{nn(idx)}</b>{label(idx)}</span><KindChip kind={step.kind} /></div>
+      <div className="head"><span className="stephead"><b>#{nn(idx)}</b>{" "}{label(idx)}</span><KindChip kind={step.kind} /></div>
       <h2>{step.title}</h2>
       <p aria-live="polite">{step.text}</p>
       <div className="idea"><small>watch</small><div>{step.idea}</div></div>
@@ -275,7 +275,7 @@ function LearnList({ items }: { items: (readonly [string, boolean])[] }) {
   const [open] = useState(() => window.innerHeight >= 1000);
   return (
     <details className="card learn" open={open}>
-      <summary><span className="lbl">Checkpoints · {done}/{items.length} hit</span></summary>
+      <summary>Checkpoints · {done}/{items.length} hit</summary>
       <ul>
         {items.map(([t, ok]) => <li key={t} className={ok ? "ok" : ""}><span className="mk" aria-hidden="true">{ok && <Icon name="check" size={10} />}</span><span>{t}</span><span className="sr">{ok ? ", done" : ""}</span></li>)}
       </ul>
