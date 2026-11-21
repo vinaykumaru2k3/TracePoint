@@ -50,7 +50,8 @@ export function checkGuide(g: Guide, liveIds: string[], links: Set<string>): str
   e.push(...atLeast(1, g.prereqs.length, "prereqs", w));
   g.prereqs.forEach((p, i) => text(p, `prereqs[${i}]`));
   e.push(...atLeast(4, g.terms.length, "terms", w));
-  g.terms.forEach(([, m], i) => text(m, `terms[${i}]`));
+  g.terms.forEach(([t, m], i) => { text(t, `terms[${i}] term`); text(m, `terms[${i}]`); });
+  g.cheat.head.forEach((h, i) => text(h, `cheat head[${i}]`));
   e.push(...atLeast(3, g.cheat.rows.length, "cheat rows", w));
   g.cheat.rows.forEach((r, i) => {
     if (r.length !== g.cheat.head.length) e.push(`${w}: cheat row ${i} has ${r.length} cells, head has ${g.cheat.head.length}`);
@@ -62,6 +63,7 @@ export function checkGuide(g: Guide, liveIds: string[], links: Set<string>): str
   g.tips.forEach((t, i) => text(t, `tips[${i}]`));
   e.push(...atLeast(2, g.cases.length, "cases", w));
   g.cases.forEach((c, i) => {
+    text(c.title, `cases[${i}] title`);
     text(c.setting, `cases[${i}] setting`);
     text(c.idea, `cases[${i}] idea`);
     text(c.why, `cases[${i}] why`);

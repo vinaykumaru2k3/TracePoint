@@ -93,6 +93,14 @@ describe("checkGuide", () => {
     expect(r).toHaveLength(1);
     expect(r[0]).toMatch(/hooks: extra stack/);
   });
+  it("checks plain strings that render: case titles, cheat head, terms", () => {
+    const g = guide(); g.cases[0].title = "Just a cache";
+    const r = checkGuide(g, ["stack"], links);
+    expect(r).toHaveLength(1);
+    expect(r[0]).toMatch(/banned word "just"/);
+    const h = guide(); h.cheat.head[0] = "Easy op"; h.terms[0][0] = "Done!";
+    expect(checkGuide(h, ["stack"], links)).toHaveLength(2);
+  });
   it("rejects a tagline of two sentences", () => {
     const g = guide(); g.tagline = "One. Two.";
     expect(checkGuide(g, ["stack"], links)[0]).toMatch(/tagline/);
