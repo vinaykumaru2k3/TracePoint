@@ -5,7 +5,7 @@ import { Icon } from "../design/ui";
 import { DEFAULT_STEP_COUNT, LESSON_BY_ID, LESSONS } from "../lessons";
 import type { Progress } from "../hooks/useProgress";
 
-interface Props { currentId: string; currentIdx: number; progress: Progress }
+interface Props { currentId: string; currentIdx: number; progress: Progress; /** Section whose guide is open, if any. */ guideId?: string }
 
 const reachedOf = (id: string, p: Progress, cur: string, idx: number) => Math.max(p[id] ?? 0, id === cur ? idx : 0);
 const lastOf = (id: string) => Math.max(1, (DEFAULT_STEP_COUNT[id] ?? 1) - 1);
@@ -25,7 +25,7 @@ function StatusMark({ done, fraction, fresh }: { done: boolean; fraction: number
 }
 
 /** The course tree. Lessons that exist link to their first step, the rest are listed as "soon". */
-export default function CourseSidebar({ currentId, currentIdx, progress }: Props) {
+export default function CourseSidebar({ currentId, currentIdx, progress, guideId }: Props) {
   const isDone = (id: string) => doneOf(id, reachedOf(id, progress, currentId, currentIdx));
   const completed = LESSONS.filter((l) => isDone(l.id)).length;
   const planned = COURSE.sections.reduce((n, s) => n + s.lessons.length, 0);
@@ -44,7 +44,7 @@ export default function CourseSidebar({ currentId, currentIdx, progress }: Props
         const live = sec.lessons.filter((l) => LESSON_BY_ID[l.id]);
         const doneHere = live.filter((l) => isDone(l.id)).length;
         const allDone = live.length > 0 && doneHere === live.length;
-        const open = sec.lessons.some((l) => l.id === currentId);
+        const open = sec.id === guideId || sec.lessons.some((l) => l.id === currentId);
         return (
           <details className="sec" key={sec.id} open={open}>
             <summary>
@@ -54,6 +54,11 @@ export default function CourseSidebar({ currentId, currentIdx, progress }: Props
                 : <small title={`${doneHere} of ${live.length} lessons complete`}>{doneHere}/{live.length}<span className="sr"> lessons complete</span></small>}
             </summary>
             <ul>
+              <li>
+                <Link to={`/guide/${sec.id}`} className={`lnk live${sec.id === guideId ? " on" : ""}`} aria-current={sec.id === guideId ? "page" : undefined} title={`${sec.name} guide`}>
+                  <Icon name="file" size={14} /><span className="nm">README.md</span>
+                </Link>
+              </li>
               {sec.lessons.map((l) => {
                 if (!LESSON_BY_ID[l.id]) {
                   return <li key={l.id}><span className="lnk soon" aria-disabled="true"><span className="nm">{l.name}</span><small className="soon-tag">soon</small></span></li>;
