@@ -1,4 +1,5 @@
 import type { ComponentType } from "react";
+import type { LessonTheory } from "../theory/types";
 
 export type Lang = "java" | "python" | "cpp";
 export const LANGS: { id: Lang; label: string }[] = [
@@ -75,6 +76,9 @@ export interface Lesson<I, S> {
   vars(step: Step<S>): string;
   costs: [string, string][];
   learn: [string, (s: Step<S>) => boolean][];
+
+  /** Readable guide shown on the lesson's theory tab. */
+  theory?: LessonTheory;
 
   /** Raw source per language, with `@a name` anchor comments. */
   code: Record<Lang, string>;
