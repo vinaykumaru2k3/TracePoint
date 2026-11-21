@@ -16,13 +16,14 @@ import openAddressing from "./open-addressing";
 import freqMap from "./frequency-map-and-two-sum";
 import callStack from "./call-stack";
 import backtracking from "./backtracking";
+import nQueens from "./n-queens";
 
 /** Playable lessons, in course order. Add a lesson here and it lights up in the course tree. */
 export const LESSONS: AnyLesson[] = [
   bigO, arrays, strings, twoPointers, slidingWindow, prefixSums,
   stack, queue, deque, sll, dll, fastSlow,
   chaining, openAddressing, freqMap,
-  callStack, backtracking
+  callStack, backtracking, nQueens
 ];
 
 export const LESSON_BY_ID: Record<string, AnyLesson> = Object.fromEntries(LESSONS.map((l) => [l.id, l]));
