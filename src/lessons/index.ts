@@ -1,9 +1,26 @@
 import type { AnyLesson } from "../engine/types";
+import bigO from "./big-o-by-counting";
+import arrays from "./arrays";
+import strings from "./strings";
+import twoPointers from "./two-pointers";
+import slidingWindow from "./sliding-window";
+import prefixSums from "./prefix-sums";
 import stack from "./stack";
 import queue from "./queue";
+import deque from "./deque";
+import sll from "./singly-linked-list";
+import dll from "./doubly-linked-list";
+import fastSlow from "./fast-and-slow-pointers";
+import chaining from "./hash-table-chaining";
+import openAddressing from "./open-addressing";
+import freqMap from "./frequency-map-and-two-sum";
 
 /** Playable lessons, in course order. Add a lesson here and it lights up in the course tree. */
-export const LESSONS: AnyLesson[] = [stack, queue];
+export const LESSONS: AnyLesson[] = [
+  bigO, arrays, strings, twoPointers, slidingWindow, prefixSums,
+  stack, queue, deque, sll, dll, fastSlow,
+  chaining, openAddressing, freqMap
+];
 
 export const LESSON_BY_ID: Record<string, AnyLesson> = Object.fromEntries(LESSONS.map((l) => [l.id, l]));
 export const DEFAULT_LESSON = LESSONS[0].id;
