@@ -7,7 +7,7 @@ import type { AnyLesson, MemoryCell } from "../engine/types";
 import { useKeyboard } from "../hooks/useKeyboard";
 import { useMedia } from "../hooks/useMedia";
 import type { Progress } from "../hooks/useProgress";
-import { FitContext } from "../iso/IsoScene";
+import { CameraContext, type Box } from "../iso/IsoScene";
 import SceneFit from "../iso/SceneFit";
 import { DEFAULT_LESSON, LESSON_BY_ID } from "../lessons";
 import CodeCard from "./CodeCard";
@@ -74,7 +74,7 @@ function LessonView({ lesson, stepParam, progress, onVisit, courseOpen, onCloseC
   /* Widening the window brings the in-page course back, so the drawer is done. */
   useEffect(() => { if (!narrow) onCloseCourse(); }, [narrow, onCloseCourse]);
 
-  const [fit, setFit] = useState<string | null>(null);
+  const [boxes, setBoxes] = useState<Box[] | null>(null);
 
   const step = steps[idx];
   const reached = Math.min(last, isDefault ? Math.max(progress[lesson.id] ?? 0, idx) : customMax);
@@ -146,9 +146,9 @@ function LessonView({ lesson, stepParam, progress, onVisit, courseOpen, onCloseC
             </button>
           </div>
         </div>
-        <FitContext.Provider value={fit}>
+        <CameraContext.Provider value={boxes?.[idx] ?? null}>
           <lesson.Scene step={step} />
-        </FitContext.Provider>
+        </CameraContext.Provider>
         <div className="stage-foot">
           <ul className="legend" aria-label="Colour key">
             {lesson.legend.map((l: { cls: string; label: string }) => <li key={l.label}><i className={`swatch ${l.cls}`} aria-hidden="true" />{l.label}</li>)}
@@ -161,7 +161,7 @@ function LessonView({ lesson, stepParam, progress, onVisit, courseOpen, onCloseC
             </div>
           )}
         </div>
-        <SceneFit steps={steps} Scene={lesson.Scene} onFit={setFit} />
+        <SceneFit steps={steps} Scene={lesson.Scene} onFit={setBoxes} />
       </div>
     </section>
   );
