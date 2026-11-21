@@ -106,14 +106,18 @@ a { color: inherit; text-decoration: none; }
 .rail-head { display: flex; justify-content: space-between; font-size: 11px; padding-top: 8px; }
 .rail { list-style: none; margin: 0; padding: 0; display: flex; overflow-x: auto; }
 .rail li { flex: 1 0 64px; position: relative; display: flex; justify-content: center; }
-.rail li + li::before { content: ""; position: absolute; top: 12px; right: 50%; width: 100%; height: 1px; background: var(--line-strong); }
-.rail button { position: relative; display: grid; justify-items: center; gap: 4px; padding: 0 2px; border: 0; background: none; cursor: pointer; color: var(--muted); }
-.rail .num { width: 24px; height: 24px; display: grid; place-items: center; border: 1px solid var(--line-strong); border-radius: 50%; background: var(--surface); font-size: 11px; font-weight: 600; }
+/* the connector sits behind the circles; the stretch already walked turns green */
+.rail li + li::before { content: ""; position: absolute; z-index: 0; top: 13px; right: 50%; width: 100%; height: 2px; border-radius: 2px; background: var(--line); }
+.rail li.seen + li.seen::before, .rail li.seen + li.cur::before, .rail li.cur + li.seen::before { background: var(--c-green-3); }
+.rail button { position: relative; z-index: 1; display: grid; justify-items: center; gap: 6px; padding: 0 2px; border: 0; background: none; cursor: pointer; color: var(--muted-2); }
+.rail .num { width: 28px; height: 28px; display: grid; place-items: center; border: 1px solid var(--line-strong); border-radius: 50%; background: var(--surface); font-size: 11px; font-weight: 600; transition: background 0.2s, border-color 0.2s; }
 .rail .name { font-size: 11px; white-space: nowrap; }
-.rail li.seen .num { background: var(--surface-2); color: var(--ink); }
-.rail li.cur .num { border-color: var(--edge); background: var(--c-green); color: var(--on-c); box-shadow: var(--pop); }
+.rail li.seen button { color: var(--muted); }
+.rail li.seen .num { border-color: var(--c-green-3); background: color-mix(in srgb, var(--c-green) 55%, var(--surface)); color: var(--ink); }
+.rail li.cur .num { border-color: var(--edge); background: var(--c-green); color: var(--on-c); font-weight: 800; box-shadow: var(--pop); }
 .rail li.cur .name { color: var(--ink); font-weight: 700; }
 .rail button:hover .num { border-color: var(--edge); }
+.rail button:hover .name { color: var(--ink); }
 
 .run { display: grid; gap: 6px; }
 .run label { font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }
