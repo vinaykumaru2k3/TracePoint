@@ -2,7 +2,7 @@ import { useMemo, useState, type KeyboardEvent, type MouseEvent } from "react";
 import { Link } from "react-router-dom";
 import type { AnyLesson, AnyStep } from "../engine/types";
 import { Icon } from "../design/ui";
-import { CameraContext, type Box } from "../iso/IsoScene";
+import { CameraContext, type Shot } from "../iso/IsoScene";
 import SceneFit from "../iso/SceneFit";
 import { Rich } from "../theory/inline";
 
@@ -23,7 +23,7 @@ export default function Walkthrough({ lesson, initial = 0 }: { lesson: AnyLesson
   const run = useMemo(() => defaultRun(lesson), [lesson]);
   const frames = useMemo(() => shots.map((n) => run[n - 1]), [run, shots]);
   const [i, setI] = useState(Math.min(Math.max(initial, 0), steps.length - 1));
-  const [boxes, setBoxes] = useState<Box[] | null>(null);
+  const [boxes, setBoxes] = useState<Shot[] | null>(null);
   const step = frames[i];
   const n = shots[i];
   const last = steps.length - 1;

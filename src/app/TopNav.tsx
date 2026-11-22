@@ -32,6 +32,7 @@ export default function TopNav({ dark, onTheme, onSearch, courseOpen, onCourse }
           <dt><Kbd>Home</Kbd> <Kbd>End</Kbd></dt><dd>First and last step</dd>
           <dt><Kbd>Space</Kbd></dt><dd>Play or pause</dd>
           <dt><Kbd>R</Kbd></dt><dd>Back to the start</dd>
+          <dt><Kbd>F</Kbd></dt><dd>Show the whole drawing, or read it up close</dd>
           <dt><Kbd>Ctrl K</Kbd></dt><dd>Search lessons</dd>
         </dl>
         <h3>Colours</h3>
