@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent, type SyntheticEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type SyntheticEvent } from "react";
 import { Link, Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { sectionOf } from "../curriculum";
 import { Icon, Kbd, KindChip, MetricCard, kindColor } from "../design/ui";
@@ -203,25 +203,14 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
     </section>
   );
 
-  /* The timeline. The run map shows the whole run at once, one segment per step coloured by its kind,
-     so the algorithm's rhythm reads before any step is named; drag along it to scrub. Below it, the rail:
-     one stop per step on a track filled up to the playhead (the current step). */
-  const scrub = (e: ReactPointerEvent<HTMLDivElement>) => {
-    if (e.type === "pointermove" && !e.currentTarget.hasPointerCapture(e.pointerId)) return;
-    if (e.type === "pointerdown") e.currentTarget.setPointerCapture(e.pointerId);
-    const r = e.currentTarget.getBoundingClientRect();
-    const i = Math.max(0, Math.min(last, Math.floor(((e.clientX - r.left) / r.width) * steps.length)));
-    if (i !== idx) player.jump(i);
-  };
+  /* The timeline: one stop per step on a track filled up to the playhead (the current step).
+     Each stop is a diamond edged in its step kind's colour. */
   const stopCls = (i: number) => (i === idx ? "cur" : i < idx ? "past" : i <= reached ? "seen" : "");
   const rail = (
     <div className="rail-wrap" key="rail">
       <div className="rail-head">
         <span className="lbl">Timeline</span>
         <span className="muted">{stepOf} · <b>{label(idx)}</b></span>
-      </div>
-      <div className="run-map" aria-hidden="true" onPointerDown={scrub} onPointerMove={scrub} title="Drag to scrub through the run">
-        {steps.map((s, i) => <i key={i} className={stopCls(i)} style={{ "--k": kindColor(s.kind) } as CSSProperties} />)}
       </div>
       <ol className="rail" ref={railRef} aria-label="Steps">
         {steps.map((s, i) => {
