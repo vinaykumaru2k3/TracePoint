@@ -503,7 +503,6 @@ a { color: inherit; text-decoration: none; }
 .marks.warn .mark { background: var(--st-active-t); }
 .marks.warn .lead-in { font-weight: 600; color: var(--ink); }
 .marks.warn .lead-rest { color: var(--muted); }
-.prose s.wrong code { background: var(--wrong-chip); }
 .fit-pair { display: grid; gap: 0 40px; }
 @container (min-width: 640px) { .fit-pair { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
@@ -633,10 +632,9 @@ a { color: inherit; text-decoration: none; }
 
 /* ---------- Reading marks ----------
    A key phrase (**bold** in theory text) carries a marker band in the scenes' "active" amber, the way a
-   debugger marks the line being read; a wrong form named in a pitfall (~~struck~~) gets a red rule
-   through it, tilted so it crosses glyphs like == instead of merging with them. Both are drawn by default. useInk holds the ones below the fold back (data-ink="wait")
-   and draws each once as it reaches the reading line: the band sweeps left to right, then the strike
-   follows a beat later, so the reader sees the word before it is struck. */
+   debugger marks the line being read; a wrong form named in a pitfall (~~wrong~~) sits on a red chip.
+   The band is drawn by default; useInk holds the ones below the fold back (data-ink="wait") and sweeps
+   each in once as it reaches the reading line. */
 .prose strong {
   font-weight: 700; color: var(--ink);
   /* Light: a highlighter band. Dark: a faint wash with a crisp edge, like an editor's find match. */
@@ -646,14 +644,13 @@ a { color: inherit; text-decoration: none; }
   padding: 0 2px; margin: 0 -2px;
 }
 .prose .marks.no strong { --mark: var(--mark-no); --mark-edge: var(--mark-no-edge); }
-.prose s.wrong { text-decoration: none; position: relative; display: inline-block; color: var(--muted); }
-.prose s.wrong::after {
-  content: ""; position: absolute; left: -3px; right: -3px; top: 50%; height: 2px; margin-top: -1px;
-  background: var(--danger); border-radius: 1px; rotate: -7deg; transform-origin: left center; pointer-events: none;
+/* A wrong form is the thing the reader must read, so no line is drawn across or near it (strikes read
+   as stray red lines and hid code like lo = mid). It is flagged by a red chip instead; code inside shares
+   the chip rather than stacking its own. The chip wraps with the sentence, one piece per line. */
+.prose s.wrong {
+  text-decoration: none; color: var(--ink); background: var(--wrong-chip);
+  padding: 1px 4px; border-radius: 4px;
+  -webkit-box-decoration-break: clone; box-decoration-break: clone;
 }
-@media (prefers-reduced-motion: no-preference) {
-  .prose strong { transition: background-size 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
-  .prose strong[data-ink="wait"] { background-size: 0% 2px, 0% 0.56em; }
-  .prose s.wrong::after { transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.15s; }
-  .prose s.wrong[data-ink="wait"]::after { transform: scaleX(0); }
-}
+.prose s.wrong code { background: none; padding: 0; }
+

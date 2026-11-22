@@ -4,7 +4,7 @@ import { useEffect, type RefObject } from "react";
 const LINE = 0.85;
 
 /**
- * Draws the reading marks (key phrases and struck wrong forms) under `root` as the reader reaches them.
+ * Draws the reading marks (the key-phrase bands) under `root` as the reader reaches them.
  * Marks already on screen, and every mark under reduced motion or without IntersectionObserver, stay drawn:
  * only marks below the reading line are held back (`data-ink="wait"`) and released once each.
  * Reaching the end of the scroll releases the rest, so marks near the bottom never stay undrawn.
@@ -13,7 +13,7 @@ export function useInk(root: RefObject<HTMLElement | null>, key: unknown) {
   useEffect(() => {
     const el = root.current;
     if (!el || typeof IntersectionObserver === "undefined" || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const marks = [...el.querySelectorAll<HTMLElement>("strong, s.wrong")];
+    const marks = [...el.querySelectorAll<HTMLElement>("strong")];
     const waiting = new Set(marks.filter((m) => m.getBoundingClientRect().top > innerHeight * LINE));
     const draw = (m: Element) => {
       if (!waiting.delete(m as HTMLElement)) return;
