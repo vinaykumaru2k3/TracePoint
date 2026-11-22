@@ -7,7 +7,7 @@ import type { AnyLesson, MemoryCell } from "../engine/types";
 import { useKeyboard } from "../hooks/useKeyboard";
 import { useMedia } from "../hooks/useMedia";
 import type { Progress } from "../hooks/useProgress";
-import { CameraContext, type Box } from "../iso/IsoScene";
+import { CameraContext, ZoomContext, type Shot, type Zoom } from "../iso/IsoScene";
 import SceneFit from "../iso/SceneFit";
 import { DEFAULT_LESSON, LESSON_BY_ID } from "../lessons";
 import CodeCard from "./CodeCard";
@@ -16,6 +16,11 @@ import CourseSidebar from "./CourseSidebar";
 import TheoryView, { LessonTabs } from "./TheoryView";
 
 interface Props { view: "theory" | "trace"; progress: Progress; onVisit(id: string, idx: number): void; courseOpen: boolean; onCloseCourse(): void }
+
+/** Below 0.85 px per scene unit the smallest scene labels drop under about 9px; read at 1:1 instead. */
+const LENS = { floor: 0.85, read: 1 };
+const WHOLE_KEY = "tracepoint-whole";
+const storedWhole = () => { try { return localStorage.getItem(WHOLE_KEY) === "1"; } catch { return false; } };
 
 const reduced = () => !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
@@ -51,9 +56,17 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
   const idx = Math.max(0, Math.min(last, Number.isFinite(wanted) ? wanted - 1 : 0));
   const setIdx = useCallback((i: number) => navigate(`/${lesson.id}/${i + 1}${query}`, { replace: true }), [navigate, lesson.id, query]);
   const player = usePlayer(last, idx, setIdx, view === "trace");
+  /* The camera reads big drawings up close; the viewer can ask for the whole drawing instead. */
+  const [whole, setWhole] = useState(storedWhole);
+  const [cropped, setCropped] = useState(false);
+  const toggleWhole = useCallback(() => setWhole((w) => {
+    try { localStorage.setItem(WHOLE_KEY, w ? "0" : "1"); } catch { /* private mode: keep it for this visit */ }
+    return !w;
+  }), []);
+  const zoom = useMemo<Zoom>(() => ({ lens: LENS, whole, onCrop: setCropped }), [whole]);
   useKeyboard({
     prev: player.back, next: () => player.jump(idx + 1), first: () => player.jump(0), last: () => player.jump(last),
-    toggle: player.toggle, reset: player.reset
+    toggle: player.toggle, reset: player.reset, whole: () => { if (cropped) toggleWhole(); }
   }, view === "trace");
   const theory = view === "theory";
 
@@ -89,7 +102,7 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
   /* Widening the window brings the in-page course back, so the drawer is done. */
   useEffect(() => { if (!narrow) onCloseCourse(); }, [narrow, onCloseCourse]);
 
-  const [boxes, setBoxes] = useState<Box[] | null>(null);
+  const [boxes, setBoxes] = useState<Shot[] | null>(null);
 
   const step = steps[idx];
   const reached = Math.min(last, isDefault ? Math.max(progress[lesson.id] ?? 0, idx) : customMax);
@@ -133,7 +146,7 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
   const stepOf = `Step ${idx + 1} of ${steps.length}`;
 
   const head = (
-    <header className="lesson-head" key="head">
+    <header className={`lesson-head${theory ? "" : " trace-head"}`} key="head">
       <nav className="crumb" aria-label="Breadcrumb">
         <span>dsa</span><span className="sep" aria-hidden="true">/</span>
         {sec && <><span>{sec.id}</span><span className="sep" aria-hidden="true">/</span></>}
@@ -154,6 +167,11 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
             {lesson.metrics(step).map((m: { label: string; value: string | number }) => <MetricCard key={m.label} {...m} />)}
           </div>
           <div className="stage-ctl">
+            {cropped && (
+              <button className="btn sm zoom" type="button" onClick={toggleWhole} aria-pressed={whole} title="Fit the whole drawing on the stage, or read it up close (F)">
+                <Icon name={whole ? "focus" : "expand"} size={12} />Show all
+              </button>
+            )}
             <button className="btn sm" type="button" onClick={player.reset} disabled={idx === 0}>Reset</button>
             <button className="btn sm speed" type="button" onClick={player.cycleSpeed} aria-label={`Playback speed ${player.speed}×`}>{player.speed}×</button>
             <button className="btn play" type="button" onClick={player.toggle}>
@@ -163,9 +181,11 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
             </button>
           </div>
         </div>
-        <CameraContext.Provider value={boxes?.[idx] ?? null}>
-          <lesson.Scene step={step} />
-        </CameraContext.Provider>
+        <ZoomContext.Provider value={zoom}>
+          <CameraContext.Provider value={boxes?.[idx] ?? null}>
+            <lesson.Scene step={step} />
+          </CameraContext.Provider>
+        </ZoomContext.Provider>
         <div className="stage-foot">
           <ul className="legend" aria-label="Colour key">
             {lesson.legend.map((l: { cls: string; label: string }) => <li key={l.label}><i className={`swatch ${l.cls}`} aria-hidden="true" />{l.label}</li>)}
@@ -242,7 +262,7 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
         <button className="btn" type="button" onClick={player.back} disabled={idx === 0}><Icon name="left" />Back</button>
         <button className="btn primary" type="button" onClick={player.next}><span>{idx >= last ? "Start over" : `Next: ${label(idx + 1)}`}</span><Icon name={idx >= last ? "replay" : "right"} /></button>
       </div>
-      <p className="keys"><Kbd>←</Kbd><Kbd>→</Kbd> step · <Kbd>Home</Kbd><Kbd>End</Kbd> ends · <Kbd>Space</Kbd> play · <Kbd>R</Kbd> reset</p>
+      <p className="keys"><Kbd>←</Kbd><Kbd>→</Kbd> step · <Kbd>Home</Kbd><Kbd>End</Kbd> ends · <Kbd>Space</Kbd> play · <Kbd>R</Kbd> reset · <Kbd>F</Kbd> show all</p>
     </section>
   );
 

@@ -1,9 +1,9 @@
 import { useEffect, useRef } from "react";
 
-export interface Keys { prev(): void; next(): void; first(): void; last(): void; toggle(): void; reset(): void }
+export interface Keys { prev(): void; next(): void; first(): void; last(): void; toggle(): void; reset(): void; whole?(): void }
 
 /**
- * Arrow keys step, Home and End jump, Space plays, R resets.
+ * Arrow keys step, Home and End jump, Space plays, R resets, F shows the whole drawing.
  * Ignored while typing, with a modifier held, inside a dialog, or where a widget owns the arrows (tabs).
  * Space on a button the viewer reached with the keyboard still presses that button; after a mouse
  * click (no focus ring) Space means play, so it never re-presses the last clicked control.
@@ -23,6 +23,7 @@ export function makeKeyHandler(k: Keys, enabled: boolean): (e: KeyboardEvent) =>
     else if (e.key === "Home") { k.first(); e.preventDefault(); }
     else if (e.key === "End") { k.last(); e.preventDefault(); }
     else if (e.key === "r" || e.key === "R") k.reset();
+    else if (e.key === "f" || e.key === "F") k.whole?.();
     else if (e.key === " ") {
       const keyboardFocus = !!t && t.matches("button, a, summary") && t.matches(":focus-visible");
       if (keyboardFocus) return;
