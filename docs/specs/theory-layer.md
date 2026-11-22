@@ -76,7 +76,7 @@ The guide and theory pages are reading surfaces inside the existing debugger she
 - Every cost has a growth meter.
 - A guide's cheat sheet is followed by a chart of the growth curves.
 - Lessons here shows a thumbnail of each lesson's scene.
-- Use/avoid lists, pitfalls and tips carry state marks.
+- Use/avoid lists carry state marks. Pitfalls and tips read like a compiler's warning list: hairline rows with an amber warn badge, and in pitfalls the first sentence is the headline (keep it short and self-contained; the rest follows in muted text).
 
 **Reading marks.** Bold phrases carry a highlighter band (`--mark`, the amber active colour; `--mark-no`, red, in Avoid it when); in dark the band is a faint wash with a crisp edge (`--mark-edge`), and struck wrong forms carry a tilted `--danger` rule. Both are drawn by default. `theory/useInk.ts` holds back the marks below the fold and draws each one as it crosses a reading line at 85% of the viewport height, with the strike a beat after the band; reaching the end of the page draws the rest. With reduced motion, the marks are simply there.
 

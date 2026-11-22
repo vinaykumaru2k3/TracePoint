@@ -81,6 +81,7 @@
   /* reading marks: the band drawn under a key phrase (active amber; swap red in avoid lists) */
   --mark: color-mix(in oklab, var(--st-active-l) 72%, transparent); --mark-no: color-mix(in oklab, var(--st-swap-l) 72%, transparent);
   --mark-edge: transparent; --mark-no-edge: transparent;
+  --wrong-chip: color-mix(in oklab, var(--st-swap-t) 55%, var(--surface));
   /* Cheat-sheet cost tiles, tinted by growth class. */
   --heat-found: color-mix(in oklab, var(--st-found-t) 62%, transparent); --heat-active: color-mix(in oklab, var(--st-active-t) 62%, transparent); --heat-swap: color-mix(in oklab, var(--st-swap-t) 62%, transparent);
 
@@ -120,7 +121,7 @@
     --st-swap-t: #dc9d8e; --st-swap-l: #c38676; --st-swap-r: #b37a6a;
     --st-visited-t: #bcab88; --st-visited-l: #a59574; --st-visited-r: #978868;
     --st-stale-t: #5a5148; --st-stale-l: #4a423a; --st-stale-r: #3e3731;
-    --mark: color-mix(in oklab, var(--st-active-t) 18%, transparent); --mark-no: color-mix(in oklab, var(--st-swap-t) 18%, transparent); --mark-edge: var(--st-active-t); --mark-no-edge: var(--st-swap-t); --heat-found: color-mix(in oklab, var(--st-found-l) 15%, transparent); --heat-active: color-mix(in oklab, var(--st-active-l) 17%, transparent); --heat-swap: color-mix(in oklab, var(--st-swap-l) 17%, transparent);
+    --mark: color-mix(in oklab, var(--st-active-t) 18%, transparent); --mark-no: color-mix(in oklab, var(--st-swap-t) 18%, transparent); --mark-edge: var(--st-active-t); --mark-no-edge: var(--st-swap-t); --wrong-chip: color-mix(in oklab, var(--st-swap-l) 20%, var(--surface)); --heat-found: color-mix(in oklab, var(--st-found-l) 15%, transparent); --heat-active: color-mix(in oklab, var(--st-active-l) 17%, transparent); --heat-swap: color-mix(in oklab, var(--st-swap-l) 17%, transparent);
   }
 }
 
@@ -157,5 +158,5 @@
   --st-swap-t: #dc9d8e; --st-swap-l: #c38676; --st-swap-r: #b37a6a;
   --st-visited-t: #bcab88; --st-visited-l: #a59574; --st-visited-r: #978868;
   --st-stale-t: #5a5148; --st-stale-l: #4a423a; --st-stale-r: #3e3731;
-  --mark: color-mix(in oklab, var(--st-active-t) 18%, transparent); --mark-no: color-mix(in oklab, var(--st-swap-t) 18%, transparent); --mark-edge: var(--st-active-t); --mark-no-edge: var(--st-swap-t); --heat-found: color-mix(in oklab, var(--st-found-l) 15%, transparent); --heat-active: color-mix(in oklab, var(--st-active-l) 17%, transparent); --heat-swap: color-mix(in oklab, var(--st-swap-l) 17%, transparent);
+  --mark: color-mix(in oklab, var(--st-active-t) 18%, transparent); --mark-no: color-mix(in oklab, var(--st-swap-t) 18%, transparent); --mark-edge: var(--st-active-t); --mark-no-edge: var(--st-swap-t); --wrong-chip: color-mix(in oklab, var(--st-swap-l) 20%, var(--surface)); --heat-found: color-mix(in oklab, var(--st-found-l) 15%, transparent); --heat-active: color-mix(in oklab, var(--st-active-l) 17%, transparent); --heat-swap: color-mix(in oklab, var(--st-swap-l) 17%, transparent);
 }

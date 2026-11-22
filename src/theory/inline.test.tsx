@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { MemoryRouter } from "react-router-dom";
-import { linkTargets, parseInline, Rich } from "./inline";
+import { leadSplit, linkTargets, parseInline, Rich } from "./inline";
 
 describe("parseInline", () => {
   it("splits code and bold", () => {
@@ -38,5 +38,17 @@ describe("parseInline", () => {
     expect(html).toContain("Hashing guide");
     expect(html).toContain("<code>c</code>");
     expect(html).toContain("<strong>b</strong>");
+  });
+});
+
+describe("leadSplit", () => {
+  it("splits after the first sentence", () => {
+    expect(leadSplit("Off by one. The loop never ends.")).toEqual(["Off by one.", "The loop never ends."]);
+  });
+  it("never splits inside code", () => {
+    expect(leadSplit("Writing `a. b` wrong. Then more.")).toEqual(["Writing `a. b` wrong.", "Then more."]);
+  });
+  it("keeps a single sentence whole", () => {
+    expect(leadSplit("Only one sentence.")).toEqual(["Only one sentence.", ""]);
   });
 });

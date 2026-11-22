@@ -63,6 +63,17 @@ export function parseInline(s: Inline): Token[] {
   return out;
 }
 
+/** Splits text after its first sentence (a ". " outside `code`), for a headline and its explanation.
+ *  Text with one sentence comes back whole, with an empty rest. */
+export function leadSplit(s: Inline): [head: Inline, rest: Inline] {
+  let code = false;
+  for (let i = 0; i < s.length - 1; i++) {
+    if (s[i] === "`") code = !code;
+    else if (!code && s[i] === "." && s[i + 1] === " ") return [s.slice(0, i + 1), s.slice(i + 2)];
+  }
+  return [s, ""];
+}
+
 export function linkTargets(s: Inline): string[] {
   return parseInline(s).flatMap((k) => (k.t === "link" ? [k.target] : []));
 }

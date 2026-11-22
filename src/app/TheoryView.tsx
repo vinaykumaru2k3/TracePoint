@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { Link } from "react-router-dom";
 import type { AnyLesson } from "../engine/types";
 import { Icon, type IconName } from "../design/ui";
-import { Rich } from "../theory/inline";
+import { leadSplit, Rich } from "../theory/inline";
 import { Cost, heatClass } from "../theory/Meter";
 import { useInk } from "../theory/useInk";
 import { Part } from "./GuidePage";
@@ -19,10 +19,20 @@ export function LessonTabs({ id, view, search }: { id: string; view: "theory" | 
 }
 
 /** A list whose items each lead with a drawn icon: checks, crosses or warnings. */
-export function MarkList({ items, icon, tone }: { items: string[]; icon: IconName; tone: string }) {
+export function MarkList({ items, icon, tone, lead = false }: { items: string[]; icon: IconName; tone: string; lead?: boolean }) {
   return (
     <ul className={`marks ${tone}`}>
-      {items.map((x, i) => <li key={i}><span className="mark" aria-hidden="true"><Icon name={icon} size={13} /></span><span><Rich text={x} /></span></li>)}
+      {items.map((x, i) => {
+        const [head, rest] = lead ? leadSplit(x) : [x, ""];
+        return (
+          <li key={i}>
+            <span className="mark" aria-hidden="true"><Icon name={icon} size={13} /></span>
+            {lead
+              ? <span><span className="lead-in"><Rich text={head} /></span>{rest && <> <span className="lead-rest"><Rich text={rest} /></span></>}</span>
+              : <span><Rich text={x} /></span>}
+          </li>
+        );
+      })}
     </ul>
   );
 }
@@ -75,7 +85,7 @@ export default function TheoryView({ lesson, search }: { lesson: AnyLesson; sear
       <Part id="example" title="Worked example">
         <ol className="example">{t.example.map((x, i) => <li key={i}><span><Rich text={x} /></span></li>)}</ol>
       </Part>
-      <Part id="pitfalls" title="Pitfalls"><MarkList items={t.pitfalls} icon="warn" tone="warn" /></Part>
+      <Part id="pitfalls" title="Pitfalls"><MarkList items={t.pitfalls} icon="warn" tone="warn" lead /></Part>
       </div>
       <div className="watch-row">{watch}</div>
     </div>

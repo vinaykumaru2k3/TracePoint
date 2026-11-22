@@ -474,15 +474,23 @@ a { color: inherit; text-decoration: none; }
 .analogy { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: start; padding: 12px 16px; background: var(--surface-2); border-radius: var(--radius); }
 .analogy p { margin: 0; }
 .analogy .mark { padding-top: 3px; color: var(--ink); }
-.analogy code, .marks.warn code { background: var(--surface); }
+.analogy code { background: var(--surface); }
 
 .prose .marks { list-style: none; padding: 0; gap: 8px; }
 .marks li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: start; }
 .marks .mark { width: 20px; height: 20px; margin-top: 2px; display: grid; place-items: center; border: 1px solid var(--stroke); border-radius: 50%; color: var(--slab-ink); }
 .marks.yes .mark { background: var(--st-found-t); }
 .marks.no .mark { background: var(--st-swap-t); }
-.marks.warn li { padding: 8px 12px; background: color-mix(in oklab, var(--c-amber) 26%, var(--surface)); border: 1px solid color-mix(in oklab, var(--c-amber-2) 40%, var(--line)); border-radius: var(--radius); }
-.marks.warn .mark { border: 0; border-radius: 0; color: var(--ink); }
+/* Pitfalls and tips read like a compiler's warning list: hairline rows, no fill, an amber badge from the
+   same family as the use/avoid marks. A pitfall's first sentence is the mistake, set as the headline; the
+   explanation follows in muted text. A struck wrong form sits on a red-tinted chip. */
+.prose .marks.warn { gap: 0; }
+.marks.warn li { padding: 10px 0 11px; border-top: 1px solid var(--line); }
+.marks.warn li:last-child { border-bottom: 1px solid var(--line); }
+.marks.warn .mark { background: var(--st-active-t); }
+.marks.warn .lead-in { font-weight: 600; color: var(--ink); }
+.marks.warn .lead-rest { color: var(--muted); }
+.prose s.wrong code { background: var(--wrong-chip); }
 .fit-pair { display: grid; gap: 0 40px; }
 @container (min-width: 640px) { .fit-pair { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
@@ -581,7 +589,8 @@ a { color: inherit; text-decoration: none; }
   .band.even { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .band.costs { grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); }
   .band-side .gpart:first-child, .band > .gpart + .gpart { padding-top: 18px; }
-  .prose .marks.cols { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 14px; }
+  .prose .marks.cols { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 28px; }
+  .marks.warn.cols li:nth-last-child(2):nth-child(odd) { border-bottom: 1px solid var(--line); }
   .case { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 2fr); gap: 4px 32px; padding: 16px 0; border-bottom: 1px solid var(--line); }
   .case:last-child { border-bottom: 0; }
   .case h3 { padding-top: 6px; }
