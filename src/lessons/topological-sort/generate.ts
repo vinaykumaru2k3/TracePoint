@@ -57,7 +57,7 @@ export function generateTopo(g: GraphInput): Step<TopoState>[] {
   counted = true;
   snap({
     kind: "check", anchors: ["topo.sig", "topo.count"], notes: { "topo.count": g.nodes.map((x) => `${x}:${indeg[x]}`).join(" ") },
-    title: "Count the arrows into each node",
+    title: "Count the arrows into each node", short: "count in",
     idea: "The in-degree of a node is how many arrows point into it. That is how many nodes must come before it.",
     text: `Every arrow adds 1 to the node it points at. The tags show the counts: ${g.nodes.map((x) => `${x} has ${indeg[x]}`).join(", ")}.`
   });
@@ -65,7 +65,7 @@ export function generateTopo(g: GraphInput): Step<TopoState>[] {
   queue = g.nodes.filter((x) => indeg[x] === 0);
   snap({
     kind: "add", anchors: ["topo.init"], notes: { "topo.init": `queue = [${queue.join(", ")}]` },
-    title: queue.length ? `Queue the nodes nothing points to` : "No node is free to start",
+    title: queue.length ? `Queue the nodes nothing points to` : "No node is free to start", short: queue.length ? "queue 0s" : "none free",
     idea: "A node with in-degree 0 has nothing that must come first. Any of them can start the order.",
     text: queue.length
       ? `${queue.join(" and ")} ${queue.length === 1 ? "has" : "have"} in-degree 0, so ${queue.length === 1 ? "it goes" : "they go"} into the queue.`
@@ -77,7 +77,7 @@ export function generateTopo(g: GraphInput): Step<TopoState>[] {
     order.push(u);
     snap({
       kind: "remove", anchors: ["topo.poll", "topo.out"], notes: { "topo.out": `order = [${order.join(", ")}]` },
-      title: `${u} goes next`,
+      title: `${u} goes next`, short: `place ${u}`,
       idea: "Everything that had to come before this node is already in the order, so it is safe to place now.",
       text: `${u} leaves the queue and is added to the order in place ${order.length}. Now its arrows are removed, one by one.`
     }, { cur: u, ptrs: [{ node: idOf(u), label: "u" }] });
@@ -88,7 +88,7 @@ export function generateTopo(g: GraphInput): Step<TopoState>[] {
       snap({
         kind: free ? "add" : "check", anchors: free ? ["topo.dec", "topo.push"] : ["topo.dec"],
         notes: { "topo.dec": `indeg[${x}] = ${indeg[x]}`, ...(free ? { "topo.push": `queue = [${queue.join(", ")}]` } : {}) },
-        title: free ? `${x} is free: in-degree 0` : `${x} still waits on ${indeg[x]}`,
+        title: free ? `${x} is free: in-degree 0` : `${x} still waits on ${indeg[x]}`, short: free ? `free ${x}` : `${x} waits`,
         idea: free ? "The last arrow into this node is gone, so everything it needed is placed. It joins the queue." : "Removing an arrow lowers the count, but other nodes must still come before this one.",
         text: free
           ? `The arrow ${u} → ${x} is removed, and ${x}'s in-degree drops to 0. ${x} joins the queue.`
@@ -102,14 +102,14 @@ export function generateTopo(g: GraphInput): Step<TopoState>[] {
   if (left.length) {
     snap({
       kind: "empty", anchors: ["topo.cycle"], notes: { "topo.cycle": `${order.length} of ${g.nodes.length} placed` }, ret: "cycle",
-      title: "Stuck: a cycle blocks the rest",
+      title: "Stuck: a cycle blocks the rest", short: "cycle",
       idea: "In a cycle every node waits on another in the same cycle. None ever reaches in-degree 0, so no order exists.",
       text: `The queue is empty but ${left.join(", ")} ${left.length === 1 ? "is" : "are"} still unplaced, each with arrows coming in. Those arrows form a cycle, so no topological order exists. The function reports failure.`
     }, { left });
   } else {
     snap({
       kind: "found", anchors: ["topo.done"], notes: { "topo.done": `return [${order.join(", ")}]` }, ret: `[${order.join(", ")}]`,
-      title: "Every node is placed",
+      title: "Every node is placed", short: "done",
       idea: "Each node was placed only after every node pointing to it, so all arrows point forward in the order.",
       text: `The order is ${order.join(", ")}. Check any arrow: its start comes before its end. Other valid orders may exist. This one depends on the queue order.`
     });
