@@ -4,9 +4,9 @@ const hashing: Guide = {
   section: "hashing",
   tagline: "How a hash function turns a key into an array index, so you can store and find items in about one step on average.",
   core: [
-    "Say you store the numbers 12, 7 and 3, and later ask whether 7 is there. Scanning a list checks every item. Instead, compute `7 % 5 = 2` and look only in slot 2 of an array. The question costs one calculation and a short look on average, however many numbers you stored, as long as the table grows as it fills.",
-    "That calculation is a hash function. It turns a key, the thing you look up, into a bucket number, an index into an array. A set stores keys only. A map stores a value with each key, such as a name with a phone number. Both are built this way.",
-    "Two keys can land in the same bucket, as 12 and 7 do with `% 5`. That is a collision. Chaining keeps a short list in each bucket. Open addressing puts the key in the next free slot. While buckets stay short, insert, lookup and delete cost O(1) on average. If every key collides, they cost O(n)."
+    "Say you store the numbers 12, 7 and 3, and later ask whether 7 is there. Scanning a list checks every item. Instead, compute `7 % 5 = 2` and look only in slot 2 of an array. The question costs **one calculation and a short look on average**, however many numbers you stored, as long as the table grows as it fills.",
+    "That calculation is a **hash function**. It turns a key, the thing you look up, into a bucket number, an index into an array. A set stores keys only. A map stores a value with each key, such as a name with a phone number. Both are built this way.",
+    "Two keys can land in the same bucket, as 12 and 7 do with `% 5`. That is a collision. Chaining keeps a short list in each bucket. Open addressing puts the key in the next free slot. While buckets stay short, insert, lookup and delete **cost O(1) on average**. If every key collides, they cost O(n)."
   ],
   analogy:
     "Picture a coat check with numbered hooks. The attendant does not search every hook for your coat. Your ticket number says which hook to go to. If two coats share a hook, the attendant checks the few coats on it. A hash table works like that: the hash is the ticket, and a collision is a crowded hook.",

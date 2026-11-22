@@ -2,7 +2,7 @@ import type { LessonTheory } from "../../theory/types";
 
 const theory: LessonTheory = {
   definition:
-    "A hash table with chaining is an array of buckets, where each bucket holds a short list, its chain, of the keys that land there. A hash function turns each key into a bucket number, so a lookup scans one chain instead of every key.",
+    "A hash table with chaining is an array of buckets, where each bucket holds a short list, its chain, of the keys that land there. A hash function turns each key into a bucket number, so a lookup **scans one chain instead of every key**.",
   analogy:
     "Think of a wall of mail slots sorted by the last digit of a flat number. To find mail for flat 27, you go straight to slot 7. Several flats share that slot, so you leaf through the few letters in it. You never touch the other slots.",
   steps: [
@@ -14,6 +14,7 @@ const theory: LessonTheory = {
     "To check or remove, hash the key and scan only that chain. Return false if the chain ends without the key. Remove unlinks the matching node.",
     "The load factor is keys divided by buckets. When it grows, chains get long, so real tables resize: they build a bigger array and rehash every key. See [[guide:hashing]]."
   ],
+  shots: [1, 1, 2, 10, 6, 21, 27],
   ops: [
     ["`add(k)`", "O(1) average, O(n) worst", "Average means typical inputs, with keys spread across buckets. The worst case is every key in one chain, so you scan them all."],
     ["`contains(k)`", "O(1) average, O(n) worst", "A miss scans the whole chain, which stays short while keys are spread out."],

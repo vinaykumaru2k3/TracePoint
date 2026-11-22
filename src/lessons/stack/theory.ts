@@ -2,7 +2,7 @@ import type { LessonTheory } from "../../theory/types";
 
 const theory: LessonTheory = {
   definition:
-    "A stack is a collection where you add and remove items at one end only, called the top. The last item you add (push) is the first one you remove (pop), which is called LIFO (last in, first out).",
+    "A stack is a collection where you **add and remove items at one end only**, called the top. The last item you add (push) is the first one you remove (pop), which is called LIFO (last in, first out).",
   analogy:
     "Think of a pile of plates in a kitchen. You put a clean plate on top, and you take the top plate when you need one. The plate at the bottom waited longest, but it comes out last.",
   steps: [
@@ -12,6 +12,7 @@ const theory: LessonTheory = {
     "To pop, check that the stack is not empty. Read `data[top]`, subtract 1 from `top`, and return the value you read.",
     "A popped value stays in its slot until a later push overwrites it. Only slots up to `top` count as the stack."
   ],
+  shots: [1, 3, 5, 6, 8],
   ops: [
     ["`push(x)`", "O(1)", "One write and one index change. It fails if this fixed array is full."],
     ["`pop()`", "O(1)", "One read and one index change. It throws on an empty stack."],

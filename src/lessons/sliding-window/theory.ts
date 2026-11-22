@@ -2,7 +2,7 @@ import type { LessonTheory } from "../../theory/types";
 
 const theory: LessonTheory = {
   definition:
-    "A sliding window is a run of `k` items in a row that moves along an array one place at a time. Here it finds the largest sum of any `k` items in a row.",
+    "A sliding window is a run of `k` items in a row that **moves along an array one place at a time**. Here it finds the largest sum of any `k` items in a row.",
   analogy:
     "Think of a train passing a short platform. Each time it rolls forward one car, a car arrives at the front of the platform and one leaves at the back. You keep track of who is on the platform by noting who arrives and who leaves, not by recounting everyone.",
   steps: [
@@ -12,6 +12,7 @@ const theory: LessonTheory = {
     "If the new sum beats the best, keep it as the best.",
     "Repeat until the window reaches the end of the array, then return the best."
   ],
+  shots: [4, 5, 5, 6, 8],
   useWhen: [
     "The question is about a contiguous run, such as the best total over 7 days in a row.",
     "Each item's effect can be added when it enters and taken away when it leaves."
@@ -28,7 +29,7 @@ const theory: LessonTheory = {
   ],
   pitfalls: [
     "Re-adding all `k` items at every step. That costs O(n × k) and throws away the point of the window.",
-    "Dropping the wrong item. The one that leaves is `a[i - k]`, not `a[i - k + 1]`.",
+    "Dropping the wrong item. The one that leaves is `a[i - k]`, not ~~`a[i - k + 1]`~~.",
     "Starting the best at 0. If every number is negative, the answer is below 0, so start from the first window's sum."
   ]
 };

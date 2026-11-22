@@ -2,7 +2,7 @@ import type { LessonTheory } from "../../theory/types";
 
 const theory: LessonTheory = {
   definition:
-    "Counting sort orders small whole numbers without comparing them. It counts how often each value appears, then writes each value back that many times, smallest first.",
+    "Counting sort orders small whole numbers **without comparing them**. It counts how often each value appears, then writes each value back that many times, smallest first.",
   analogy:
     "Think of sorting a pile of coins by value. You never compare one coin with another. You drop each coin into the tray for its value. Then you empty the trays in order, smallest value first.",
   steps: [
@@ -12,6 +12,7 @@ const theory: LessonTheory = {
     "No value is ever compared with another. A comparison asks which of two values is smaller, and sorts built on comparisons cannot beat O(n log n) in the worst case.",
     "This version writes fresh values instead of moving the original items. So stability, keeping equal items in their first order, does not apply here."
   ],
+  shots: [2, 3, 8, 11, 13],
   ops: [
     ["time, every case", "O(n + k)", "Here k is the largest value plus 1, the number of counters. Counting reads n values, and writing back walks k counters and writes n values."],
     ["extra space", "O(k)", "The count array has one slot per possible value, however few values there are."],
@@ -33,7 +34,7 @@ const theory: LessonTheory = {
   ],
   pitfalls: [
     "Using it on negative numbers as written. `count[-1]` is not a valid slot, so shift every value by the smallest one first.",
-    "Sizing `count` as `max` instead of `max + 1`. The slot for the largest value is then missing.",
+    "Sizing `count` as ~~`max`~~ instead of `max + 1`. The slot for the largest value is then missing.",
     "Choosing it for a wide range of values. The count array then costs far more memory and time than the values themselves."
   ]
 };

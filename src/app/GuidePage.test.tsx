@@ -15,9 +15,25 @@ const at = (path: string) => renderToStaticMarkup(
 
 describe("GuideView", () => {
   const html = renderToStaticMarkup(<MemoryRouter><GuideView guide={GUIDES.foundations} /></MemoryRouter>);
+  it("sets a cheat-sheet row name as a row header with its qualifier on its own line, and tints cost cells", () => {
+    const sorting = renderToStaticMarkup(<MemoryRouter><GuideView guide={GUIDES.sorting} /></MemoryRouter>);
+    expect(sorting).toContain('<th scope="row"><span class="cheat-name">Binary search</span><span class="cheat-qual">sorted input only</span></th>');
+    expect(sorting).toMatch(/<td class="heat t-swap"><span class="cost"><span class="cost-v">O\(n²\)/);
+  });
   it("renders the parts in spec order", () => {
     const h2 = [...html.matchAll(/<h2[^>]*>(.*?)<\/h2>/g)].map((m) => m[1]);
     expect(h2).toEqual(["Core idea", "Analogy", "Before you start", "Key terms", "Cheat sheet", "When you see…", "Tips and traps", "Case studies", "Lessons here"]);
+  });
+  it("draws the growth chart under the cheat sheet, inking the classes it names", () => {
+    const cheat = html.slice(html.indexOf('id="cheat"'), html.indexOf('id="patterns"'));
+    expect(cheat).toContain('class="growth"');
+    expect(cheat).toContain('class="g-curve on"');
+    expect(cheat).toContain('class="meter');
+  });
+  it("shows a still of each live lesson's scene in Lessons here", () => {
+    const lessons = html.slice(html.indexOf('id="lessons"'));
+    expect(lessons).toContain('class="glessons gallery"');
+    expect(lessons.match(/class="thumb"/g)?.length).toBe(6);
   });
   it("puts the cheat sheet in a scrolling table wrapper", () => {
     expect(html).toMatch(/class="table-wrap"[^>]*><table/);
@@ -25,7 +41,7 @@ describe("GuideView", () => {
   it("links live lessons to their theory tab and marks soon lessons", () => {
     expect(html).toContain('href="/arrays/learn"');
     /* A section whose lessons are not built yet lists them as plain text with a soon tag. */
-    const soon = renderToStaticMarkup(<MemoryRouter><GuideView guide={{ ...GUIDES.foundations, section: "trees" }} /></MemoryRouter>);
+    const soon = renderToStaticMarkup(<MemoryRouter><GuideView guide={{ ...GUIDES.foundations, section: "graphs" }} /></MemoryRouter>);
     expect(soon).toContain('class="soon-tag">soon</small>');
     expect(soon).not.toContain("/learn\">Binary tree");
   });
@@ -37,8 +53,8 @@ describe("guide routes", () => {
     expect(at("/guide/nope")).not.toContain("arrives with its lessons");
   });
   it("says a section without a guide arrives with its lessons", () => {
-    expect(resolveGuide("trees")).toBe("missing");
-    const html = at("/guide/trees");
+    expect(resolveGuide("graphs")).toBe("missing");
+    const html = at("/guide/graphs");
     expect(html).toContain("arrives with its lessons");
     expect(html).toContain('href="/guide/foundations"');
   });
@@ -97,8 +113,9 @@ describe("guide css", () => {
     expect(css).toMatch(/\.cheat \{[^}]*min-width: 34rem/);
     expect(css).toMatch(/\.table-wrap \{ overflow-x: auto/);
   });
-  it("keeps cost cells on one line but lets the first and last columns wrap", () => {
-    expect(css).toMatch(/\.cheat td:not\(:first-child\):not\(:last-child\)\s*\{[^}]*white-space:\s*nowrap/);
+  it("never breaks a cost class inside its chip, and tints chips by growth class", () => {
+    expect(css).toMatch(/\.cheat td\.heat \.cost-v \{ min-width: 10\.5ch/);
+    expect(css).toMatch(/\.cheat td\.t-swap \.cost \{ background: var\(--heat-swap\)/);
   });
 });
 

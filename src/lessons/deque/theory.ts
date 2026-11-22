@@ -2,7 +2,7 @@ import type { LessonTheory } from "../../theory/types";
 
 const theory: LessonTheory = {
   definition:
-    "A deque, short for double-ended queue and said \"deck\", lets you add and remove items at both the front and the back. It can act as a [[stack]] (last in, first out) or as a [[queue]] (first in, first out).",
+    "A deque, short for double-ended queue and said \"deck\", lets you add and remove items **at both the front and the back**. It can act as a [[stack]] (last in, first out) or as a [[queue]] (first in, first out).",
   analogy:
     "Think of a train carriage with a door at each end. Passengers can board or leave through either door, but nobody climbs in through the middle.",
   steps: [
@@ -13,6 +13,7 @@ const theory: LessonTheory = {
     "To pop at the front, read `data[head]` and step `head` forward. To pop at the back, read the back slot. Both subtract 1 from `size`.",
     "Every operation first checks for a full or an empty deque, and throws if the check fails."
   ],
+  shots: [1, 3, 3, 4, 6, 7],
   ops: [
     ["`pushFront(x)`", "O(1)", "Moves `head` back one slot, then writes."],
     ["`pushBack(x)`", "O(1)", "Writes after the back item."],
@@ -36,7 +37,7 @@ const theory: LessonTheory = {
   pitfalls: [
     "Computing `head - 1` without wrapping. In many languages `-1 % 6` is -1, not 5, so add `cap` before taking the remainder.",
     "Popping from an empty deque. Check `size` first.",
-    "Mixing up the ends. The back is `(head + size - 1) % cap`, not `size - 1`."
+    "Mixing up the ends. The back is `(head + size - 1) % cap`, not ~~`size - 1`~~."
   ]
 };
 

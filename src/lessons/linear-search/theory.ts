@@ -2,7 +2,7 @@ import type { LessonTheory } from "../../theory/types";
 
 const theory: LessonTheory = {
   definition:
-    "Linear search checks the cells of an array one at a time from the left, and stops at the first cell that equals the target. It returns that cell's index, or -1 if no cell matches.",
+    "Linear search checks the cells of an array **one at a time from the left**, and stops at the first cell that equals the target. It returns that cell's index, or -1 if no cell matches.",
   analogy:
     "Think of looking for your keys in a row of coat pockets. You have no idea which pocket holds them, so you check each pocket in turn. You stop as soon as you feel the keys. If the last pocket is empty too, they are not there.",
   steps: [
@@ -12,6 +12,7 @@ const theory: LessonTheory = {
     "If not, move on to `i + 1` and compare again.",
     "If `i` passes the last cell, every cell was checked and none matched, so return -1."
   ],
+  shots: [2, 2, 5, 3, 5],
   ops: [
     ["best case", "O(1)", "The target is in the first cell, so one check finds it."],
     ["average case", "O(n)", "If the target is equally likely in any cell, the search checks about n / 2 cells. Dropping the constant leaves O(n)."],

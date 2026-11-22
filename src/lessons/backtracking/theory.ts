@@ -2,7 +2,7 @@ import type { LessonTheory } from "../../theory/types";
 
 const theory: LessonTheory = {
   definition:
-    "Backtracking builds an answer one choice at a time, explores everything that follows, then undoes that choice and tries the next. Here it lists every subset, meaning every selection of the items from none to all.",
+    "Backtracking builds an answer one choice at a time, explores everything that follows, then **undoes that choice and tries the next**. Here it lists every subset, meaning every selection of the items from none to all.",
   analogy:
     "Picture a sandwich counter with three toppings. You go down the line saying yes or no to each one. After you write down a full sandwich, you step back to the last topping, change your answer, and go on. Yes or no for 3 toppings gives 2 × 2 × 2 = 8 sandwiches.",
   steps: [
@@ -14,6 +14,7 @@ const theory: LessonTheory = {
     "The calls form a search tree, shaped like a family tree with the first call at the top. Each call is a node, and it branches into two calls below it, take and skip.",
     "A leaf is a call at the bottom with nothing left to decide. Every leaf records one subset."
   ],
+  shots: [1, 5, 4, 6, 7, 15, 30],
   ops: [
     ["record one subset", "O(n)", "Copying `path` copies up to n items."],
     ["list all subsets", "O(n·2ⁿ)", "Each item is in or out, so there are 2ⁿ subsets. Each copy holds up to n items."],

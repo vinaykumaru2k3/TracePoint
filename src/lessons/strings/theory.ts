@@ -2,7 +2,7 @@ import type { LessonTheory } from "../../theory/types";
 
 const theory: LessonTheory = {
   definition:
-    "A string is a sequence of characters stored in order, like an array of letters. In Java and Python a string cannot change once it is made, so you build a new one instead.",
+    "A string is a sequence of characters stored in order, like an array of letters. In Java and Python a string **cannot change once it is made**, so you build a new one instead.",
   analogy:
     "A string is like a word printed on a card. You can read any letter on it, but you cannot rub one out. To get the word backwards, you copy its letters onto a fresh card in the other order.",
   steps: [
@@ -13,6 +13,7 @@ const theory: LessonTheory = {
     "A palindrome is a word that reads the same both ways, such as `level`. To test for one, compare `s` with its reverse, one character at a time.",
     "Stop at the first mismatch. If every character matches, the word is a palindrome."
   ],
+  shots: [1, 2, 5, 8, 9, 9],
   ops: [
     ["`s[i]`", "O(1)", "Reads one character by index."],
     ["append to a builder", "O(1)", "Amortized, since the builder sometimes grows by copying."],
@@ -35,8 +36,8 @@ const theory: LessonTheory = {
   ],
   pitfalls: [
     "Building with `+` in a loop. Use a builder or a list and join once.",
-    "Getting the reverse loop bounds wrong. Start at `n - 1`, not `n`, and include index 0.",
-    "Comparing strings with `==` in Java. It checks whether they are the same object, not the same letters, so use `equals`."
+    "Getting the reverse loop bounds wrong. Start at `n - 1`, not ~~`n`~~, and include index 0.",
+    "Comparing strings with ~~`==`~~ in Java. It checks whether they are the same object, not the same letters, so use `equals`."
   ]
 };
 

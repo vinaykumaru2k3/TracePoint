@@ -4,9 +4,9 @@ const recursion: Guide = {
   section: "recursion",
   tagline: "How a function solves a problem by calling itself on a smaller copy, and how backtracking uses that to try every choice.",
   core: [
-    "Say you want `fact(4)`, which is 4 × 3 × 2 × 1 = 24. Notice that `fact(4)` is 4 × `fact(3)`, and `fact(3)` is 3 × `fact(2)`. Each problem holds a smaller copy of itself. At `fact(0)` the answer is 1 with no more work, so the chain stops there.",
-    "That is recursion: a function that calls itself on a smaller input. It needs a base case, an input it answers directly, and a recursive case that calls itself on a smaller one. Every call still waiting for an answer keeps a frame on the call stack. So the space a recursion needs is the deepest chain of calls alive at once.",
-    "Backtracking uses recursion to try choices. At each step you make one choice, recurse to explore everything that follows, then undo the choice and try the next one. The calls form a search tree with one branch per choice. Pruning skips a branch as soon as it breaks a rule, so most of the tree is never visited."
+    "Say you want `fact(4)`, which is 4 × 3 × 2 × 1 = 24. Notice that `fact(4)` is 4 × `fact(3)`, and `fact(3)` is 3 × `fact(2)`. **Each problem holds a smaller copy of itself**. At `fact(0)` the answer is 1 with no more work, so the chain stops there.",
+    "That is recursion: a function that calls itself on a smaller input. It needs a base case, an input it answers directly, and a recursive case that calls itself on a smaller one. Every call still waiting for an answer keeps a frame on the call stack. So the space a recursion needs is **the deepest chain of calls alive at once**.",
+    "Backtracking uses recursion to try choices. At each step you make one choice, recurse to explore everything that follows, then **undo the choice and try the next one**. The calls form a search tree with one branch per choice. Pruning skips a branch as soon as it breaks a rule, so most of the tree is never visited."
   ],
   analogy:
     "Picture a set of nesting dolls. To count them, you open the outer doll and count the dolls inside it, which is the same task, only smaller. The smallest doll does not open, so you count 1 and stop. Then each answer passes back out, one doll at a time, until the outer doll has its total.",

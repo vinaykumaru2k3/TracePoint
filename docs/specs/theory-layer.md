@@ -59,17 +59,26 @@ These rules apply to every guide and theory. Tests check the mechanical ones; th
 4. **No talking down.** The words "simply", "obviously", "clearly", "just", "trivial", "trivially" and "easy" are banned. (Tested.)
 5. **Concrete before abstract.** Show a small example before the general rule.
 6. **Every claim is true.** Complexities are the standard worst-case bounds unless the text says "average" or "amortized". No claim in theory may contradict the lesson's `costs`.
-7. **Plain markup only.** Text may use `` `code` ``, `**bold**`, and links `[[lesson-id]]` or `[[guide:section-id]]`, with an optional label after `|`. Every link must resolve. (Tested.)
+7. **Plain markup only.** Text may use `` `code` ``, `**bold**` (the key phrase of a paragraph, at most a few per part), `~~wrong form~~` (a mistaken form in a pitfall, struck through; it may hold `code`), and links `[[lesson-id]]` or `[[guide:section-id]]`, with an optional label after `|`. Every link must resolve. (Tested.)
 8. **Same voice as the trace.** Second person, present tense, no exclamation marks. (The exclamation-mark ban is tested.)
 
 ## Design
 
 The guide and theory pages are reading surfaces inside the existing debugger shell, and they follow the CLAUDE.md design rules:
-- JetBrains Mono, with body prose at 14px, line height 1.65 and a measure of about 70 characters.
+- JetBrains Mono, with body prose at 14px and line height 1.65. Each paragraph keeps a measure of about 72 characters, but the page uses the full width: on wide screens related parts sit side by side in bands, and a guide opens on a hero with a start/continue button and the section's first scene.
 - Each part sits under a `.pane-title`-style label.
 - Tables use hairline rules.
-- The cheat sheet is the one table that gets `--surface-2` row striping.
+- Cost tables are heatmaps: each cost sits in a chip tinted by its growth class, with its meter at the chip's right edge.
 - Colour comes from tokens only, and no unicode glyph is used as an icon.
+
+**Pictures, not only prose.**
+- How it works is a walkthrough: each step names a trace step of the default run (`shots`), and the lesson's own scene shows that step beside the list.
+- Every cost has a growth meter.
+- A guide's cheat sheet is followed by a chart of the growth curves.
+- Lessons here shows a thumbnail of each lesson's scene.
+- Use/avoid lists carry state marks. Pitfalls and tips read like a compiler's warning list: hairline rows with an amber warn badge, and in pitfalls the first sentence is the headline (keep it short and self-contained; the rest follows in muted text).
+
+**Reading marks.** Bold phrases carry a highlighter band (`--mark`, the amber active colour; `--mark-no`, red, in Avoid it when); in dark the band is a faint wash with a crisp edge (`--mark-edge`), and struck wrong forms carry a tilted `--danger` rule. Both are drawn by default. `theory/useInk.ts` holds back the marks below the fold and draws each one as it crosses a reading line at 85% of the viewport height, with the strike a beat after the band; reaching the end of the page draws the rest. With reduced motion, the marks are simply there.
 
 **Folder colours.** Each explorer folder has its own hue, one per section, so the course reads as ten distinct topics at a glance:
 - The folder icon is filled with the section's hue, and its outline stays ink.

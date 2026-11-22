@@ -2,7 +2,7 @@ import type { LessonTheory } from "../../theory/types";
 
 const theory: LessonTheory = {
   definition:
-    "A queue is a collection where items join at the back, or rear, and leave from the front. The item that waited longest leaves first, which is called FIFO (first in, first out).",
+    "A queue is a collection where items join at the back, or rear, and leave from the front. **The item that waited longest leaves first**, which is called FIFO (first in, first out).",
   analogy:
     "Think of a line at a ticket desk. New people join at the back. The clerk serves whoever is at the front, and nobody cuts in.",
   steps: [
@@ -12,6 +12,7 @@ const theory: LessonTheory = {
     "To dequeue, called `poll` here, return null, meaning no value, if `size` is 0. Otherwise read `data[head]`, move `head` to `(head + 1) % cap`, and subtract 1 from `size`.",
     "To peek, return `data[head]` without changing anything, or null if the queue is empty."
   ],
+  shots: [1, 3, 8, 6, 5],
   ops: [
     ["`offer(x)`", "O(1)", "One write at the rear. It throws if this fixed array is full."],
     ["`poll()`", "O(1)", "One read at the front. Nothing shifts. It returns null when empty."],

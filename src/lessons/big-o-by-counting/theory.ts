@@ -2,7 +2,7 @@ import type { LessonTheory } from "../../theory/types";
 
 const theory: LessonTheory = {
   definition:
-    "Big-O by counting means you count how many steps code takes for an input of size `n`, then keep only the fastest-growing part. It describes how the work grows, not how many seconds it takes.",
+    "Big-O by counting means you count how many steps code takes for an input of size `n`, then **keep only the fastest-growing part**. It describes how the work grows, not how many seconds it takes.",
   analogy:
     "Picture greeting guests at a party. Saying hello to each guest takes one greeting per person. Making sure every pair of guests shakes hands takes far more. Ten guests need 45 handshakes, and a hundred guests need 4,950.",
   steps: [
@@ -12,6 +12,7 @@ const theory: LessonTheory = {
     "Use the worst input. A duplicate can end the check early, but an array with no duplicates checks every pair.",
     "Drop constants and smaller parts. `n(n-1)/2` is `n²/2 - n/2`, which grows like `n²`, so the check is O(n²)."
   ],
+  shots: [2, 6, 7, 13, 13],
   ops: [
     ["One loop over `n` items", "O(n)", "Double `n` and the steps double."],
     ["A loop inside a loop over all pairs", "O(n²)", "Double `n` and the steps roughly quadruple."],

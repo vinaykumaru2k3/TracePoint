@@ -2,7 +2,7 @@ import type { LessonTheory } from "../../theory/types";
 
 const theory: LessonTheory = {
   definition:
-    "Merge sort splits an array in half, sorts each half the same way, then merges the two sorted halves into one. To merge is to combine two sorted runs, stretches of values already in order, by taking the smaller front value again and again.",
+    "Merge sort splits an array in half, sorts each half the same way, then **merges the two sorted halves into one**. To merge is to combine two sorted runs, stretches of values already in order, by taking the smaller front value again and again.",
   analogy:
     "Picture two piles of exam papers, each in name order. To combine them, you look at the top paper of each pile and take the one that comes first. Repeat until both piles are empty. Merge sort makes such piles by splitting the stack until each pile holds one paper.",
   steps: [
@@ -13,6 +13,7 @@ const theory: LessonTheory = {
     "On a tie, take the left head. Equal values then keep their order, so merge sort is stable.",
     "When one half runs out, copy the rest of the other. Then copy `tmp` back over `a[l..r]`."
   ],
+  shots: [2, 4, 4, 5, 6, 38],
   ops: [
     ["time, every case", "O(n log n)", "Halving n gives about log₂ n levels of splits, where log₂ n counts the halvings that take n down to 1. Each level merges all n values once."],
     ["extra space", "O(n)", "The merge needs a buffer as long as its range, up to n values. The call stack, the memory for calls not yet returned, adds O(log n)."],
@@ -35,7 +36,7 @@ const theory: LessonTheory = {
     "That took 11 comparisons and 16 writes into `tmp` for 6 values."
   ],
   pitfalls: [
-    "Using `<` instead of `<=` in the merge. On a tie it takes the right head, and the sort is no longer stable.",
+    "Using ~~`<`~~ instead of `<=` in the merge. On a tie it takes the right head, and the sort is no longer stable.",
     "Forgetting to copy the leftover values when one half runs out. They are lost from the result.",
     "Making a new buffer in every merge, as this lesson does for clarity, costs extra time. Faster versions make one buffer of size n and reuse it."
   ]

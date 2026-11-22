@@ -3,10 +3,10 @@ import type { Guide, Inline, LessonTheory } from "./types";
 
 const BANNED = ["simply", "obviously", "clearly", "just", "trivial", "trivially", "easy"];
 
-/** Plain prose with code spans replaced by one placeholder word and links reduced to their label. */
+/** Plain prose with code spans replaced by one placeholder word, links reduced to their label and struck text unwrapped. */
 function prose(text: Inline): string {
   return parseInline(text)
-    .map((k) => (k.t === "code" ? "code" : k.t === "link" ? k.label || k.target : k.v))
+    .map((k) => (k.t === "code" ? "code" : k.t === "link" ? k.label || k.target : k.t === "strike" ? prose(k.v) : k.v))
     .join("");
 }
 

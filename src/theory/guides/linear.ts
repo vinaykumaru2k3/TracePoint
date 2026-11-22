@@ -4,9 +4,9 @@ const linear: Guide = {
   section: "linear",
   tagline: "Structures that keep items in a line and let you add or remove them only at chosen places, with each end operation in one step.",
   core: [
-    "Stack plates 4, 9 and 2, then take one. You get 2, the last one you put down. Stand people in a line instead, and the first to arrive is served first. Those two rules are the stack and the queue.",
-    "A linear structure keeps its items in a sequence and limits where you may add or remove them. A stack works at one end only. A queue adds at the back and removes at the front. A deque does both at both ends. Because each operation touches only an end, it costs O(1) at any size, or O(1) amortized when an array has to grow.",
-    "There are two ways to build the line. An array keeps items side by side, as in [[guide:foundations]]. A linked list stores each item in its own node, which holds a pointer to the next node. Lists never shift items. But the nodes can sit anywhere in memory, so unlike `a[i]` there is no way to compute where the k-th one is. You must follow k pointers, one at a time."
+    "Stack plates 4, 9 and 2, then take one. You get 2, the last one you put down. Stand people in a line instead, and the first to arrive is served first. Those two rules are **the stack and the queue**.",
+    "A linear structure keeps its items in a sequence and limits where you may add or remove them. A stack works at one end only. A queue adds at the back and removes at the front. A deque does both at both ends. Because each operation touches only an end, **it costs O(1) at any size**, or O(1) amortized when an array has to grow.",
+    "There are two ways to build the line. An array keeps items side by side, as in [[guide:foundations]]. A linked list stores each item in its own node, which holds a pointer to the next node. Lists never shift items. But the nodes can sit anywhere in memory, so unlike `a[i]` there is no way to compute where the k-th one is. You must **follow k pointers, one at a time**."
   ],
   analogy:
     "Picture a train. Each carriage is coupled only to the one behind it. To add a carriage at the front, you couple it on and the rest stay put. To reach the tenth carriage, you walk through the nine before it. A linked list behaves like that train. A stack is a siding with one way in and out. A queue is a tunnel you enter at one end and leave at the other.",

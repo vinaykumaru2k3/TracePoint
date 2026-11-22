@@ -2,7 +2,7 @@ import type { LessonTheory } from "../../theory/types";
 
 const theory: LessonTheory = {
   definition:
-    "Selection sort fills each position from the left with the smallest value still unsorted. It scans for that value, then swaps it into place, exchanging the two values.",
+    "Selection sort fills each position from the left with **the smallest value still unsorted**. It scans for that value, then swaps it into place, exchanging the two values.",
   analogy:
     "Picture sorting a hand of cards spread face up on a table. You scan every card for the lowest one and put it first in your hand. Then you scan the cards left for the next lowest. Each pick needs a look at every card still on the table.",
   steps: [
@@ -12,6 +12,7 @@ const theory: LessonTheory = {
     "After the scan, swap `a[i]` and `a[min]`. Skip the swap if `min` is still `i`.",
     "Position `i` is now final. Repeat for `i + 1` until one value is left, which must be the largest."
   ],
+  shots: [2, 2, 3, 8, 9],
   ops: [
     ["comparisons, every case", "O(n²)", "Round i compares every value after it. That is n(n − 1)/2 comparisons on any input, even sorted input."],
     ["swaps", "at most n − 1", "At most one swap per round, the fewest of the simple sorts."],

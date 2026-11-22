@@ -2,7 +2,7 @@ import type { LessonTheory } from "../../theory/types";
 
 const theory: LessonTheory = {
   definition:
-    "A doubly linked list is a chain of nodes where each node points both to the next node and back to the previous one. The list keeps `head` and `tail`, so both ends are one step away.",
+    "A doubly linked list is a chain of nodes where each node points both to the next node and **back to the previous one**. The list keeps `head` and `tail`, so both ends are one step away.",
   analogy:
     "Think of people holding hands in a line, each holding a neighbour on both sides. Anyone can find the person before them without walking back from the front.",
   steps: [
@@ -13,6 +13,7 @@ const theory: LessonTheory = {
     "To remove at the back, move `tail` to `tail.prev`, then set the new tail's `next` to null. No walk from `head` is needed.",
     "Removing the only node sets both `head` and `tail` to null. Removing from an empty list throws."
   ],
+  shots: [9, 9, 13, 9, 14, 17],
   ops: [
     ["`addFirst(x)`", "O(1)", "Three pointer writes."],
     ["`addLast(x)`", "O(1)", "Three pointer writes."],

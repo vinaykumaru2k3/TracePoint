@@ -2,7 +2,7 @@ import type { LessonTheory } from "../../theory/types";
 
 const theory: LessonTheory = {
   definition:
-    "Quick sort picks one value, the pivot, and moves smaller values to its left and the rest to its right. It then sorts each side the same way.",
+    "Quick sort picks one value, the pivot, and **moves smaller values to its left and the rest to its right**. It then sorts each side the same way.",
   analogy:
     "Think of sorting a class by height around one student. Everyone shorter stands to their left, and everyone else to their right. That student is now in the right spot for good. Then each group repeats the trick with a student of its own.",
   steps: [
@@ -13,6 +13,7 @@ const theory: LessonTheory = {
     "Swap the pivot into index `i + 1`. Everything left of it is smaller and nothing right of it is, so the pivot is final.",
     "Sort the left side and the right side by calling the same function. A function calling itself is recursion. A range of one value or none is already sorted."
   ],
+  shots: [2, 2, 4, 5, 10, 11],
   ops: [
     ["best and average case", "O(n log n)", "A pivot near the middle halves the range, giving about log₂ n levels. log₂ n counts the halvings that take n down to 1. Each level partitions n values."],
     ["worst case", "O(n²)", "If every pivot is the largest or smallest value, each partition peels off one value. n levels then cost n(n − 1)/2 comparisons. Sorted input does this here."],

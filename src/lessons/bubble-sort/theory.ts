@@ -2,7 +2,7 @@ import type { LessonTheory } from "../../theory/types";
 
 const theory: LessonTheory = {
   definition:
-    "Bubble sort orders an array by comparing neighbours and swapping, exchanging, any pair that is out of order. It repeats these passes until one makes no swaps.",
+    "Bubble sort orders an array by **comparing neighbours** and swapping, exchanging, any pair that is out of order. It repeats these passes until one makes no swaps.",
   analogy:
     "Picture people lining up by height, where each person may only trade places with the one next to them. Walk down the line and swap any taller person standing before a shorter one. After one walk, the tallest person has reached the end. Repeat until a walk changes nothing.",
   steps: [
@@ -12,6 +12,7 @@ const theory: LessonTheory = {
     "Track whether a pass swapped anything. A pass with no swaps proves every pair is in order, so the sort stops early.",
     "Equal neighbours are never swapped, so equal values keep their order. That makes bubble sort stable."
   ],
+  shots: [3, 4, 10, 20, 21],
   ops: [
     ["best case", "O(n)", "On sorted input, pass 1 makes n − 1 comparisons and no swaps, and the early exit ends the sort."],
     ["average and worst case", "O(n²)", "Up to n − 1 passes of up to n − 1 comparisons each. Reversed input is the worst, with n(n − 1)/2 comparisons and as many swaps."],
@@ -34,7 +35,7 @@ const theory: LessonTheory = {
   ],
   pitfalls: [
     "Forgetting the swapped flag. Without it, sorted input still takes O(n²) comparisons.",
-    "Comparing with `>=` instead of `>`. Equal neighbours then swap, and the sort is no longer stable.",
+    "Comparing with ~~`>=`~~ instead of `>`. Equal neighbours then swap, and the sort is no longer stable.",
     "Letting each pass run to the end. The last cells are already final, so the inner loop should stop at `n - 1 - i`."
   ]
 };

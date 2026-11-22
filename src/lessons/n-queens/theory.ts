@@ -2,7 +2,7 @@ import type { LessonTheory } from "../../theory/types";
 
 const theory: LessonTheory = {
   definition:
-    "N-Queens places n queens on an n×n chessboard so that no two attack each other. A queen attacks every square in its row, its column and both of its diagonals.",
+    "N-Queens places n queens on an n×n chessboard so that **no two attack each other**. A queen attacks every square in its row, its column and both of its diagonals.",
   analogy:
     "Picture seating guests one row at a time in a hall, where rivals must not sit in line with each other. You seat a guest in the first seat that is safe. If the next row has no safe seat, you go back and move the last guest one seat along.",
   steps: [
@@ -14,6 +14,7 @@ const theory: LessonTheory = {
     "Sometimes no column in a row leads to a solution. Either none is safe, or every safe one dead-ends in a row below. Then `solve` returns false. The caller lifts its queen and tries the next column in its row. Undoing a choice this way is called backtracking.",
     "If row 0 runs out of columns, no solution exists. The 3×3 board is one such case."
   ],
+  shots: [2, 3, 4, 5, 32, 10, 22],
   ops: [
     ["check one square", "O(n)", "Compare it with each queen placed so far, at most n − 1 of them."],
     ["placements tried", "`O(n!)` worst case", "Row r has at most n − r free columns, since each queen above uses one. So there are at most n × (n − 1) × … × 1 ways to fill the rows. That product is `n!`, said n factorial."],
