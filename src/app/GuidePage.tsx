@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { folderName, sectionOf } from "../curriculum";
-import { LESSON_BY_ID } from "../lessons";
+import { DEFAULT_STEP_COUNT, LESSON_BY_ID } from "../lessons";
 import type { Progress } from "../hooks/useProgress";
 import { useMedia } from "../hooks/useMedia";
 import { GUIDES } from "../theory";
@@ -41,14 +41,14 @@ export function Part({ id, title, children }: { id: string; title: string; child
 }
 
 /** A small still of a lesson's scene at the middle of its walkthrough. Decorative: the link names the lesson. */
-function Thumb({ id }: { id: string }) {
+function Thumb({ id, className = "thumb" }: { id: string; className?: string }) {
   const lesson = LESSON_BY_ID[id];
   const step = useMemo(() => {
     const shots = lesson.theory.shots;
     return defaultRun(lesson)[shots[Math.floor(shots.length / 2)] - 1];
   }, [lesson]);
   if (!step) return null;
-  return <span className="thumb" aria-hidden="true"><lesson.Scene step={step} /></span>;
+  return <span className={className} aria-hidden="true"><lesson.Scene step={step} /></span>;
 }
 
 /** Every lesson of a section, in order: live ones link to their theory tab with the hook, the rest read "soon".
@@ -82,12 +82,16 @@ export function GuideView({ guide }: { guide: Guide }) {
   const [first, ...rest] = guide.core;
   return (
     <div className="prose">
-      <Part id="core" title="Core idea">
-        <p className="lead"><Rich text={first} /></p>
-        {rest.map((p, i) => <p key={i}><Rich text={p} /></p>)}
-      </Part>
-      <Part id="analogy" title="Analogy"><Analogy text={guide.analogy} /></Part>
-      <Part id="prereqs" title="Before you start"><MarkList items={guide.prereqs} icon="check" tone="yes" /></Part>
+      <div className="band">
+        <Part id="core" title="Core idea">
+          <p className="lead"><Rich text={first} /></p>
+          {rest.map((p, i) => <p key={i}><Rich text={p} /></p>)}
+        </Part>
+        <div className="band-side">
+          <Part id="analogy" title="Analogy"><Analogy text={guide.analogy} /></Part>
+          <Part id="prereqs" title="Before you start"><MarkList items={guide.prereqs} icon="check" tone="yes" /></Part>
+        </div>
+      </div>
       <Part id="terms" title="Key terms">
         <dl className="terms">
           {guide.terms.map(([t, m]) => <div key={t}><dt><Rich text={t} /></dt><dd><Rich text={m} /></dd></div>)}
@@ -117,7 +121,7 @@ export function GuideView({ guide }: { guide: Guide }) {
           ))}
         </ul>
       </Part>
-      <Part id="tips" title="Tips and traps"><MarkList items={guide.tips} icon="warn" tone="warn" /></Part>
+      <Part id="tips" title="Tips and traps"><MarkList items={guide.tips} icon="warn" tone="warn cols" /></Part>
       <Part id="cases" title="Case studies">
         {guide.cases.map((c) => (
           <article className="case" key={c.title}>
@@ -158,15 +162,36 @@ export default function GuidePage({ progress, courseOpen, onCloseCourse, section
   const sec = sectionOf(sectionId)!;
   const guide = GUIDES[sectionId];
 
+  /* The way in: the first live lesson not yet complete, at its theory tab if never opened. */
+  const live = sec.lessons.filter((l) => LESSON_BY_ID[l.id]);
+  const isDone = (id: string) => (progress[id] ?? 0) >= Math.max(1, (DEFAULT_STEP_COUNT[id] ?? 1) - 1);
+  const doneCount = live.filter((l) => isDone(l.id)).length;
+  const next = live.find((l) => !isDone(l.id));
+  const cta = next && (progress[next.id] === undefined
+    ? { to: `/${next.id}/learn`, label: `Start with ${next.name}` }
+    : { to: `/${next.id}/1`, label: `Continue ${next.name}` });
+
   const sidebar = <CourseSidebar currentId="" currentIdx={0} progress={progress} guideId={sectionId} />;
   const head = (
-    <header className="lesson-head guide-head" key="head">
-      <div className="crumb" aria-label="Path">
-        <i className="sec-swatch" style={{ background: sec.color }} aria-hidden="true" />
-        <span>dsa</span><span aria-hidden="true">/</span><span>{folderName(sec).replace(/\/$/, "")}</span><span aria-hidden="true">/</span><span className="cur">README.md</span>
+    <header className="lesson-head guide-head" key="head" style={{ "--sec": sec.color } as React.CSSProperties}>
+      <div className="ghero">
+        <div className="ghero-text">
+          <div className="crumb" aria-label="Path">
+            <i className="sec-swatch" style={{ background: sec.color }} aria-hidden="true" />
+            <span>dsa</span><span aria-hidden="true">/</span><span>{folderName(sec).replace(/\/$/, "")}</span><span aria-hidden="true">/</span><span className="cur">README.md</span>
+          </div>
+          <h1>{sec.name}</h1>
+          {guide && <p className="sub"><Rich text={guide.tagline} /></p>}
+          {guide && live.length > 0 && (
+            <div className="ghero-meta">
+              {cta && <Link to={cta.to} className="btn primary">{cta.label} <Icon name="right" size={13} /></Link>}
+              <span className="ghero-stat"><strong>{live.length}</strong> {live.length === 1 ? "lesson" : "lessons"}</span>
+              <span className="ghero-stat"><strong>{doneCount}</strong> complete</span>
+            </div>
+          )}
+        </div>
+        {guide && live[0] && <Thumb id={live[0].id} className="ghero-scene" />}
       </div>
-      <h1>{sec.name}</h1>
-      {guide && <p className="sub"><Rich text={guide.tagline} /></p>}
     </header>
   );
   const body = guide ? <GuideView guide={guide} key="body" /> : <Notice sectionName={sec.name} key="body" />;

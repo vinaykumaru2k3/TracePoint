@@ -65,7 +65,7 @@ These rules apply to every guide and theory. Tests check the mechanical ones; th
 ## Design
 
 The guide and theory pages are reading surfaces inside the existing debugger shell, and they follow the CLAUDE.md design rules:
-- JetBrains Mono, with body prose at 14px, line height 1.65 and a measure of about 70 characters.
+- JetBrains Mono, with body prose at 14px and line height 1.65. Each paragraph keeps a measure of about 72 characters, but the page uses the full width: on wide screens related parts sit side by side in bands, and a guide opens on a hero with a start/continue button and the section's first scene.
 - Each part sits under a `.pane-title`-style label.
 - Tables use hairline rules.
 - The cheat sheet is the one table that gets `--surface-2` row striping.

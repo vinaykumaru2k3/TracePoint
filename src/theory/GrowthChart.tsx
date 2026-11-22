@@ -1,4 +1,5 @@
 import { LADDER } from "./growth";
+import { Cost } from "./Meter";
 
 /** Work done for input size n, per class on the ladder. */
 const F: ((n: number) => number)[] = [
@@ -32,6 +33,7 @@ export default function GrowthChart({ marked }: { marked: Set<number> }) {
   const names = LADDER.filter((_, i) => marked.has(i));
   return (
     <figure className="growth">
+      <div className="g-plot">
       <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Growth curves for ${LADDER.join(", ")}. Marked: ${names.join(", ") || "none"}.`}>
         <g className="g-grid" aria-hidden="true">
           {[0, 16, 32, 48, 64].map((v) => <line key={v} x1={L} x2={W - R} y1={y(v)} y2={y(v)} />)}
@@ -58,7 +60,11 @@ export default function GrowthChart({ marked }: { marked: Set<number> }) {
           );
         })}
       </svg>
-      <figcaption>Steps of work as <code>n</code> grows. Inked curves are the costs on this page; the steep ones leave the chart early.</figcaption>
+      </div>
+      <figcaption>
+        <p>Steps of work as <code>n</code> grows. Inked curves are the costs on this page; the steep ones leave the chart early.</p>
+        {names.length > 0 && <ul className="g-legend">{names.map((c) => <li key={c}><Cost>{c}</Cost></li>)}</ul>}
+      </figcaption>
     </figure>
   );
 }

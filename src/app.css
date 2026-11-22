@@ -414,12 +414,13 @@ a { color: inherit; text-decoration: none; }
 .guide-head { margin-bottom: 4px; }
 .sec-swatch { width: 8px; height: 8px; align-self: center; flex: none; border-radius: 2px; }
 .gbody { min-width: 0; container-type: inline-size; }
-.prose { max-width: 70ch; font-size: 14px; line-height: 1.65; }
+.prose { font-size: 14px; line-height: 1.65; }
+.prose p { max-width: 72ch; }
 .prose p { margin: 0 0 10px; }
 .prose ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
 .prose a { text-decoration: underline; text-underline-offset: 2px; }
 .prose code { font-family: var(--mono); font-size: 13px; padding: 0 4px; background: var(--surface-2); border-radius: 3px; }
-.gpart { padding: 14px 0 6px; scroll-margin-top: 72px; }
+.gpart { padding: 18px 0 8px; scroll-margin-top: 72px; }
 .gpart > h2 { display: block; margin: 0 0 8px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
 .table-wrap { overflow-x: auto; max-width: 100%; }
 .cheat { border-collapse: collapse; width: 100%; min-width: 34rem; font-size: 13px; line-height: 1.5; }
@@ -456,8 +457,6 @@ a { color: inherit; text-decoration: none; }
 .flow-main > .lesson-head .lesson-tabs { margin-top: 8px; }
 
 /* ---------- reading surfaces: guide and theory parts ---------- */
-.theory.prose { max-width: 960px; }
-.theory .gpart > p, .theory .table-wrap, .theory .marks, .theory .example, .theory .analogy { max-width: 70ch; }
 .prose .lead { font-size: 16px; line-height: 1.6; text-wrap: pretty; max-width: 62ch; }
 .analogy { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: start; padding: 12px 16px; background: var(--surface-2); border-radius: var(--radius); }
 .analogy p { margin: 0; }
@@ -471,7 +470,7 @@ a { color: inherit; text-decoration: none; }
 .marks.no .mark { background: var(--st-swap-t); }
 .marks.warn li { padding: 8px 12px; background: color-mix(in oklab, var(--c-amber) 26%, var(--surface)); border: 1px solid color-mix(in oklab, var(--c-amber-2) 40%, var(--line)); border-radius: var(--radius); }
 .marks.warn .mark { border: 0; border-radius: 0; color: var(--ink); }
-.fit-pair { display: grid; gap: 0 28px; max-width: 70ch; }
+.fit-pair { display: grid; gap: 0 40px; }
 @container (min-width: 640px) { .fit-pair { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
 .prose .example { list-style: none; margin: 0; padding: 10px 0; counter-reset: line; background: var(--surface-2); border-radius: var(--radius); gap: 2px; font-size: 13px; }
@@ -547,12 +546,52 @@ a { color: inherit; text-decoration: none; }
   .gallery li.soon { padding-left: 108px; }
   .thumb { width: 96px; height: 64px; }
 }
-.growth { margin: 16px 0 0; overflow-x: auto; }
-.growth svg { display: block; width: 100%; max-width: 600px; min-width: 460px; height: auto; }
+.growth { margin: 18px 0 0; display: grid; gap: 12px 40px; align-items: start; }
+.g-plot { overflow-x: auto; min-width: 0; }
+.g-plot svg { display: block; width: 100%; max-width: 760px; min-width: 460px; height: auto; }
 .growth .g-grid line { stroke: var(--line); }
 .growth .g-axis line { stroke: var(--line-strong); }
 .growth text { font: 11px var(--mono); fill: var(--muted); }
 .g-curve path { fill: none; stroke: var(--line-strong); stroke-width: 1.2; stroke-dasharray: 3 3; }
 .g-curve.on path { stroke: var(--ink); stroke-width: 1.8; stroke-dasharray: none; }
 .g-curve.on text { fill: var(--ink); font-weight: 600; }
-.growth figcaption { margin-top: 6px; font-size: 12px; color: var(--muted); }
+.growth figcaption { display: grid; gap: 12px; align-content: start; font-size: 12px; line-height: 1.6; color: var(--muted); }
+.growth figcaption p { margin: 0; }
+.prose .g-legend { list-style: none; margin: 0; padding: 12px 0 0; gap: 8px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink); }
+@container (min-width: 820px) { .growth { grid-template-columns: minmax(0, 1fr) 30ch; } }
+
+/* Wide reading: parts sit side by side once the column has room, and the guide opens on a hero. */
+.band { display: grid; gap: 0 48px; align-items: start; }
+.band > *, .band-side { min-width: 0; }
+@container (min-width: 820px) {
+  .band { grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); }
+  .band.even { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .band.costs { grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); }
+  .band-side .gpart:first-child, .band > .gpart + .gpart { padding-top: 18px; }
+  .prose .marks.cols { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 14px; }
+  .case { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 2fr); gap: 4px 32px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+  .case:last-child { border-bottom: 0; }
+  .case h3 { padding-top: 6px; }
+  .case .flow { margin: 0; }
+  .prose .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 40px; }
+  .gallery li { grid-template-columns: 168px minmax(0, 1fr); }
+  .gallery li.soon { padding-left: 184px; }
+  .gallery .thumb { width: 168px; height: 104px; }
+}
+@container (min-width: 1000px) { .terms { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.case h3 { font-size: 15px; line-height: 1.35; font-weight: 700; letter-spacing: -0.01em; }
+
+.guide-head { container-type: inline-size; margin-bottom: 6px; }
+.ghero { display: grid; gap: 20px; }
+.ghero-text { display: grid; gap: 6px; align-content: start; min-width: 0; }
+.guide-head h1 { margin-top: 8px; font-size: 34px; line-height: 1.1; letter-spacing: -0.03em; }
+.guide-head .sub { font-size: 15px; line-height: 1.55; max-width: 52ch; text-wrap: pretty; }
+.ghero-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; margin-top: 14px; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ghero-meta .btn { gap: 12px; }
+.ghero-stat strong { color: var(--ink); font-weight: 600; font-size: 14px; }
+.ghero-scene { display: none; }
+@container (min-width: 680px) {
+  .ghero { grid-template-columns: minmax(0, 1fr) minmax(240px, 40%); align-items: stretch; }
+  .ghero-scene { display: block; min-height: 190px; max-height: 240px; padding: 10px; border-radius: var(--radius); background: color-mix(in oklab, var(--sec, var(--surface-2)) 24%, var(--surface-2)); border: 1px solid var(--line); }
+  .ghero-scene > svg { display: block; width: 100%; height: 100%; }
+}

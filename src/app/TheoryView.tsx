@@ -36,9 +36,12 @@ export default function TheoryView({ lesson, search }: { lesson: AnyLesson; sear
   const watch = <Link to={`/${lesson.id}/1${search}`} className="btn primary watch">Watch it run <Icon name="right" size={13} /></Link>;
   return (
     <div className="prose theory">
-      <Part id="definition" title="Definition"><p className="lead"><Rich text={t.definition} /></p></Part>
-      <Part id="analogy" title="Analogy"><Analogy text={t.analogy} /></Part>
+      <div className="band">
+        <Part id="definition" title="Definition"><p className="lead"><Rich text={t.definition} /></p></Part>
+        <Part id="analogy" title="Analogy"><Analogy text={t.analogy} /></Part>
+      </div>
       <Part id="steps" title="How it works"><Walkthrough lesson={lesson} /></Part>
+      <div className={t.ops ? "band costs" : "band"}>
       {t.ops && (
         <Part id="ops" title="Operations">
           <div className="table-wrap">
@@ -59,14 +62,17 @@ export default function TheoryView({ lesson, search }: { lesson: AnyLesson; sear
           </table>
         </div>
       </Part>
+      </div>
       <div className="fit-pair">
         <Part id="use" title="Use it when"><MarkList items={t.useWhen} icon="check" tone="yes" /></Part>
         <Part id="avoid" title="Avoid it when"><MarkList items={t.avoidWhen} icon="close" tone="no" /></Part>
       </div>
+      <div className="band even">
       <Part id="example" title="Worked example">
         <ol className="example">{t.example.map((x, i) => <li key={i}><span><Rich text={x} /></span></li>)}</ol>
       </Part>
       <Part id="pitfalls" title="Pitfalls"><MarkList items={t.pitfalls} icon="warn" tone="warn" /></Part>
+      </div>
       <div className="watch-row">{watch}</div>
     </div>
   );
