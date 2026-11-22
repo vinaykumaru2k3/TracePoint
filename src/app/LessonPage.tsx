@@ -109,7 +109,16 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
   const sec = sectionOf(lesson.section);
   const label = (i: number) => steps[i].op ?? (i === 0 ? "start" : "recap");
   const nn = (i: number) => String(i + 1).padStart(steps.length > 99 ? 3 : 2, "0");
-  const railName = (i: number) => steps[i].short ?? label(i);
+  /* A stop's name: its short form, else its op. When one op names most of the run (bfs(A) on every step),
+     the op says nothing about the step, so the stop falls back to the step's kind. */
+  const runOp = useMemo(() => {
+    const n = new Map<string, number>();
+    for (const s of steps) if (s.op) n.set(s.op, (n.get(s.op) ?? 0) + 1);
+    for (const [op, c] of n) if (c >= steps.length * 0.4) return op;
+    return null;
+  }, [steps]);
+  const railName = (i: number) => steps[i].short ?? (steps[i].op && steps[i].op === runOp ? steps[i].kind : label(i));
+  const [peek, setPeek] = useState<number | null>(null);
 
   const run = (raw: string) => {
     const r = lesson.parse(raw);
@@ -203,24 +212,29 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
     </section>
   );
 
-  /* The timeline: one stop per step on a track filled up to the playhead (the current step).
-     Each stop is a diamond edged in its step kind's colour. */
+  /* The timeline is a tape of step tiles, read left to right like a trace log. Tiles behind the playhead are
+     done (a quiet well), the current one is inverted with an ember caret above it, and tiles ahead stay open.
+     A small diamond before each number carries the step's kind colour. Hovering or focusing a tile previews
+     its title in the header, so the run can be read without moving the playhead. */
   const stopCls = (i: number) => (i === idx ? "cur" : i < idx ? "past" : i <= reached ? "seen" : "");
+  const shown = peek !== null && peek !== idx ? peek : idx;
   const rail = (
     <div className="rail-wrap" key="rail">
       <div className="rail-head">
         <span className="lbl">Timeline</span>
-        <span className="muted">{stepOf} · <b>{label(idx)}</b></span>
+        <span className={`muted rail-read${shown !== idx ? " peeking" : ""}`}>
+          {shown === idx ? stepOf : `Jump to step ${shown + 1}`} · <b>{steps[shown].title}</b>
+        </span>
       </div>
-      <ol className="rail" ref={railRef} aria-label="Steps">
+      <ol className="rail" ref={railRef} aria-label="Steps" onMouseLeave={() => setPeek(null)}>
         {steps.map((s, i) => {
-          const cls = stopCls(i);
           const state = i < idx ? ", done" : i > idx && i <= reached ? ", seen" : "";
           return (
-            <li key={i} className={cls} style={{ "--k": kindColor(s.kind) } as CSSProperties}>
-              <button type="button" aria-current={i === idx ? "step" : undefined} onClick={() => player.jump(i)} title={`Step ${i + 1}: ${label(i)}`} aria-label={`Step ${i + 1}: ${label(i)}${state}`}>
-                <span className="ix">{nn(i)}</span>
-                <span className="node" aria-hidden="true" />
+            <li key={i} className={stopCls(i)} style={{ "--k": kindColor(s.kind) } as CSSProperties}>
+              <button type="button" aria-current={i === idx ? "step" : undefined} onClick={() => player.jump(i)}
+                onMouseEnter={() => setPeek(i)} onFocus={() => setPeek(i)} onBlur={() => setPeek(null)}
+                aria-label={`Step ${i + 1}: ${s.title}${state}`}>
+                <span className="ix"><i className="kd" aria-hidden="true" />{nn(i)}</span>
                 <span className="name">{railName(i)}</span>
               </button>
             </li>

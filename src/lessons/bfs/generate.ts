@@ -60,7 +60,7 @@ export function generateBfs(g: GraphInput): Step<BfsState>[] {
   queue = [s];
   snap({
     kind: "add", anchors: ["bfs.sig", "bfs.init"], notes: { "bfs.init": `dist[${s}] = 0, queue = [${s}]` },
-    title: `Start at ${s}`,
+    title: `Start at ${s}`, short: `start ${s}`,
     idea: "The start is 0 edges from itself. Every other distance stays unknown until the search reaches it.",
     text: `${s} gets distance 0 and goes into the queue. Every other node is unseen, with no distance yet.`
   }, { cur: s });
@@ -69,7 +69,7 @@ export function generateBfs(g: GraphInput): Step<BfsState>[] {
     const u = queue.shift()!;
     snap({
       kind: "remove", anchors: ["bfs.poll"], notes: { "bfs.poll": `u = ${u}, d = ${dist[u]}` },
-      title: `Take ${u} from the front`,
+      title: `Take ${u} from the front`, short: `take ${u}`,
       idea: "The front of the queue is always the oldest node found, so nodes come out in order of distance.",
       text: `${u} leaves the front of the queue. It is ${dist[u]} edge${dist[u] === 1 ? "" : "s"} from ${s}. Now each of its neighbours is checked.`
     }, { cur: u, ptrs: [{ node: idOf(u), label: "u" }] });
@@ -77,7 +77,7 @@ export function generateBfs(g: GraphInput): Step<BfsState>[] {
       if (dist[x] !== -1) {
         snap({
           kind: "check", anchors: ["bfs.seen"], notes: { "bfs.seen": `${x} already has d = ${dist[x]}` },
-          title: `${x} was already seen`,
+          title: `${x} was already seen`, short: `${x} seen`,
           idea: "A node is seen once. The first time is along a shortest path, so a later route can never be shorter.",
           text: `${x} already has distance ${dist[x]}, so it is skipped. It is ${done.has(x) ? "done" : "still in the queue"}.`
         }, { cur: u, look: x, ptrs: [{ node: idOf(u), label: "u" }, { node: idOf(x), label: "x" }] });
@@ -88,7 +88,7 @@ export function generateBfs(g: GraphInput): Step<BfsState>[] {
       tree[ekey(u, x, false)] = "tree";
       snap({
         kind: "add", anchors: ["bfs.new", "bfs.push"], notes: { "bfs.new": `dist[${x}] = ${dist[u]} + 1 = ${dist[x]}`, "bfs.push": `queue = [${queue.join(", ")}]` },
-        title: `${x} is new: distance ${dist[x]}`,
+        title: `${x} is new: distance ${dist[x]}`, short: `${x} = ${dist[x]}`,
         idea: "A new node is one edge further than the node that found it. It joins the back of the queue.",
         text: `${x} has not been seen, so its distance is ${dist[u]} + 1 = ${dist[x]}. It joins the back of the queue, and the edge ${u}-${x} becomes part of the search tree.`
       }, { cur: u, look: x, lookTone: "found", ptrs: [{ node: idOf(u), label: "u" }, { node: idOf(x), label: "x" }] });
@@ -99,7 +99,7 @@ export function generateBfs(g: GraphInput): Step<BfsState>[] {
   const missed = g.nodes.filter((x) => dist[x] === -1);
   snap({
     kind: "found", anchors: ["bfs.done"], notes: { "bfs.done": `return ${distLine(g.nodes, dist)}` }, ret: distLine(g.nodes, dist),
-    title: "The queue is empty",
+    title: "The queue is empty", short: "done",
     idea: missed.length ? "A node no path reaches never enters the queue. Its distance stays unknown." : "Every node was reached. Each distance is the fewest edges from the start.",
     text: missed.length
       ? `Every node reachable from ${s} has a distance. ${missed.join(", ")} ${missed.length === 1 ? "has" : "have"} no path from ${s}, so ${missed.length === 1 ? "it stays" : "they stay"} at ∞.`
