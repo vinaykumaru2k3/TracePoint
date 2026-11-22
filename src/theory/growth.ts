@@ -6,7 +6,7 @@ export const LADDER = ["O(1)", "O(log n)", "O(n)", "O(n log n)", "O(n²)", "O(2�
 export function growthRank(cost: string): number | null {
   const m = cost.match(/O\(([^)]*)\)/);
   if (!m) return null;
-  const e = m[1].replace(/\s+/g, "").replace(/²/g, "^2").replace(/ⁿ/g, "^n").replace(/[·×]/g, "*");
+  const e = m[1].toLowerCase().replace(/\s+/g, "").replace(/²/g, "^2").replace(/ⁿ/g, "^n").replace(/[·×]/g, "*");
   if (e.includes("!")) return 6;
   if (/2\^n/.test(e)) return 5;
   if (/\^2/.test(e) || /^([a-z])\*\1$/.test(e)) return 4;

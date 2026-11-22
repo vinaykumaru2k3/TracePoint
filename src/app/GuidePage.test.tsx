@@ -41,7 +41,7 @@ describe("GuideView", () => {
   it("links live lessons to their theory tab and marks soon lessons", () => {
     expect(html).toContain('href="/arrays/learn"');
     /* A section whose lessons are not built yet lists them as plain text with a soon tag. */
-    const soon = renderToStaticMarkup(<MemoryRouter><GuideView guide={{ ...GUIDES.foundations, section: "trees" }} /></MemoryRouter>);
+    const soon = renderToStaticMarkup(<MemoryRouter><GuideView guide={{ ...GUIDES.foundations, section: "graphs" }} /></MemoryRouter>);
     expect(soon).toContain('class="soon-tag">soon</small>');
     expect(soon).not.toContain("/learn\">Binary tree");
   });
@@ -53,8 +53,8 @@ describe("guide routes", () => {
     expect(at("/guide/nope")).not.toContain("arrives with its lessons");
   });
   it("says a section without a guide arrives with its lessons", () => {
-    expect(resolveGuide("trees")).toBe("missing");
-    const html = at("/guide/trees");
+    expect(resolveGuide("graphs")).toBe("missing");
+    const html = at("/guide/graphs");
     expect(html).toContain("arrives with its lessons");
     expect(html).toContain('href="/guide/foundations"');
   });
