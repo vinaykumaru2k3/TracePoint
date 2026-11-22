@@ -29,3 +29,15 @@ Lowest fit scale in each run, on a 959×333 stage:
 | merge-sort | 0.70 |
 | binary-search | 0.74 |
 | prefix-sums | 0.77 |
+
+## Taller stage (second pass)
+
+The camera can't zoom in on a tall drawing when the step's focus spans its full height. Only more stage height helps there. On desktop:
+
+- The input form is one row. Its hint shows only while the reader edits, and screen readers still get it.
+- The memory strip folds to its header line. The choice is remembered in `tracepoint-memory`, and it is open by default.
+- Between 1121 and 1360px wide, the live values stay on one row.
+
+At 1440×900 the stage SVG grows from 314px to 375px by default, and to 471px with memory folded. Trie step 2 goes from 0.52× to 0.60×, or 0.76× folded.
+
+Known limit: trie's word strip is drawn below the deepest level the trie will reach. The focus therefore spans the whole drawing, so tries stay small on short windows.

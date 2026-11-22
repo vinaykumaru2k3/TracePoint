@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type SyntheticEvent } from "react";
 import { Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { sectionOf } from "../curriculum";
 import { Icon, Kbd, KindChip, MetricCard } from "../design/ui";
@@ -244,7 +244,7 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
         <span className="copy-state" role="status">{copyState}</span>
       </div>
       {error && <p className="err" role="alert" id="ops-err">{error}</p>}
-      <p className="hint" id="ops-hint">{lesson.inputHint}</p>
+      <p className={error || check ? "hint" : "hint quiet"} id="ops-hint">{lesson.inputHint}</p>
       {!error && check && <p className={check.ok ? "check ok" : "check"} id="ops-check">{check.ok ? "Ready: press Run." : `Not runnable yet: ${check.error}`}</p>}
     </form>
   );
@@ -339,14 +339,24 @@ function LearnList({ items }: { items: (readonly [string, boolean])[] }) {
   );
 }
 
+const MEM_KEY = "tracepoint-memory";
+const storedMemOpen = () => { try { return localStorage.getItem(MEM_KEY) !== "0"; } catch { return true; } };
+
+/** Folds to its header line when the reader wants the stage taller; the choice is remembered. */
 function MemoryStrip({ lesson, step }: { lesson: AnyLesson; step: ReturnType<AnyLesson["generate"]>[number] }) {
   const mem = lesson.memory(step);
+  const [open, setOpen] = useState(storedMemOpen);
+  const onToggle = (e: SyntheticEvent<HTMLDetailsElement>) => {
+    const o = e.currentTarget.open;
+    setOpen(o);
+    try { localStorage.setItem(MEM_KEY, o ? "1" : "0"); } catch { /* private mode: keep it for this visit */ }
+  };
   return (
-    <section className="mem" aria-label="Memory">
-      <div className="memhead">
+    <details className="mem" open={open} onToggle={onToggle}>
+      <summary className="memhead">
         <span className="lbl">{mem.title}</span>
         <span className="costs">{lesson.costs.map(([n, c]: [string, string]) => <span key={n}><b>{c}</b> {n}</span>)}</span>
-      </div>
+      </summary>
       <div className="cells" style={{ gridTemplateColumns: `repeat(${mem.cells.length}, minmax(0, 1fr))` }}>
         {mem.cells.map((c: MemoryCell, i: number) => (
           <div key={i} className={"cell" + (c.v === null ? " empty" : c.live ? "" : " stale") + (c.act ? " act" + (c.tone ? ` t-${c.tone}` : "") : "")}>
@@ -357,6 +367,6 @@ function MemoryStrip({ lesson, step }: { lesson: AnyLesson; step: ReturnType<Any
         ))}
       </div>
       <p className="memnote">{mem.note}</p>
-    </section>
+    </details>
   );
 }
