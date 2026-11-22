@@ -14,6 +14,7 @@ const theory: LessonTheory = {
     "Move `fast` two nodes forward.",
     "If `slow` and `fast` now point at the same node, the list has a cycle, so return true. Otherwise start the next round."
   ],
+  shots: [1, 1, 2, 4, 3, 4, 10],
   ops: [
     ["cycle check, time", "O(n)", "`slow` enters the loop within `n` rounds. Then the gap shrinks by exactly one node per round, so it reaches zero instead of jumping past."],
     ["cycle check, extra space", "O(1)", "Two pointers, and no set of visited nodes."]

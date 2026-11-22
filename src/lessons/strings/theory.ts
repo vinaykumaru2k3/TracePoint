@@ -13,6 +13,7 @@ const theory: LessonTheory = {
     "A palindrome is a word that reads the same both ways, such as `level`. To test for one, compare `s` with its reverse, one character at a time.",
     "Stop at the first mismatch. If every character matches, the word is a palindrome."
   ],
+  shots: [1, 2, 5, 8, 9, 9],
   ops: [
     ["`s[i]`", "O(1)", "Reads one character by index."],
     ["append to a builder", "O(1)", "Amortized, since the builder sometimes grows by copying."],

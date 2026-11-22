@@ -12,6 +12,7 @@ const theory: LessonTheory = {
     "If not, move on to `i + 1` and compare again.",
     "If `i` passes the last cell, every cell was checked and none matched, so return -1."
   ],
+  shots: [2, 2, 5, 3, 5],
   ops: [
     ["best case", "O(1)", "The target is in the first cell, so one check finds it."],
     ["average case", "O(n)", "If the target is equally likely in any cell, the search checks about n / 2 cells. Dropping the constant leaves O(n)."],

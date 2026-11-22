@@ -14,6 +14,7 @@ const theory: LessonTheory = {
     "To check or remove, hash the key and scan only that chain. Return false if the chain ends without the key. Remove unlinks the matching node.",
     "The load factor is keys divided by buckets. When it grows, chains get long, so real tables resize: they build a bigger array and rehash every key. See [[guide:hashing]]."
   ],
+  shots: [1, 1, 2, 10, 6, 21, 27],
   ops: [
     ["`add(k)`", "O(1) average, O(n) worst", "Average means typical inputs, with keys spread across buckets. The worst case is every key in one chain, so you scan them all."],
     ["`contains(k)`", "O(1) average, O(n) worst", "A miss scans the whole chain, which stays short while keys are spread out."],

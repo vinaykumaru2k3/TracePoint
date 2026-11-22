@@ -14,6 +14,7 @@ const theory: LessonTheory = {
     "The calls form a search tree, shaped like a family tree with the first call at the top. Each call is a node, and it branches into two calls below it, take and skip.",
     "A leaf is a call at the bottom with nothing left to decide. Every leaf records one subset."
   ],
+  shots: [1, 5, 4, 6, 7, 15, 30],
   ops: [
     ["record one subset", "O(n)", "Copying `path` copies up to n items."],
     ["list all subsets", "O(n·2ⁿ)", "Each item is in or out, so there are 2ⁿ subsets. Each copy holds up to n items."],

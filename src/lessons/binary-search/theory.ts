@@ -13,6 +13,7 @@ const theory: LessonTheory = {
     "If `a[mid]` is smaller, every cell left of `mid` is smaller too, so set `lo = mid + 1`. If it is bigger, set `hi = mid - 1`.",
     "If `lo` passes `hi`, the range is empty and the target is absent, so return -1."
   ],
+  shots: [1, 2, 3, 5, 4, 5],
   ops: [
     ["best case", "O(1)", "The first middle cell holds the target."],
     ["average and worst case", "O(log n)", "Each probe, one look at a middle cell, halves the range. log₂ n, the logarithm, counts how many halvings take n down to 1. So about log₂ n + 1 probes always suffice."],

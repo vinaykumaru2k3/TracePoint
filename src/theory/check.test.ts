@@ -26,6 +26,7 @@ const theory = (): LessonTheory => ({
   definition: "A stack is a pile. You add and remove at the top.",
   analogy: "A pile of plates.",
   steps: ["one", "two", "three"],
+  shots: [1, 2, 3],
   ops: [["push", "O(1)", "adds"]],
   useWhen: ["a", "b"],
   avoidWhen: ["a", "b"],

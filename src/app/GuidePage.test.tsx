@@ -19,6 +19,17 @@ describe("GuideView", () => {
     const h2 = [...html.matchAll(/<h2[^>]*>(.*?)<\/h2>/g)].map((m) => m[1]);
     expect(h2).toEqual(["Core idea", "Analogy", "Before you start", "Key terms", "Cheat sheet", "When you see…", "Tips and traps", "Case studies", "Lessons here"]);
   });
+  it("draws the growth chart under the cheat sheet, inking the classes it names", () => {
+    const cheat = html.slice(html.indexOf('id="cheat"'), html.indexOf('id="patterns"'));
+    expect(cheat).toContain('class="growth"');
+    expect(cheat).toContain('class="g-curve on"');
+    expect(cheat).toContain('class="meter');
+  });
+  it("shows a still of each live lesson's scene in Lessons here", () => {
+    const lessons = html.slice(html.indexOf('id="lessons"'));
+    expect(lessons).toContain('class="glessons gallery"');
+    expect(lessons.match(/class="thumb"/g)?.length).toBe(6);
+  });
   it("puts the cheat sheet in a scrolling table wrapper", () => {
     expect(html).toMatch(/class="table-wrap"[^>]*><table/);
   });

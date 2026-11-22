@@ -12,6 +12,7 @@ const theory: LessonTheory = {
     "Stop at a value that is not bigger than `key`, or at the front. Drop `key` into the gap.",
     "Now `a[0..i]` is sorted. Equal values never pass each other, so the sort is stable: equal values keep their order."
   ],
+  shots: [2, 2, 4, 5, 10],
   ops: [
     ["best case", "O(n)", "On sorted input, each key stops after one comparison, so there are n − 1 comparisons in all."],
     ["average and worst case", "O(n²)", "Each key may shift past every value before it. Reversed input shifts all of them, n(n − 1)/2 shifts in total."],

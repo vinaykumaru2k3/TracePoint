@@ -13,6 +13,7 @@ const theory: LessonTheory = {
     "To delete a value, walk with `prev` one node behind `cur`. When `cur` holds the value, set `prev.next` to `cur.next`, skipping it.",
     "If the deleted node is the head, move `head` forward instead. If it is the tail, move `tail` back to `prev`."
   ],
+  shots: [3, 9, 6, 14, 19, 21],
   ops: [
     ["`addFirst(x)`", "O(1)", "Two pointer writes at the front."],
     ["`addLast(x)`", "O(1)", "Only because the list keeps a `tail` pointer."],

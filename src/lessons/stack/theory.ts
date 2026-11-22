@@ -12,6 +12,7 @@ const theory: LessonTheory = {
     "To pop, check that the stack is not empty. Read `data[top]`, subtract 1 from `top`, and return the value you read.",
     "A popped value stays in its slot until a later push overwrites it. Only slots up to `top` count as the stack."
   ],
+  shots: [1, 3, 5, 6, 8],
   ops: [
     ["`push(x)`", "O(1)", "One write and one index change. It fails if this fixed array is full."],
     ["`pop()`", "O(1)", "One read and one index change. It throws on an empty stack."],

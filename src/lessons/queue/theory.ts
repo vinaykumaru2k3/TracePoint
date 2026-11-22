@@ -12,6 +12,7 @@ const theory: LessonTheory = {
     "To dequeue, called `poll` here, return null, meaning no value, if `size` is 0. Otherwise read `data[head]`, move `head` to `(head + 1) % cap`, and subtract 1 from `size`.",
     "To peek, return `data[head]` without changing anything, or null if the queue is empty."
   ],
+  shots: [1, 3, 8, 6, 5],
   ops: [
     ["`offer(x)`", "O(1)", "One write at the rear. It throws if this fixed array is full."],
     ["`poll()`", "O(1)", "One read at the front. Nothing shifts. It returns null when empty."],

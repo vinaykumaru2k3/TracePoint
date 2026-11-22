@@ -12,6 +12,7 @@ const theory: LessonTheory = {
     "Use the worst input. A duplicate can end the check early, but an array with no duplicates checks every pair.",
     "Drop constants and smaller parts. `n(n-1)/2` is `n²/2 - n/2`, which grows like `n²`, so the check is O(n²)."
   ],
+  shots: [2, 6, 7, 13, 13],
   ops: [
     ["One loop over `n` items", "O(n)", "Double `n` and the steps double."],
     ["A loop inside a loop over all pairs", "O(n²)", "Double `n` and the steps roughly quadruple."],

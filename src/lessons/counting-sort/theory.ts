@@ -12,6 +12,7 @@ const theory: LessonTheory = {
     "No value is ever compared with another. A comparison asks which of two values is smaller, and sorts built on comparisons cannot beat O(n log n) in the worst case.",
     "This version writes fresh values instead of moving the original items. So stability, keeping equal items in their first order, does not apply here."
   ],
+  shots: [2, 3, 8, 11, 13],
   ops: [
     ["time, every case", "O(n + k)", "Here k is the largest value plus 1, the number of counters. Counting reads n values, and writing back walks k counters and writes n values."],
     ["extra space", "O(k)", "The count array has one slot per possible value, however few values there are."],

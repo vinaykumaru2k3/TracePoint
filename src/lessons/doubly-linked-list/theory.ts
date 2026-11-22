@@ -13,6 +13,7 @@ const theory: LessonTheory = {
     "To remove at the back, move `tail` to `tail.prev`, then set the new tail's `next` to null. No walk from `head` is needed.",
     "Removing the only node sets both `head` and `tail` to null. Removing from an empty list throws."
   ],
+  shots: [9, 9, 13, 9, 14, 17],
   ops: [
     ["`addFirst(x)`", "O(1)", "Three pointer writes."],
     ["`addLast(x)`", "O(1)", "Three pointer writes."],

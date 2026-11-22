@@ -13,6 +13,7 @@ const theory: LessonTheory = {
     "To remove at `i`, shift every item after `i` one slot left, then subtract 1 from `size`.",
     "Reading or removing at an index outside 0 to `size - 1` is an error."
   ],
+  shots: [1, 5, 4, 8, 12, 13],
   ops: [
     ["`get(i)`", "O(1)", "One address sum, then one read."],
     ["`append(x)`", "O(1)", "Writes one slot at the end, if there is room."],

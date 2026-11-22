@@ -13,6 +13,7 @@ const theory: LessonTheory = {
     "Swap the pivot into index `i + 1`. Everything left of it is smaller and nothing right of it is, so the pivot is final.",
     "Sort the left side and the right side by calling the same function. A function calling itself is recursion. A range of one value or none is already sorted."
   ],
+  shots: [2, 2, 4, 5, 10, 11],
   ops: [
     ["best and average case", "O(n log n)", "A pivot near the middle halves the range, giving about log₂ n levels. log₂ n counts the halvings that take n down to 1. Each level partitions n values."],
     ["worst case", "O(n²)", "If every pivot is the largest or smallest value, each partition peels off one value. n levels then cost n(n − 1)/2 comparisons. Sorted input does this here."],

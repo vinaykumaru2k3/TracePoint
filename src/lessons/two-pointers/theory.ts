@@ -14,6 +14,7 @@ const theory: LessonTheory = {
     "If the sum is too big, move `hi` one step left. `a[lo]` is the smallest value left, so `a[hi]` is too big with every partner.",
     "If the pointers meet, no pair exists."
   ],
+  shots: [1, 2, 2, 6, 3, 2, 6],
   useWhen: [
     "The array is sorted, or you can afford to sort it, and you want a pair that meets a target.",
     "You need O(1) extra memory. Two indexes are all it uses."

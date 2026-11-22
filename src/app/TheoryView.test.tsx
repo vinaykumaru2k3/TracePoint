@@ -19,8 +19,26 @@ describe("TheoryView", () => {
     const h2 = [...html.matchAll(/<h2[^>]*>(.*?)<\/h2>/g)].map((m) => m[1]);
     expect(h2).toEqual(["Definition", "Analogy", "How it works", "Operations", "At a glance", "Use it when", "Avoid it when", "Worked example", "Pitfalls"]);
   });
-  it("renders How it works as an ordered list", () => {
-    expect(html).toMatch(/id="steps-h">How it works<\/h2><ol/);
+  it("renders How it works as a walkthrough: numbered steps beside the scene at the first shot", () => {
+    expect(html).toMatch(/id="steps-h">How it works<\/h2><div class="walk"><ol class="walk-steps"/);
+    const walk = html.slice(html.indexOf('class="walk"'), html.indexOf('id="ops"'));
+    expect(walk.match(/class="walk-num"/g)?.length).toBe(lesson.theory.steps.length);
+    expect(walk).toContain('aria-current="step"');
+    expect(walk).toContain('<svg class="iso"');
+    const n = lesson.theory.shots[0];
+    expect(walk).toContain(`href="/arrays/${n}"`);
+    expect(walk).toContain(`#${String(n).padStart(2, "0")}`);
+  });
+  it("puts a growth meter beside each cost", () => {
+    const table = html.slice(html.indexOf("At a glance"), html.indexOf("Use it when"));
+    expect(table.match(/class="meter/g)?.length).toBe(lesson.costs.length);
+    expect(table).toContain('aria-label="grows like O(1), 1 of 7 on the growth ladder"');
+  });
+  it("marks use, avoid and pitfall items with drawn icons", () => {
+    expect(html).toContain('class="marks yes"');
+    expect(html).toContain('class="marks no"');
+    expect(html).toContain('class="marks warn"');
+    expect(html).toContain('class="example"');
   });
   it("puts every cost in the At a glance table", () => {
     const table = html.slice(html.indexOf("At a glance"), html.indexOf("Use it when"));

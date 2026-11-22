@@ -13,6 +13,7 @@ const theory: LessonTheory = {
     "If `need` is a key in `seen`, return `[seen[need], i]`. Otherwise store `seen[x] = i` and move on.",
     "Check before you store. Then `x` is only compared with earlier values, so it never pairs with itself."
   ],
+  shots: [3, 3, 7, 11, 19, 17],
   ops: [
     ["count", "O(n) average time", "One pass, with one O(1) average map update per value. O(n²) worst if every key collides."],
     ["two-sum", "O(n) average time, O(n) space", "One lookup and one store per value. `seen` may end up holding every value."],

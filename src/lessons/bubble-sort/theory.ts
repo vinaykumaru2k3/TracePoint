@@ -12,6 +12,7 @@ const theory: LessonTheory = {
     "Track whether a pass swapped anything. A pass with no swaps proves every pair is in order, so the sort stops early.",
     "Equal neighbours are never swapped, so equal values keep their order. That makes bubble sort stable."
   ],
+  shots: [3, 4, 10, 20, 21],
   ops: [
     ["best case", "O(n)", "On sorted input, pass 1 makes n − 1 comparisons and no swaps, and the early exit ends the sort."],
     ["average and worst case", "O(n²)", "Up to n − 1 passes of up to n − 1 comparisons each. Reversed input is the worst, with n(n − 1)/2 comparisons and as many swaps."],

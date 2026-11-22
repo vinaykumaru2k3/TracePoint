@@ -12,6 +12,7 @@ const theory: LessonTheory = {
     "If the new sum beats the best, keep it as the best.",
     "Repeat until the window reaches the end of the array, then return the best."
   ],
+  shots: [4, 5, 5, 6, 8],
   useWhen: [
     "The question is about a contiguous run, such as the best total over 7 days in a row.",
     "Each item's effect can be added when it enters and taken away when it leaves."

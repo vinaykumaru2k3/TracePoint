@@ -11,6 +11,7 @@ const theory: LessonTheory = {
     "To sum `a[l]` through `a[r]`, both ends included, compute `p[r + 1] - p[l]`.",
     "This works because `p[r + 1]` covers items 0 to `r`, and `p[l]` covers items 0 to `l - 1`. The difference is items `l` to `r`."
   ],
+  shots: [2, 5, 9, 10],
   ops: [
     ["build", "O(n)", "One pass, plus O(n) memory for `p`."],
     ["query", "O(1)", "One subtraction, for any range."]

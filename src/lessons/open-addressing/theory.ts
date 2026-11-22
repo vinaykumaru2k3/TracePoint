@@ -14,6 +14,7 @@ const theory: LessonTheory = {
     "To remove, find the key and leave a tombstone, a marker that means \"a key was here, keep probing\". An empty slot would cut later searches short.",
     "A later add can write into the first tombstone it passed. It still probes to an empty slot first, to check the key is not further on."
   ],
+  shots: [1, 2, 6, 10, 24, 19, 30],
   ops: [
     ["`add(k)`", "O(1) average, O(n) worst", "Average means typical inputs, with the table mostly empty. A long run of taken slots means probing through all of them."],
     ["`contains(k)`", "O(1) average, O(n) worst", "It walks the same probe path as `add`, past keys and tombstones."],

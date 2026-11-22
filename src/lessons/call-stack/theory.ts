@@ -13,6 +13,7 @@ const theory: LessonTheory = {
     "`fact(0)` hands 1 back to `fact(1)`. That answer is its return value. Its frame is popped, and `fact(1)` resumes where it paused.",
     "Each call multiplies and returns in turn. Frames come off in the reverse order they went on, last in, first out, until `main` gets the result."
   ],
+  shots: [2, 3, 6, 7, 8, 12],
   ops: [
     ["make a call", "O(1)", "Push one frame onto the call stack."],
     ["return from a call", "O(1)", "Hand back the return value and pop the frame."],

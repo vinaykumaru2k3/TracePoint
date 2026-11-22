@@ -71,6 +71,13 @@ The guide and theory pages are reading surfaces inside the existing debugger she
 - The cheat sheet is the one table that gets `--surface-2` row striping.
 - Colour comes from tokens only, and no unicode glyph is used as an icon.
 
+**Pictures, not only prose.**
+- How it works is a walkthrough: each step names a trace step of the default run (`shots`), and the lesson's own scene shows that step beside the list.
+- Every cost has a growth meter.
+- A guide's cheat sheet is followed by a chart of the growth curves.
+- Lessons here shows a thumbnail of each lesson's scene.
+- Use/avoid lists, pitfalls and tips carry state marks.
+
 **Folder colours.** Each explorer folder has its own hue, one per section, so the course reads as ten distinct topics at a glance:
 - The folder icon is filled with the section's hue, and its outline stays ink.
 - The open folder's nested list gets a 1px indent guide in the same hue.

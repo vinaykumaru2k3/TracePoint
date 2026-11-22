@@ -410,9 +410,10 @@ a { color: inherit; text-decoration: none; }
 
 /* ---------- guide (folder README) ---------- */
 .guide { overflow-y: auto; }
+.guide.flow-main { overflow: visible; }
 .guide-head { margin-bottom: 4px; }
 .sec-swatch { width: 8px; height: 8px; align-self: center; flex: none; border-radius: 2px; }
-.gbody { min-width: 0; }
+.gbody { min-width: 0; container-type: inline-size; }
 .prose { max-width: 70ch; font-size: 14px; line-height: 1.65; }
 .prose p { margin: 0 0 10px; }
 .prose ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
@@ -420,9 +421,6 @@ a { color: inherit; text-decoration: none; }
 .prose code { font-family: var(--mono); font-size: 13px; padding: 0 4px; background: var(--surface-2); border-radius: 3px; }
 .gpart { padding: 14px 0 6px; scroll-margin-top: 72px; }
 .gpart > h2 { display: block; margin: 0 0 8px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
-.terms { margin: 0; display: grid; gap: 8px; }
-.terms dt { font-weight: 600; }
-.terms dd { margin: 0; color: var(--muted); }
 .table-wrap { overflow-x: auto; max-width: 100%; }
 .cheat { border-collapse: collapse; width: 100%; min-width: 34rem; font-size: 13px; line-height: 1.5; }
 .cheat th, .cheat td { padding: 6px 10px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
@@ -430,12 +428,8 @@ a { color: inherit; text-decoration: none; }
 .cheat td:not(:first-child):not(:last-child) { white-space: nowrap; }
 .cheat tbody tr:nth-child(even) { background: var(--surface-2); }
 .prose .pairs { list-style: none; padding: 0; }
-.pairs li { display: grid; gap: 2px; padding-left: 12px; border-left: 2px solid var(--line-strong); }
-.pairs .mv { color: var(--muted); }
-.case { padding: 8px 0; border-top: 1px solid var(--line); }
 .case:first-of-type { border-top: 0; }
 .case h3 { font-size: 14px; font-weight: 600; margin: 0 0 4px; }
-.case p { margin: 0 0 4px; }
 .prose .glessons { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .glessons li { display: grid; gap: 2px; }
 .glessons .hook { color: var(--muted); font-size: 13px; line-height: 1.5; }
@@ -460,3 +454,105 @@ a { color: inherit; text-decoration: none; }
 .btn.watch { display: inline-flex; justify-content: center; text-decoration: none; }
 .prose a.btn.watch { text-decoration: none; }
 .flow-main > .lesson-head .lesson-tabs { margin-top: 8px; }
+
+/* ---------- reading surfaces: guide and theory parts ---------- */
+.theory.prose { max-width: 960px; }
+.theory .gpart > p, .theory .table-wrap, .theory .marks, .theory .example, .theory .analogy { max-width: 70ch; }
+.prose .lead { font-size: 16px; line-height: 1.6; text-wrap: pretty; max-width: 62ch; }
+.analogy { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: start; padding: 12px 16px; background: var(--surface-2); border-radius: var(--radius); }
+.analogy p { margin: 0; }
+.analogy .mark { padding-top: 3px; color: var(--ink); }
+.analogy code, .marks.warn code { background: var(--surface); }
+
+.prose .marks { list-style: none; padding: 0; gap: 8px; }
+.marks li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: start; }
+.marks .mark { width: 20px; height: 20px; margin-top: 2px; display: grid; place-items: center; border: 1px solid var(--stroke); border-radius: 50%; color: var(--slab-ink); }
+.marks.yes .mark { background: var(--st-found-t); }
+.marks.no .mark { background: var(--st-swap-t); }
+.marks.warn li { padding: 8px 12px; background: color-mix(in oklab, var(--c-amber) 26%, var(--surface)); border: 1px solid color-mix(in oklab, var(--c-amber-2) 40%, var(--line)); border-radius: var(--radius); }
+.marks.warn .mark { border: 0; border-radius: 0; color: var(--ink); }
+.fit-pair { display: grid; gap: 0 28px; max-width: 70ch; }
+@container (min-width: 640px) { .fit-pair { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.prose .example { list-style: none; margin: 0; padding: 10px 0; counter-reset: line; background: var(--surface-2); border-radius: var(--radius); gap: 2px; font-size: 13px; }
+.example li { counter-increment: line; display: grid; grid-template-columns: 3ch minmax(0, 1fr); gap: 14px; padding: 2px 16px 2px 10px; }
+.example li::before { content: counter(line); text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+.example code { background: var(--surface); }
+
+.cost { display: inline-flex; align-items: center; gap: 10px; white-space: nowrap; }
+.meter { flex: none; display: block; }
+.meter rect { fill: none; stroke: var(--line-strong); stroke-width: 1; }
+.meter rect.on { stroke: var(--stroke); }
+.meter.t-found rect.on { fill: var(--st-found-l); }
+.meter.t-active rect.on { fill: var(--st-active-l); }
+.meter.t-swap rect.on { fill: var(--st-swap-l); }
+.cheat.glance td:first-child { font-family: var(--mono); }
+
+/* How it works: the steps beside the lesson's own scene. */
+.walk { display: grid; gap: 14px; margin-top: 4px; }
+.prose .walk-steps { list-style: none; margin: 0; padding: 0; gap: 2px; }
+.walk-steps li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: start; padding: 8px 10px; border-radius: var(--radius); color: var(--muted); cursor: pointer; transition: background 0.15s, color 0.15s; }
+.walk-steps li:hover { background: var(--surface-2); }
+.walk-steps li.on { background: var(--surface-2); color: var(--ink); }
+.walk-num { width: 24px; height: 24px; margin-top: 1px; display: grid; place-items: center; padding: 0; font: 500 12px/1 var(--mono); font-variant-numeric: tabular-nums; color: var(--ink); background: var(--surface); border: 1px solid var(--line-strong); border-radius: 50%; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
+.walk-steps li.past .walk-num { border-color: var(--ink); }
+.walk-steps li.on .walk-num { background: var(--inv-bg); border-color: var(--inv-bg); color: var(--inv-fg); }
+.walk-fig { order: -1; position: relative; overflow: hidden; margin: 0; display: grid; grid-template-rows: auto 220px auto; background: var(--surface-2); border-radius: var(--radius); min-width: 0; }
+.walk-cap { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; padding: 10px 14px 0; font-size: 13px; }
+.walk-op { font-weight: 600; font-family: var(--mono); }
+.walk-ix { color: var(--muted); font-weight: 500; }
+.walk-title { color: var(--muted); }
+.walk-stage { position: relative; min-height: 0; padding: 4px 10px; }
+.walk-stage > svg { width: 100%; height: 100%; }
+.walk-ctl { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-top: 1px solid var(--line); }
+.walk-ctl .icon-btn { width: 28px; height: 28px; }
+.walk-count { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.prose .walk-open { margin-left: auto; font-size: 12px; }
+@container (min-width: 760px) {
+  .walk { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); align-items: start; gap: 20px; }
+  .walk-fig { order: 0; position: sticky; top: 8px; grid-template-rows: auto 300px auto; }
+}
+@media (max-width: 1119px), (max-height: 679px) {
+  .walk-fig { position: sticky; top: 64px; z-index: 1; grid-template-rows: auto 180px auto; box-shadow: 0 0 0 6px var(--surface); }
+}
+
+/* Guide parts. */
+.terms { margin: 0; display: grid; gap: 0 28px; }
+.terms > div { padding: 8px 0; border-bottom: 1px solid var(--line); }
+.terms dt { font-weight: 600; font-family: var(--mono); }
+.terms dd { margin: 2px 0 0; color: var(--muted); }
+@container (min-width: 640px) { .terms { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.pairs li { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 4px 12px; align-items: start; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.pairs li:first-child { padding-top: 2px; }
+.pairs .arrow { padding-top: 3px; color: var(--muted); }
+.pairs .mv { font-weight: 600; }
+@container (max-width: 559px) {
+  .pairs li { grid-template-columns: auto minmax(0, 1fr); }
+  .pairs .sig { grid-column: 1 / -1; }
+}
+.case { padding: 12px 0; }
+.flow { margin: 6px 0 0; display: grid; gap: 6px; }
+.flow > div { display: grid; grid-template-columns: 12ch minmax(0, 1fr); gap: 12px; }
+.flow dt { padding-top: 3px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.flow dd { margin: 0; }
+@container (max-width: 479px) { .flow > div { grid-template-columns: minmax(0, 1fr); gap: 0; } }
+.prose .gallery { gap: 0; }
+.gallery li { display: grid; grid-template-columns: 136px minmax(0, 1fr); gap: 16px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.gallery li.soon { display: flex; padding: 8px 0 8px 152px; }
+.gl-text { display: grid; gap: 2px; }
+.thumb { display: block; width: 136px; height: 84px; padding: 4px; background: var(--surface-2); border-radius: var(--radius); overflow: hidden; }
+.thumb > svg { width: 100%; height: 100%; }
+@container (max-width: 479px) {
+  .gallery li { grid-template-columns: 96px minmax(0, 1fr); gap: 12px; }
+  .gallery li.soon { padding-left: 108px; }
+  .thumb { width: 96px; height: 64px; }
+}
+.growth { margin: 16px 0 0; overflow-x: auto; }
+.growth svg { display: block; width: 100%; max-width: 600px; min-width: 460px; height: auto; }
+.growth .g-grid line { stroke: var(--line); }
+.growth .g-axis line { stroke: var(--line-strong); }
+.growth text { font: 11px var(--mono); fill: var(--muted); }
+.g-curve path { fill: none; stroke: var(--line-strong); stroke-width: 1.2; stroke-dasharray: 3 3; }
+.g-curve.on path { stroke: var(--ink); stroke-width: 1.8; stroke-dasharray: none; }
+.g-curve.on text { fill: var(--ink); font-weight: 600; }
+.growth figcaption { margin-top: 6px; font-size: 12px; color: var(--muted); }

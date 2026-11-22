@@ -13,6 +13,7 @@ const theory: LessonTheory = {
     "On a tie, take the left head. Equal values then keep their order, so merge sort is stable.",
     "When one half runs out, copy the rest of the other. Then copy `tmp` back over `a[l..r]`."
   ],
+  shots: [2, 4, 4, 5, 6, 38],
   ops: [
     ["time, every case", "O(n log n)", "Halving n gives about log₂ n levels of splits, where log₂ n counts the halvings that take n down to 1. Each level merges all n values once."],
     ["extra space", "O(n)", "The merge needs a buffer as long as its range, up to n values. The call stack, the memory for calls not yet returned, adds O(log n)."],

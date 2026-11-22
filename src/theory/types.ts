@@ -22,6 +22,8 @@ export interface LessonTheory {
   definition: Inline;
   analogy: Inline;
   steps: Inline[];
+  /** For each step, the 1-based trace step of the default run that shows it. Same length as `steps`. */
+  shots: number[];
   ops?: [op: Inline, cost: Inline, note: Inline][];
   useWhen: Inline[];
   avoidWhen: Inline[];

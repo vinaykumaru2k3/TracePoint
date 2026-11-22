@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { CURRICULUM } from "../curriculum";
 import { LESSONS, LESSON_BY_ID } from "../lessons";
+import { run } from "../lessons/testkit";
 import { checkGuide, checkTheory } from "./check";
 import { GUIDES, linkIds } from "./index";
 
@@ -35,6 +36,11 @@ describe("theory contract", () => {
     it(`theory ${l.id} passes the checker`, () => {
       expect(l.theory, `lesson ${l.id} has no theory`).toBeTruthy();
       expect(checkTheory(l.theory, l.id, linkIds())).toEqual([]);
+    });
+    it(`theory ${l.id} has one trace shot per step, inside the default run`, () => {
+      const n = run(l, l.defaultText).length;
+      expect(l.theory.shots.length).toBe(l.theory.steps.length);
+      for (const s of l.theory.shots) { expect(Number.isInteger(s)).toBe(true); expect(s).toBeGreaterThanOrEqual(1); expect(s).toBeLessThanOrEqual(n); }
     });
   }
   it("has a guide for every section that has a live lesson", () => {
