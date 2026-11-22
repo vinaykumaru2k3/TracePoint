@@ -43,7 +43,7 @@ export default defineLesson<NumsInput, FmState>({
     };
   },
   vars: ({ state: s }) => `target = ${s.target}` + (s.i !== null ? `   i = ${s.i}   x = ${s.nums[s.i]}` : ""),
-  costs: [["count", "O(n)"], ["twoSum", "O(n)"], ["extra space", "O(n)"], ["brute force", "O(n²)"]],
+  costs: [["count", "O(n) avg"], ["twoSum", "O(n) avg"], ["worst case", "O(n²)"], ["extra space", "O(n)"], ["brute force", "O(n²)"]],
   learn: [
     ["a new key starts at 1, a repeat adds 1", (s) => s.anchors.includes("count.bump") && s.state.count.some(([, c]) => c > 1)],
     ["counting is one pass", (s) => s.anchors.includes("count.return")],

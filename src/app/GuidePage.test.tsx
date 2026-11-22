@@ -101,3 +101,9 @@ describe("guide css", () => {
     expect(css).toMatch(/\.cheat td:not\(:first-child\):not\(:last-child\)\s*\{[^}]*white-space:\s*nowrap/);
   });
 });
+
+describe("search css", () => {
+  it("sizes the result section label at 11px", () => {
+    expect(css).toMatch(/\.search li small \{[^}]*font-size: 11px/);
+  });
+});

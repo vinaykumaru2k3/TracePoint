@@ -21,4 +21,11 @@ describe("frequency map and two-sum generator", () => {
   it("requires a target", () => {
     expect(lesson.parse("1 2 3").ok).toBe(false);
   });
+
+  it("labels the hash costs as averages and states the worst case", () => {
+    const costs = Object.fromEntries(lesson.costs);
+    expect(costs.count).toBe("O(n) avg");
+    expect(costs.twoSum).toBe("O(n) avg");
+    expect(costs["worst case"]).toBe("O(n²)");
+  });
 });

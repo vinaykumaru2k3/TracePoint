@@ -10,7 +10,7 @@ Lessons done (M0–M2): sections 1–5, 26 lessons. Foundations: big-o-by-counti
 
 The theory layer is in too: five folder guides (one per live section) and a theory tab for all 26 lessons.
 
-Roadmap: M0 platform → M1 … M5 DP/advanced, one branch and PR each. Cycle 2: predict-the-next-step, quizzes, case studies.
+Roadmap: M0 platform → M1 … M5 DP/advanced, one branch and PR each. Cycle 2: predict-the-next-step, quizzes, worked case studies per lesson.
 
 ## Layout of `src/`
 
@@ -30,7 +30,7 @@ Code is shown in Java, Python and C++. Each source file tags lines with `// @a n
 
 ### Theory layer
 
-Every lesson has a theory, and every section with a live lesson has a guide. Routes: `#/` is the Foundations guide, `#/guide/:sectionId` is a folder guide (the `README.md` entry in the explorer), `#/:lessonId/learn` is the lesson's theory tab. The writing rules are in `docs/specs/theory-layer.md`: write for a beginner, define a word before you use it, keep sentences to 25 words and paragraphs to 80, never talk down, and use only `code`, `**bold**` and `[[links]]`, and use no exclamation marks. The spec has the full list of banned words. `checkText` tests the mechanical ones. In the explorer, an unstarted lesson links to its theory tab. Search finds guides as "<Section> guide". Guides and theory tabs do not count toward progress.
+Every lesson has a theory, and every section with a live lesson has a guide. Routes: `#/` is the Foundations guide, `#/guide/:sectionId` is a folder guide (the `README.md` entry in the explorer), `#/:lessonId/learn` is the lesson's theory tab. The writing rules are in `docs/specs/theory-layer.md`: write for a beginner, define a word before you use it, keep sentences to 25 words and paragraphs to 80, never talk down, use no exclamation marks, and mark up text only with `code`, `**bold**` and `[[links]]`. The spec has the full list of banned words. `checkText` tests the mechanical ones. In the explorer, an unstarted lesson links to its theory tab. Search finds guides as "<Section> guide". Guides and theory tabs do not count toward progress.
 
 ### Add a lesson
 

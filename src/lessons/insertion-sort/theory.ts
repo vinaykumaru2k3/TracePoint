@@ -19,7 +19,7 @@ const theory: LessonTheory = {
     ["stable", "yes", "A key stops at the first value that is not bigger, so it never passes an equal one."]
   ],
   useWhen: [
-    "The array is small, up to a few dozen values. Its low overhead beats the O(n log n) sorts there, so libraries use it for short stretches of an array.",
+    "The array is small, up to a few dozen values. It does so little extra work per value that it beats the O(n log n) sorts there. Libraries use it for short stretches of an array.",
     "The input is nearly sorted, such as a sorted list with a few new values at the end. Each key moves only a short way.",
     "You need a sort that is both stable and in place."
   ],

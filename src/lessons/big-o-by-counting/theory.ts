@@ -22,7 +22,7 @@ const theory: LessonTheory = {
     "You need to know whether code stays fast when the input is 1,000 times bigger."
   ],
   avoidWhen: [
-    "The input is always tiny, such as 5 items. Constant factors matter more than growth there.",
+    "The input is always tiny, such as 5 items. The fixed cost of each step, such as how slow one comparison is, matters more than growth there.",
     "You need the exact running time on one machine. Measure it with a timer instead."
   ],
   example: [
@@ -33,7 +33,7 @@ const theory: LessonTheory = {
     "With `n` = 8, the sum takes 8 steps but the check takes 28."
   ],
   pitfalls: [
-    "Counting the lucky case. An early return makes some runs short, but Big-O describes the worst case.",
+    "Counting the lucky case. An early return makes some runs short, but costs here describe the worst case unless they say otherwise. Big-O can describe any case, so the label tells you which one.",
     "Keeping constants. `2n` and `n + 100` are both O(n).",
     "Assuming two loops always mean O(n²). Two loops one after the other cost O(n) + O(n), which is still O(n). Only nesting multiplies."
   ]

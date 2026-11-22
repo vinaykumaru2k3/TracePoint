@@ -21,6 +21,7 @@ const foundations: Guide = {
     ["time complexity", "How the number of steps an algorithm takes grows as `n` grows."],
     ["space complexity", "How the extra memory an algorithm needs grows as `n` grows, not counting the input itself."],
     ["Big-O", "A way to write growth that keeps only the fastest-growing term and drops constant factors. An algorithm that takes `3n + 5` steps is O(n)."],
+    ["worst case", "The input of size `n` that takes the most steps. Big-O sets an upper limit on growth, so it can describe any case. In this course, a cost with no label means the worst case."],
     ["index", "The position number of an item in an array. Most languages start at 0, so the last index is `n - 1`."],
     ["contiguous", "Next to each other with no gaps, whether in memory or in an array."],
     ["subarray", "A contiguous run of items taken from an array. In `[4, 7, 2, 9]`, `[7, 2]` is a subarray and `[4, 2]` is not."],
@@ -52,7 +53,7 @@ const foundations: Guide = {
     ["Nested loops over one array.", "Ask whether a pointer or a window can replace the inner loop, turning O(n²) into O(n)."]
   ],
   tips: [
-    "Count the worst case. An early `return` can make one run fast, but Big-O describes the slowest input of size `n`.",
+    "Count the worst case. An early `return` can make one run fast, but a cost quoted with no label means the slowest input of size `n`.",
     "Watch the last index. An array of `n` items ends at index `n - 1`, and reading `a[n]` is out of range.",
     "Two pointers need sorted input. If the input arrives unsorted, sorting it takes more time than the O(n) walk, so the sort becomes the slowest part.",
     "Prefix sums go stale. If one value changes, every total after it is wrong until you rebuild in O(n).",

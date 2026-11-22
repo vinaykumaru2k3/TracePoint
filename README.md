@@ -8,7 +8,9 @@ Tracepoint teaches data structures and algorithms through interactive lessons th
   - **Foundations:** Big-O by counting, arrays, strings, two pointers, sliding window, prefix sums.
   - **Linear structures:** stack, queue, deque, singly and doubly linked lists, fast and slow pointers.
   - **Hashing:** chaining, open addressing, frequency map and two-sum.
-- Every folder has a guide (`README.md` in the explorer) and every lesson has a theory tab: a plain-language read of the idea before you watch it run.
+  - **Recursion:** the call stack, backtracking, N-Queens.
+  - **Searching and sorting:** linear search, binary search, bubble, selection, insertion, merge, quick and counting sort.
+- Every live folder has a guide (`README.md` in the explorer) and every lesson has a theory tab: a plain-language read of the idea before you watch it run.
 - Every step comes with a short explanation, the one idea to take away, the call being made and its return value.
 - The highlighted code follows you when you switch between Java, Python and C++.
 - You can type your own values and re-run the lesson. Custom runs are encoded in the URL, so you can share them.
@@ -35,7 +37,7 @@ Keyboard controls in a lesson:
 | Home / End | Jump to the first / last step |
 | Space | Play or pause |
 | R | Reset to step 1 |
-| Ctrl+K | Search lessons |
+| Ctrl+K | Search lessons and guides |
 
 ## Scripts
 
@@ -90,7 +92,7 @@ flowchart LR
 | [`src/iso/`](src/iso) | Isometric SVG primitives: the projection (`project.ts`), `IsoScene` (the camera and grid floor), blocks, pointers, and reusable pieces (`CellRow`, `LinkedNodes`, `Buckets`, `FrameStack` for call frames). Also `SceneFit` (measures each step) and `camera.ts` (pure framing math). |
 | [`src/hooks/`](src/hooks) | `useKeyboard`, `useTheme`, `useProgress`, `useLang`, `useMedia`. Persisted values go in `localStorage` under `tracepoint-*`. |
 | [`src/theory/`](src/theory) | The reading layer: one guide per section (`guides/`), the types, the text checker (`check.ts`) and the markup renderer. Each lesson's own theory lives in its `theory.ts`. |
-| [`src/design/`](src/design) | `tokens.css` holds every colour as a token, with light and dark values. `ui.tsx` holds shared bits (`Icon`, `Badge`, `Kbd`, …). |
+| [`src/design/`](src/design) | `tokens.css` holds every colour as a token, with light and dark values. `ui.tsx` holds shared bits (`Icon`, `Kbd`, …). |
 | [`src/curriculum.ts`](src/curriculum.ts) | The full course outline. Lessons that aren't built yet show as "soon". |
 | [`src/app.css`](src/app.css) | Layout, including the narrow single-column mode below 1120px wide or 680px tall. |
 
