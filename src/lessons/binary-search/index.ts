@@ -5,6 +5,7 @@ import { generateBinary, type BinaryState } from "./generate";
 import java from "./code/Main.java?raw";
 import python from "./code/main.py?raw";
 import cpp from "./code/main.cpp?raw";
+import theory from "./theory";
 
 export default defineLesson<NumsInput, BinaryState>({
   id: "binary-search",
@@ -48,6 +49,8 @@ export default defineLesson<NumsInput, BinaryState>({
     ["a match returns mid", (s) => s.kind === "found"],
     ["an empty range means not found", (s) => s.kind === "empty"]
   ],
+
+  theory,
 
   code: { java, python, cpp }
 });

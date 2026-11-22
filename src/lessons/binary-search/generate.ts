@@ -87,7 +87,7 @@ export function generateBinary({ nums: raw, k }: NumsInput): Step<BinaryState>[]
     kind: "recap", op: null, anchors: [], notes: {},
     title: "What happened",
     idea: "Binary search is O(log n), but only on sorted data.",
-    text: `${probes} probe${probes === 1 ? "" : "s"} for ${nums.length} values. Doubling the array adds just one probe. Sorting first costs O(n log n), so it pays off when you search the same data many times.`
+    text: `${probes} probe${probes === 1 ? "" : "s"} for ${nums.length} values. Doubling the array adds only one probe. Sorting first costs O(n log n), so it pays off when you search the same data many times.`
   }, { lo: last.lo, hi: last.hi, mid: last.mid, hit: last.hit }));
   return steps;
 }

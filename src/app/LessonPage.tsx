@@ -13,12 +13,13 @@ import { DEFAULT_LESSON, LESSON_BY_ID } from "../lessons";
 import CodeCard from "./CodeCard";
 import CourseDrawer, { NARROW } from "./CourseDrawer";
 import CourseSidebar from "./CourseSidebar";
+import TheoryView, { LessonTabs } from "./TheoryView";
 
-interface Props { progress: Progress; onVisit(id: string, idx: number): void; courseOpen: boolean; onCloseCourse(): void }
+interface Props { view: "theory" | "trace"; progress: Progress; onVisit(id: string, idx: number): void; courseOpen: boolean; onCloseCourse(): void }
 
 const reduced = () => !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
-/** Route: /<lesson>/<step>?in=<own input>, with step counted from 1. */
+/** Route: /<lesson>/<step>?in=<own input>, with step counted from 1, or /<lesson>/learn for the theory tab. */
 export default function LessonPage(props: Props) {
   const { lessonId = "", step } = useParams();
   const lesson = LESSON_BY_ID[lessonId];
@@ -26,7 +27,7 @@ export default function LessonPage(props: Props) {
   return <LessonView key={lesson.id} lesson={lesson} stepParam={step} {...props} />;
 }
 
-function LessonView({ lesson, stepParam, progress, onVisit, courseOpen, onCloseCourse }: Props & { lesson: AnyLesson; stepParam?: string }) {
+function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, onCloseCourse }: Props & { lesson: AnyLesson; stepParam?: string }) {
   const navigate = useNavigate();
   const narrow = useMedia(NARROW);
   const [params] = useSearchParams();
@@ -49,19 +50,22 @@ function LessonView({ lesson, stepParam, progress, onVisit, courseOpen, onCloseC
   const wanted = Number.parseInt(stepParam ?? "1", 10);
   const idx = Math.max(0, Math.min(last, Number.isFinite(wanted) ? wanted - 1 : 0));
   const setIdx = useCallback((i: number) => navigate(`/${lesson.id}/${i + 1}${query}`, { replace: true }), [navigate, lesson.id, query]);
-  const player = usePlayer(last, idx, setIdx);
+  const player = usePlayer(last, idx, setIdx, view === "trace");
   useKeyboard({
     prev: player.back, next: () => player.jump(idx + 1), first: () => player.jump(0), last: () => player.jump(last),
     toggle: player.toggle, reset: player.reset
-  });
+  }, view === "trace");
+  const theory = view === "theory";
 
   /* Saved progress counts steps of the default run only. Custom inputs have their own step lists. */
   const isDefault = text === lesson.defaultText;
   const [customMax, setCustomMax] = useState(0);
   useEffect(() => {
+    /* The theory tab never counts toward progress. */
+    if (theory) return;
     if (isDefault) onVisit(lesson.id, idx);
     else setCustomMax((m) => Math.max(m, idx));
-  }, [isDefault, lesson.id, idx, onVisit]);
+  }, [theory, isDefault, lesson.id, idx, onVisit]);
 
   /* Back and forward through runs: the box follows the URL's input (not on first load, so a bad link's input stays visible). */
   const seenText = useRef(text);
@@ -71,8 +75,8 @@ function LessonView({ lesson, stepParam, progress, onVisit, courseOpen, onCloseC
     setDraft(text);
   }, [text]);
 
-  /* A new lesson starts at the top of the page on narrow screens, where the page scrolls. */
-  useEffect(() => { if (narrow) window.scrollTo({ top: 0 }); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  /* A new lesson or tab starts at the top of the page on narrow screens, where the page scrolls. */
+  useEffect(() => { if (narrow) window.scrollTo({ top: 0 }); }, [view]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* A Run error is about the input that failed; once the step moves on it is stale. */
   const seenIdx = useRef(idx);
@@ -124,7 +128,7 @@ function LessonView({ lesson, stepParam, progress, onVisit, courseOpen, onCloseC
     rail.scrollTo({ left: li.offsetLeft - (rail.clientWidth - li.offsetWidth) / 2, behavior: reduced() ? "auto" : "smooth" });
   }, [idx, steps, narrow]);
 
-  const sidebar = <CourseSidebar currentId={lesson.id} currentIdx={isDefault ? idx : 0} progress={progress} />;
+  const sidebar = <CourseSidebar currentId={lesson.id} currentIdx={isDefault && !theory ? idx : 0} progress={progress} />;
   const playLabel = player.playing ? "Pause" : idx === last ? "Replay" : idx === 0 ? "Play all" : "Play";
   const stepOf = `Step ${idx + 1} of ${steps.length}`;
 
@@ -138,6 +142,7 @@ function LessonView({ lesson, stepParam, progress, onVisit, courseOpen, onCloseC
       <h1>{lesson.title}</h1>
       <p className="meta">{lesson.minutes} min · {lesson.level} · {steps.length} steps</p>
       <p className="sub">{lesson.subtitle}</p>
+      <LessonTabs id={lesson.id} view={view} search={query} />
     </header>
   );
 
@@ -241,8 +246,35 @@ function LessonView({ lesson, stepParam, progress, onVisit, courseOpen, onCloseC
     </section>
   );
 
-  const code = <CodeCard key="code" lesson={lesson} step={step} idx={idx} />;
+  /* The theory tab shows the code at rest: no line is lit. */
+  const restStep = useMemo(() => ({ ...steps[0], anchors: [] }), [steps]);
+  const code = theory ? <CodeCard key="code" lesson={lesson} step={restStep} idx={0} idle="Open the trace tab to see which lines run." /> : <CodeCard key="code" lesson={lesson} step={step} idx={idx} />;
   const learn = <LearnList key="learn" items={lesson.learn.map(([t, test]) => [t, steps.slice(0, reached + 1).some(test)] as const)} />;
+
+  if (theory) {
+    const body = <TheoryView lesson={lesson} search={query} key="body" />;
+    if (narrow) {
+      return (
+        <div className="page flow">
+          <CourseDrawer open={courseOpen} onClose={onCloseCourse}>{sidebar}</CourseDrawer>
+          <main className="flow-main guide" aria-label="Lesson theory">
+            {head}
+            <div className="gbody card">{body}</div>
+            {code}
+          </main>
+        </div>
+      );
+    }
+    return (
+      <div className="page">
+        <div className="side-col">{sidebar}</div>
+        <div className="center">
+          <main className="lesson card guide" aria-label="Lesson theory">{head}<div className="gbody">{body}</div></main>
+        </div>
+        <aside className="right" aria-label="Code">{code}</aside>
+      </div>
+    );
+  }
 
   /* Narrow screens: one column in reading order, so tab order and screen readers follow what is on screen. */
   if (narrow) {

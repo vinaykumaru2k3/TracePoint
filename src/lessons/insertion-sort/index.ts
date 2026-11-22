@@ -6,6 +6,7 @@ import { generateInsertion } from "./generate";
 import java from "./code/Main.java?raw";
 import python from "./code/main.py?raw";
 import cpp from "./code/main.cpp?raw";
+import theory from "./theory";
 
 export default defineLesson<NumsInput, SortState>({
   id: "insertion-sort",
@@ -36,6 +37,8 @@ export default defineLesson<NumsInput, SortState>({
     ["the key drops into the gap", (s) => s.kind === "add"],
     ["sorted input needs one compare per item", (s) => s.op === "sorted" && s.state.compares === s.state.a.length - 1]
   ],
+
+  theory,
 
   code: { java, python, cpp }
 });

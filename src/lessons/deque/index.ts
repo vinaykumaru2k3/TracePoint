@@ -5,6 +5,7 @@ import { generateDeque, type DequeState } from "./generate";
 import java from "./code/Main.java?raw";
 import python from "./code/main.py?raw";
 import cpp from "./code/main.cpp?raw";
+import theory from "./theory";
 
 const ALIASES: Record<string, string> = {
   push_front: "pushfront", addfirst: "pushfront", appendleft: "pushfront", offerfirst: "pushfront",
@@ -59,6 +60,8 @@ export default defineLesson<Op[], DequeState>({
     ["head wraps from slot 0 to the last slot", (s) => !!s.state.wrapped && s.state.mode === "front"],
     ["removing from an empty deque throws", (s) => s.kind === "empty" && s.retNote === "deque is empty"]
   ],
+
+  theory,
 
   code: { java, python, cpp }
 });

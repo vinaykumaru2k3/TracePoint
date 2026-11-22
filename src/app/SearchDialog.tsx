@@ -2,10 +2,17 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CURRICULUM } from "../curriculum";
 import { LESSON_BY_ID } from "../lessons";
+import { GUIDES } from "../theory";
 
 interface Props { open: boolean; onClose(): void }
 
-const ALL = CURRICULUM.flatMap((s) => s.lessons.map((l) => ({ ...l, section: s.name, live: !!LESSON_BY_ID[l.id] })));
+/** What search can open: each guide (as "<Section> guide"), then every live lesson. */
+export const SEARCH_ITEMS: { name: string; section: string; to: string }[] = [
+  ...CURRICULUM.filter((s) => GUIDES[s.id]).map((s) => ({ name: `${s.name} guide`, section: s.name, to: `/guide/${s.id}` })),
+  ...CURRICULUM.flatMap((s) => s.lessons.filter((l) => LESSON_BY_ID[l.id]).map((l) => ({ name: l.name, section: s.name, to: `/${l.id}/1` })))
+];
+const SOON = CURRICULUM.flatMap((s) => s.lessons.filter((l) => !LESSON_BY_ID[l.id]).map((l) => ({ name: l.name, section: s.name })));
+const ALL = [...SEARCH_ITEMS.map((i) => ({ ...i, live: true })), ...SOON.map((i) => ({ ...i, to: "", live: false }))];
 
 /** Ctrl/Cmd+K lesson search on a native <dialog>. */
 export default function SearchDialog({ open, onClose }: Props) {
@@ -17,7 +24,7 @@ export default function SearchDialog({ open, onClose }: Props) {
   const results = useMemo(() => {
     const t = q.trim().toLowerCase();
     const hits = t ? ALL.filter((l) => (l.name + " " + l.section).toLowerCase().includes(t)) : ALL;
-    return [...hits.filter((l) => l.live), ...hits.filter((l) => !l.live)].slice(0, 30);
+    return hits.slice(0, 30);
   }, [q]);
 
   useEffect(() => {
@@ -31,7 +38,7 @@ export default function SearchDialog({ open, onClose }: Props) {
     const r = results[i];
     if (!r || !r.live) return;
     onClose();
-    navigate(`/${r.id}/1`);
+    navigate(r.to);
   };
 
   const onKey = (e: React.KeyboardEvent) => {
@@ -50,7 +57,7 @@ export default function SearchDialog({ open, onClose }: Props) {
         : (
           <ul>
             {results.map((r, i) => (
-              <li key={r.id}>
+              <li key={r.to || r.name}>
                 <button aria-selected={i === sel} disabled={!r.live} onClick={() => choose(i)} onMouseMove={() => setSel(i)}>
                   {r.name}<small>{r.section}{r.live ? "" : " · soon"}</small>
                 </button>

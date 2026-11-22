@@ -5,6 +5,7 @@ import { generateLinear, type LinearState } from "./generate";
 import java from "./code/Main.java?raw";
 import python from "./code/main.py?raw";
 import cpp from "./code/main.cpp?raw";
+import theory from "./theory";
 
 export default defineLesson<NumsInput, LinearState>({
   id: "linear-search",
@@ -43,6 +44,8 @@ export default defineLesson<NumsInput, LinearState>({
     ["the first match returns its index", (s) => s.kind === "found"],
     ["no match anywhere returns -1", (s) => s.kind === "empty"]
   ],
+
+  theory,
 
   code: { java, python, cpp }
 });

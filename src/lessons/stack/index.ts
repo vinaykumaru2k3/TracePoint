@@ -5,6 +5,7 @@ import { generateStack, type StackState } from "./generate";
 import java from "./code/Main.java?raw";
 import python from "./code/main.py?raw";
 import cpp from "./code/main.cpp?raw";
+import theory from "./theory";
 
 export default defineLesson<Op[], StackState>({
   id: "stack",
@@ -47,6 +48,8 @@ export default defineLesson<Op[], StackState>({
     ["a later push overwrites a stale slot", (s) => !!s.state.overwrote],
     ["popping an empty stack throws an exception", (s) => s.kind === "empty" && s.op === "pop()"]
   ],
+
+  theory,
 
   code: { java, python, cpp }
 });

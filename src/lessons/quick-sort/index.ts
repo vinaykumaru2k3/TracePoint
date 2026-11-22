@@ -6,6 +6,7 @@ import { generateQuick } from "./generate";
 import java from "./code/Main.java?raw";
 import python from "./code/main.py?raw";
 import cpp from "./code/main.cpp?raw";
+import theory from "./theory";
 
 export default defineLesson<NumsInput, SortState>({
   id: "quick-sort",
@@ -30,12 +31,14 @@ export default defineLesson<NumsInput, SortState>({
   metrics: ({ state }) => sortMetrics(state),
   memory: ({ state }) => sortMemory("In memory: int[] a", state, "Partitioning swaps inside the array. The recursion uses O(log n) stack on average, O(n) in the worst case."),
   vars: ({ state: s }) => `compares = ${s.compares}   swaps = ${s.swaps}`,
-  costs: [["time", "O(n log n) avg, O(n^2) worst"], ["extra space", "O(log n) stack"]],
+  costs: [["time", "O(n log n) avg, O(n^2) worst"], ["extra space", "O(log n) stack avg, O(n) worst"]],
   learn: [
     ["smaller values move left of the pivot", (s) => s.kind === "move"],
     ["the pivot lands in its final place", (s) => !!s.op?.startsWith("pivot at")],
     ["sorted input is the worst case", (s) => s.op === "sorted" && s.state.compares === (s.state.a.length * (s.state.a.length - 1)) / 2]
   ],
+
+  theory,
 
   code: { java, python, cpp }
 });

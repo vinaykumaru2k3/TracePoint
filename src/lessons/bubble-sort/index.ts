@@ -6,6 +6,7 @@ import { generateBubble } from "./generate";
 import java from "./code/Main.java?raw";
 import python from "./code/main.py?raw";
 import cpp from "./code/main.cpp?raw";
+import theory from "./theory";
 
 export default defineLesson<NumsInput, SortState>({
   id: "bubble-sort",
@@ -36,6 +37,8 @@ export default defineLesson<NumsInput, SortState>({
     ["each pass parks the largest at the end", (s) => s.kind === "found" && !!s.op?.endsWith("done")],
     ["a pass with no swaps stops early", (s) => s.op === "no swaps"]
   ],
+
+  theory,
 
   code: { java, python, cpp }
 });

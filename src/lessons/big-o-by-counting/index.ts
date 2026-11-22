@@ -5,6 +5,7 @@ import { generateBigO, type BigOState } from "./generate";
 import java from "./code/Main.java?raw";
 import python from "./code/main.py?raw";
 import cpp from "./code/main.cpp?raw";
+import theory from "./theory";
 
 export default defineLesson<NumsInput, BigOState>({
   id: "big-o-by-counting",
@@ -46,6 +47,8 @@ export default defineLesson<NumsInput, BigOState>({
     ["n(n-1)/2 pairs grows like n²", (s) => s.op === "hasDuplicate(a)"],
     ["an early return helps, but Big-O counts the worst case", (s) => s.state.hit]
   ],
+
+  theory,
 
   code: { java, python, cpp }
 });

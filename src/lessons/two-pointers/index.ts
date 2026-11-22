@@ -5,6 +5,7 @@ import { generateTwoPointers, type TwoPtrState } from "./generate";
 import java from "./code/Main.java?raw";
 import python from "./code/main.py?raw";
 import cpp from "./code/main.cpp?raw";
+import theory from "./theory";
 
 export default defineLesson<NumsInput, TwoPtrState>({
   id: "two-pointers",
@@ -46,6 +47,8 @@ export default defineLesson<NumsInput, TwoPtrState>({
     ["a match returns both indexes", (s) => s.kind === "found"],
     ["when the pointers meet, there is no pair", (s) => s.kind === "empty"]
   ],
+
+  theory,
 
   code: { java, python, cpp }
 });

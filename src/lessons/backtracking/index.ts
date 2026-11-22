@@ -5,6 +5,7 @@ import { generateSubsets, type SubsetsState } from "./generate";
 import java from "./code/Main.java?raw";
 import python from "./code/main.py?raw";
 import cpp from "./code/main.cpp?raw";
+import theory from "./theory";
 
 export default defineLesson<NumsInput, SubsetsState>({
   id: "backtracking",
@@ -52,6 +53,8 @@ export default defineLesson<NumsInput, SubsetsState>({
     ["skip: go deeper without it", (s) => s.state.choice === "skip"],
     ["a full path records one subset", (s) => s.state.choice === "record"]
   ],
+
+  theory,
 
   code: { java, python, cpp }
 });

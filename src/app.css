@@ -80,6 +80,9 @@ a { color: inherit; text-decoration: none; }
 .root > summary small, .sec > summary small { margin-left: auto; font-size: 11px; color: var(--muted-2); font-weight: 400; }
 .root > summary .sec-name, .sec > summary .sec-name { overflow: hidden; text-overflow: ellipsis; }
 .root-body { margin: 0 0 0 12px; padding-left: 4px; border-left: 1px solid var(--line); }
+.sec > summary > .icon { color: var(--ink); }
+.sec > summary > .icon path { fill: var(--sec); }
+.sec[open] > ul { border-left: 1px solid var(--sec); }
 .sec ul { list-style: none; margin: 0 0 0 12px; padding: 0 0 0 4px; border-left: 1px solid var(--line); display: grid; }
 .lnk { position: relative; display: flex; align-items: center; gap: 8px; min-width: 0; min-height: 26px; padding: 0 8px; white-space: nowrap; border-radius: var(--radius); font-size: 12px; }
 .lnk .nm { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
@@ -89,16 +92,19 @@ a { color: inherit; text-decoration: none; }
 .lnk.on::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--signal); border-radius: 1px; }
 .lnk.soon { color: var(--muted-2); padding-left: 30px; }
 .lnk .soon-tag { margin-left: auto; font-family: var(--mono); font-size: 11px; }
-/* completion marks: an empty ring, a ring that fills with the steps reached, then a filled check badge */
+/* completion marks: an empty ring, a ring that fills with the steps reached, then a closed ring with a check inside */
 .ring { flex: none; display: block; }
 .ring-track { fill: none; stroke: var(--line-strong); stroke-width: 1.5; }
 .ring-arc { fill: none; stroke: var(--done); stroke-width: 2; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 7px 7px; }
-.badge { flex: none; width: 14px; height: 14px; display: grid; place-items: center; border-radius: 50%; background: var(--done); color: var(--on-done); }
-.badge .icon path { stroke-width: 2.2; }
-.badge.sm { width: 12px; height: 12px; }
-.badge.fresh { animation: badge-pop 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
-@keyframes badge-pop { from { transform: scale(0.3); opacity: 0; } 60% { transform: scale(1.12); opacity: 1; } }
-.root > summary .sec-done, .sec > summary .sec-done { display: inline-flex; align-items: center; gap: 5px; color: var(--ink); font-weight: 500; }
+.ring.done .ring-track { stroke: none; }
+.ring-check { fill: none; stroke: var(--done); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.ring.fresh .ring-arc { animation: ring-close 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.ring.fresh .ring-check { stroke-dasharray: 8; animation: check-draw 0.3s 0.3s ease-out both; }
+@keyframes ring-close { from { stroke-dasharray: 0 100; } }
+@keyframes check-draw { from { stroke-dashoffset: 8; } to { stroke-dashoffset: 0; } }
+.lnk.done:not(.on) .nm { color: var(--muted); }
+.root > summary .sec-done, .sec > summary .sec-done { display: inline-flex; align-items: center; gap: 4px; }
+.sec-done .icon { color: var(--done); }
 .side-foot { padding: 10px 14px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); }
 .side-foot b { color: var(--ink); font-family: var(--mono); font-weight: 500; }
 .bar { height: 4px; border-radius: 2px; background: var(--surface-2); border: 1px solid var(--line); overflow: hidden; margin-top: 8px; }
@@ -281,7 +287,7 @@ a { color: inherit; text-decoration: none; }
 .search li button { width: 100%; display: flex; gap: 10px; align-items: center; text-align: left; padding: 7px 10px; border: 1px solid transparent; border-radius: var(--radius); background: none; cursor: pointer; }
 .search li button[aria-selected="true"] { border-color: var(--line-strong); background: var(--surface-2); }
 .search li button:disabled { cursor: default; color: var(--muted); }
-.search li small { margin-left: auto; color: var(--muted); }
+.search li small { margin-left: auto; font-size: 11px; color: var(--muted); }
 .search .empty { padding: 14px 16px; color: var(--muted); }
 
 /* ---------- isometric scene: soft slabs, colour only for state ---------- */
@@ -309,6 +315,9 @@ a { color: inherit; text-decoration: none; }
 .edge.e-active { stroke: var(--edge-active); stroke-width: 2.2; }
 .edge.e-dim { opacity: 0.35; }
 .arrow-head { fill: var(--muted); }
+.tree-tag { transition: transform 0.45s cubic-bezier(0.3, 0.8, 0.3, 1); }
+.tree-tag rect { fill: var(--surface); stroke: var(--line-strong); stroke-width: 1; }
+.tree-tag text { font-family: var(--mono); font-size: 11px; font-weight: 600; fill: var(--muted); }
 .ptr { transition: transform 0.45s cubic-bezier(0.3, 0.8, 0.3, 1), opacity 0.3s; }
 .ptr rect { fill: var(--surface); stroke: var(--edge); stroke-width: 1; }
 .ptr line { stroke: var(--edge); stroke-width: 1.2; stroke-dasharray: 3 3; }
@@ -320,14 +329,14 @@ a { color: inherit; text-decoration: none; }
 @keyframes leave { to { transform: translate(var(--lx, 0), var(--ly, 0)); opacity: 0; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .box, .ptr, .bar i, .btn, .ln, .edge, .win, .icon-btn, .rail .node, .rail li::before, .rail li::after { transition: none; }
-  .enter, .badge.fresh, .drawer[open] .drawer-sheet, .drawer[open]::backdrop { animation: none; }
+  .box, .ptr, .tree-tag, .bar i, .btn, .ln, .edge, .win, .icon-btn, .rail .node, .rail li::before, .rail li::after { transition: none; }
+  .enter, .ring.fresh .ring-arc, .ring.fresh .ring-check, .drawer[open] .drawer-sheet, .drawer[open]::backdrop { animation: none; }
   .tick { display: none; }
   .leaving { display: none; }
 }
 
 @media (forced-colors: active) {
-  .badge, .cell.act .box, .codetabs button[aria-selected="true"], .lnk.on, .tab.on, .btn.primary { outline: 2px solid CanvasText; }
+  .cell.act .box, .codetabs button[aria-selected="true"], .lnk.on, .tab.on, .btn.primary { outline: 2px solid CanvasText; }
   .ln.on { border-left-color: Highlight; }
   .rail li::before, .rail li::after, .rail .node { forced-color-adjust: none; }
   .rail li::before, .rail li::after { background: GrayText; }
@@ -344,7 +353,7 @@ a { color: inherit; text-decoration: none; }
 
 /* ---------- short desktop windows: drop the secondary lines so the stage and code keep room ---------- */
 @media (min-width: 1121px) and (max-height: 820px) {
-  .sub, .memnote, .crumb { display: none; }
+  .memnote, .lesson-head:not(.guide-head) .sub, .lesson-head:not(.guide-head) .crumb { display: none; }
   .lesson-head h1 { font-size: 22px; }
   .lesson { gap: 10px; padding-top: 12px; }
   .cell .box { height: 30px; }
@@ -396,7 +405,245 @@ a { color: inherit; text-decoration: none; }
   .rail li { min-width: 52px; }
   .rail button { min-height: 44px; padding: 3px 6px 6px; }
   .search-btn { width: 40px; height: 40px; }
+  .lesson-tabs .tab { min-height: 40px; }
   .copy-state { flex-basis: 100%; }
   .copy-state:empty { display: none; }
   .topnav { height: 56px; }
+}
+
+/* ---------- guide (folder README) ---------- */
+.guide { overflow-y: auto; }
+.guide.flow-main { overflow: visible; }
+.guide-head { margin-bottom: 4px; }
+.sec-swatch { width: 8px; height: 8px; align-self: center; flex: none; border-radius: 2px; }
+.gbody { min-width: 0; container-type: inline-size; }
+.prose { font-size: 14px; line-height: 1.65; }
+.prose p { max-width: 72ch; }
+.prose p { margin: 0 0 10px; }
+.prose ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+.prose a { text-decoration: underline; text-underline-offset: 2px; }
+.prose code { font-family: var(--mono); font-size: 13px; padding: 0 4px; background: var(--surface-2); border-radius: 3px; }
+.gpart { padding: 18px 0 8px; scroll-margin-top: 72px; }
+.gpart > h2 { display: block; margin: 0 0 8px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+.table-wrap { overflow-x: auto; max-width: 100%; }
+/* Cheat sheet: a heatmap on hairline rows. Each cost sits in a chip tinted by its growth class (green up
+   to O(n), amber O(n log n), red beyond), with its meter pinned to the chip's right edge so meters line up
+   down a column. The row name leads in ink, its qualifier on a muted line below; the note trails, muted. */
+.cheat { border-collapse: collapse; width: 100%; min-width: 34rem; font-size: 13px; line-height: 1.5; }
+.cheat th, .cheat td { padding: 7px 6px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+.cheat th:first-child, .cheat td:first-child { padding-left: 0; }
+.cheat thead th { font-family: var(--mono); font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); white-space: nowrap; border-bottom-color: var(--line-strong); }
+.cheat thead th:not(:first-child) { padding-left: 14px; }
+.cheat tbody th { font-weight: 400; min-width: 15ch; }
+.cheat-name { display: block; font-weight: 600; color: var(--ink); }
+.cheat-qual { display: block; font-size: 12px; color: var(--muted); }
+.cheat td.heat { font-variant-numeric: tabular-nums; }
+.cheat td.heat .cost { display: flex; justify-content: space-between; align-items: flex-start; white-space: normal; padding: 1px 8px; margin: -1px 0; border-radius: 4px; }
+.cheat td.heat .cost-v { min-width: 10.5ch; }
+.cheat td.heat .meter { margin-top: 3px; }
+.cheat td.t-found .cost { background: var(--heat-found); }
+.cheat td.t-active .cost { background: var(--heat-active); }
+.cheat td.t-swap .cost { background: var(--heat-swap); }
+.cheat td.cheat-note { color: var(--muted); max-width: 40ch; padding-left: 14px; }
+.prose .pairs { list-style: none; padding: 0; }
+.case:first-of-type { border-top: 0; }
+.case h3 { font-size: 14px; font-weight: 600; margin: 0 0 4px; }
+.prose .glessons { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.glessons li { display: grid; gap: 2px; }
+.glessons .hook { color: var(--muted); font-size: 13px; line-height: 1.5; }
+.glessons li.soon { display: flex; align-items: center; gap: 8px; color: var(--muted-2); }
+.glessons .soon-tag { font-family: var(--mono); font-size: 11px; }
+.guide-side { display: flex; flex-direction: column; gap: 12px; }
+.right > .guide-side { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+.guide-toc ul, .guide-lessons .glessons.glessons { list-style: none; margin: 0; padding: 10px 14px 12px; display: grid; gap: 6px; font-size: 13px; }
+.guide-toc a:hover { text-decoration: underline; }
+.guide-lessons .hook { font-size: 12px; }
+.flow-main > .guide-head { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; }
+.flow-main > .gbody { padding: 4px 16px 14px; }
+.flow-main > .guide-side > .card { min-width: 0; }
+
+/* ---------- lesson theory tab ---------- */
+.lesson-tabs { display: flex; gap: 4px; margin-top: 6px; border-bottom: 1px solid var(--line); }
+.lesson-tabs .tab { height: 32px; }
+.prose ol { margin: 0; padding-left: 22px; display: grid; gap: 6px; }
+.cheat.plain { min-width: 0; }
+.watch-row { padding: 14px 0 6px; }
+.btn.watch { display: inline-flex; justify-content: center; text-decoration: none; }
+.prose a.btn.watch { text-decoration: none; }
+.flow-main > .lesson-head .lesson-tabs { margin-top: 8px; }
+
+/* ---------- reading surfaces: guide and theory parts ---------- */
+.prose .lead { font-size: 16px; line-height: 1.6; text-wrap: pretty; max-width: 62ch; }
+.analogy { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: start; padding: 12px 16px; background: var(--surface-2); border-radius: var(--radius); }
+.analogy p { margin: 0; }
+.analogy .mark { padding-top: 3px; color: var(--ink); }
+.analogy code { background: var(--surface); }
+
+.prose .marks { list-style: none; padding: 0; gap: 8px; }
+.marks li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: start; }
+.marks .mark { width: 20px; height: 20px; margin-top: 2px; display: grid; place-items: center; border: 1px solid var(--stroke); border-radius: 50%; color: var(--slab-ink); }
+.marks.yes .mark { background: var(--st-found-t); }
+.marks.no .mark { background: var(--st-swap-t); }
+/* Pitfalls and tips read like a compiler's warning list: hairline rows, no fill, an amber badge from the
+   same family as the use/avoid marks. A pitfall's first sentence is the mistake, set as the headline; the
+   explanation follows in muted text. A struck wrong form sits on a red-tinted chip. */
+.prose .marks.warn { gap: 0; }
+.marks.warn li { padding: 10px 0 11px; border-top: 1px solid var(--line); }
+.marks.warn li:last-child { border-bottom: 1px solid var(--line); }
+.marks.warn .mark { background: var(--st-active-t); }
+.marks.warn .lead-in { font-weight: 600; color: var(--ink); }
+.marks.warn .lead-rest { color: var(--muted); }
+.prose s.wrong code { background: var(--wrong-chip); }
+.fit-pair { display: grid; gap: 0 40px; }
+@container (min-width: 640px) { .fit-pair { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.prose .example { list-style: none; margin: 0; padding: 10px 0; counter-reset: line; background: var(--surface-2); border-radius: var(--radius); gap: 2px; font-size: 13px; }
+.example li { counter-increment: line; display: grid; grid-template-columns: 3ch minmax(0, 1fr); gap: 14px; padding: 2px 16px 2px 10px; }
+.example li::before { content: counter(line); text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+.example code { background: var(--surface); }
+
+.cost { display: inline-flex; align-items: center; gap: 10px; white-space: nowrap; }
+.meter { flex: none; display: block; }
+.meter rect { fill: none; stroke: var(--line-strong); stroke-width: 1; }
+.meter rect.on { stroke: var(--stroke); }
+.meter.t-found rect.on { fill: var(--st-found-l); }
+.meter.t-active rect.on { fill: var(--st-active-l); }
+.meter.t-swap rect.on { fill: var(--st-swap-l); }
+.cheat.glance td:first-child { font-family: var(--mono); }
+
+/* How it works: the steps beside the lesson's own scene. */
+.walk { display: grid; gap: 14px; margin-top: 4px; }
+.prose .walk-steps { list-style: none; margin: 0; padding: 0; gap: 2px; }
+.walk-steps li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: start; padding: 8px 10px; border-radius: var(--radius); color: var(--muted); cursor: pointer; transition: background 0.15s, color 0.15s; }
+.walk-steps li:hover { background: var(--surface-2); }
+.walk-steps li.on { background: var(--surface-2); color: var(--ink); }
+.walk-num { width: 24px; height: 24px; margin-top: 1px; display: grid; place-items: center; padding: 0; font: 500 12px/1 var(--mono); font-variant-numeric: tabular-nums; color: var(--ink); background: var(--surface); border: 1px solid var(--line-strong); border-radius: 50%; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
+.walk-steps li.past .walk-num { border-color: var(--ink); }
+.walk-steps li.on .walk-num { background: var(--inv-bg); border-color: var(--inv-bg); color: var(--inv-fg); }
+.walk-fig { order: -1; position: relative; overflow: hidden; margin: 0; display: grid; grid-template-rows: auto 220px auto; background: var(--surface-2); border-radius: var(--radius); min-width: 0; }
+.walk-cap { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; padding: 10px 14px 0; font-size: 13px; }
+.walk-op { font-weight: 600; font-family: var(--mono); }
+.walk-ix { color: var(--muted); font-weight: 500; }
+.walk-title { color: var(--muted); }
+.walk-stage { position: relative; min-height: 0; padding: 4px 10px; }
+.walk-stage > svg { width: 100%; height: 100%; }
+.walk-ctl { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-top: 1px solid var(--line); }
+.walk-ctl .icon-btn { width: 28px; height: 28px; }
+.walk-count { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.prose .walk-open { margin-left: auto; font-size: 12px; }
+@container (min-width: 760px) {
+  .walk { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); align-items: start; gap: 20px; }
+  .walk-fig { order: 0; position: sticky; top: 8px; grid-template-rows: auto 300px auto; }
+}
+@media (max-width: 1119px), (max-height: 679px) {
+  .walk-fig { position: sticky; top: 64px; z-index: 1; grid-template-rows: auto 180px auto; box-shadow: 0 0 0 6px var(--surface); }
+}
+
+/* Guide parts. */
+.terms { margin: 0; display: grid; gap: 0 28px; }
+.terms > div { padding: 8px 0; border-bottom: 1px solid var(--line); }
+.terms dt { font-weight: 600; font-family: var(--mono); }
+.terms dd { margin: 2px 0 0; color: var(--muted); }
+@container (min-width: 640px) { .terms { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.pairs li { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 4px 12px; align-items: start; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.pairs li:first-child { padding-top: 2px; }
+.pairs .arrow { padding-top: 3px; color: var(--muted); }
+.pairs .mv { font-weight: 600; }
+@container (max-width: 559px) {
+  .pairs li { grid-template-columns: auto minmax(0, 1fr); }
+  .pairs .sig { grid-column: 1 / -1; }
+}
+.case { padding: 12px 0; }
+.flow { margin: 6px 0 0; display: grid; gap: 6px; }
+.flow > div { display: grid; grid-template-columns: 12ch minmax(0, 1fr); gap: 12px; }
+.flow dt { padding-top: 3px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.flow dd { margin: 0; }
+@container (max-width: 479px) { .flow > div { grid-template-columns: minmax(0, 1fr); gap: 0; } }
+.prose .gallery { gap: 0; }
+.gallery li { display: grid; grid-template-columns: 136px minmax(0, 1fr); gap: 16px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.gallery li.soon { display: flex; padding: 8px 0 8px 152px; }
+.gl-text { display: grid; gap: 2px; }
+.thumb { display: block; width: 136px; height: 84px; padding: 4px; background: var(--surface-2); border-radius: var(--radius); overflow: hidden; }
+.thumb > svg { width: 100%; height: 100%; }
+@container (max-width: 479px) {
+  .gallery li { grid-template-columns: 96px minmax(0, 1fr); gap: 12px; }
+  .gallery li.soon { padding-left: 108px; }
+  .thumb { width: 96px; height: 64px; }
+}
+.growth { margin: 18px 0 0; display: grid; gap: 12px 40px; align-items: start; }
+.g-plot { overflow-x: auto; min-width: 0; }
+.g-plot svg { display: block; width: 100%; max-width: 760px; min-width: 460px; height: auto; }
+.growth .g-grid line { stroke: var(--line); }
+.growth .g-axis line { stroke: var(--line-strong); }
+.growth text { font: 11px var(--mono); fill: var(--muted); }
+.g-curve path { fill: none; stroke: var(--line-strong); stroke-width: 1.2; stroke-dasharray: 3 3; }
+.g-curve.on path { stroke: var(--ink); stroke-width: 1.8; stroke-dasharray: none; }
+.g-curve.on text { fill: var(--ink); font-weight: 600; }
+.growth figcaption { display: grid; gap: 12px; align-content: start; font-size: 12px; line-height: 1.6; color: var(--muted); }
+.growth figcaption p { margin: 0; }
+.prose .g-legend { list-style: none; margin: 0; padding: 12px 0 0; gap: 8px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink); }
+@container (min-width: 820px) { .growth { grid-template-columns: minmax(0, 1fr) 30ch; } }
+
+/* Wide reading: parts sit side by side once the column has room, and the guide opens on a hero. */
+.band { display: grid; gap: 0 48px; align-items: start; }
+.band > *, .band-side { min-width: 0; }
+@container (min-width: 820px) {
+  .band { grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); }
+  .band.even { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .band.costs { grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); }
+  .band-side .gpart:first-child, .band > .gpart + .gpart { padding-top: 18px; }
+  .prose .marks.cols { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 28px; }
+  .marks.warn.cols li:nth-last-child(2):nth-child(odd) { border-bottom: 1px solid var(--line); }
+  .case { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 2fr); gap: 4px 32px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+  .case:last-child { border-bottom: 0; }
+  .case h3 { padding-top: 6px; }
+  .case .flow { margin: 0; }
+  .prose .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 40px; }
+  .gallery li { grid-template-columns: 168px minmax(0, 1fr); }
+  .gallery li.soon { padding-left: 184px; }
+  .gallery .thumb { width: 168px; height: 104px; }
+}
+@container (min-width: 1000px) { .terms { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.case h3 { font-size: 15px; line-height: 1.35; font-weight: 700; letter-spacing: -0.01em; }
+
+.guide-head { container-type: inline-size; margin-bottom: 6px; }
+.ghero { display: grid; gap: 20px; }
+.ghero-text { display: grid; gap: 6px; align-content: start; min-width: 0; }
+.guide-head h1 { margin-top: 8px; font-size: 34px; line-height: 1.1; letter-spacing: -0.03em; }
+.guide-head .sub { font-size: 15px; line-height: 1.55; max-width: 52ch; text-wrap: pretty; }
+.ghero-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; margin-top: 14px; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ghero-meta .btn { gap: 12px; }
+.ghero-stat strong { color: var(--ink); font-weight: 600; font-size: 14px; }
+.ghero-scene { display: none; }
+@container (min-width: 680px) {
+  .ghero { grid-template-columns: minmax(0, 1fr) minmax(240px, 40%); align-items: stretch; }
+  .ghero-scene { display: block; min-height: 190px; max-height: 240px; padding: 10px; border-radius: var(--radius); background: color-mix(in oklab, var(--sec, var(--surface-2)) 24%, var(--surface-2)); border: 1px solid var(--line); }
+  .ghero-scene > svg { display: block; width: 100%; height: 100%; }
+}
+
+/* ---------- Reading marks ----------
+   A key phrase (**bold** in theory text) carries a marker band in the scenes' "active" amber, the way a
+   debugger marks the line being read; a wrong form named in a pitfall (~~struck~~) gets a red rule
+   through it, tilted so it crosses glyphs like == instead of merging with them. Both are drawn by default. useInk holds the ones below the fold back (data-ink="wait")
+   and draws each once as it reaches the reading line: the band sweeps left to right, then the strike
+   follows a beat later, so the reader sees the word before it is struck. */
+.prose strong {
+  font-weight: 700; color: var(--ink);
+  /* Light: a highlighter band. Dark: a faint wash with a crisp edge, like an editor's find match. */
+  background:
+    linear-gradient(var(--mark-edge), var(--mark-edge)) no-repeat 0 100% / 100% 2px,
+    linear-gradient(var(--mark), var(--mark)) no-repeat 0 100% / 100% 0.56em;
+  padding: 0 2px; margin: 0 -2px;
+}
+.prose .marks.no strong { --mark: var(--mark-no); --mark-edge: var(--mark-no-edge); }
+.prose s.wrong { text-decoration: none; position: relative; display: inline-block; color: var(--muted); }
+.prose s.wrong::after {
+  content: ""; position: absolute; left: -3px; right: -3px; top: 50%; height: 2px; margin-top: -1px;
+  background: var(--danger); border-radius: 1px; rotate: -7deg; transform-origin: left center; pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .prose strong { transition: background-size 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
+  .prose strong[data-ink="wait"] { background-size: 0% 2px, 0% 0.56em; }
+  .prose s.wrong::after { transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.15s; }
+  .prose s.wrong[data-ink="wait"]::after { transform: scaleX(0); }
 }

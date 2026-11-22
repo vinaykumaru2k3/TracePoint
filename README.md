@@ -8,6 +8,9 @@ Tracepoint teaches data structures and algorithms through interactive lessons th
   - **Foundations:** Big-O by counting, arrays, strings, two pointers, sliding window, prefix sums.
   - **Linear structures:** stack, queue, deque, singly and doubly linked lists, fast and slow pointers.
   - **Hashing:** chaining, open addressing, frequency map and two-sum.
+  - **Recursion:** the call stack, backtracking, N-Queens.
+  - **Searching and sorting:** linear search, binary search, bubble, selection, insertion, merge, quick and counting sort.
+- Every live folder has a guide (`README.md` in the explorer) and every lesson has a theory tab: a plain-language read of the idea before you watch it run.
 - Every step comes with a short explanation, the one idea to take away, the call being made and its return value.
 - The highlighted code follows you when you switch between Java, Python and C++.
 - You can type your own values and re-run the lesson. Custom runs are encoded in the URL, so you can share them.
@@ -34,7 +37,7 @@ Keyboard controls in a lesson:
 | Home / End | Jump to the first / last step |
 | Space | Play or pause |
 | R | Reset to step 1 |
-| Ctrl+K | Search lessons |
+| Ctrl+K | Search lessons and guides |
 
 ## Scripts
 
@@ -83,16 +86,19 @@ flowchart LR
 | Path | Responsibility |
 |---|---|
 | [`src/main.tsx`](src/main.tsx) | Entry point. Applies the saved theme, mounts `App` inside a `HashRouter`. |
-| [`src/app/`](src/app) | Shell and pages. `App` holds the routes, `TopNav`, the course sidebar and drawer, `SearchDialog`, `LessonPage` (layout and the step URL) and `CodeCard` (language tabs, highlighted lines). |
+| [`src/app/`](src/app) | Shell and pages. `App` holds the routes, `TopNav`, the course sidebar and drawer, `SearchDialog`, `GuidePage` (folder guides), `TheoryView` (the theory tab), `LessonPage` (layout and the step URL) and `CodeCard` (language tabs, highlighted lines). |
 | [`src/engine/`](src/engine) | The lesson contract ([`types.ts`](src/engine/types.ts)), anchor parsing ([`anchors.ts`](src/engine/anchors.ts)) and the step player ([`usePlayer.ts`](src/engine/usePlayer.ts)). Nothing in here knows about any specific lesson. |
 | [`src/lessons/`](src/lessons) | One folder per lesson, plus the registry ([`index.ts`](src/lessons/index.ts)), the shared input parser (`parseOps.ts`), test helpers (`testkit.ts`), the shared sort kit (`sortkit.ts` state, metrics and trace builder; `SortScene.tsx` the array plus an aux row) and the contract test that covers every lesson (`lessons.test.ts`). |
 | [`src/iso/`](src/iso) | Isometric SVG primitives: the projection (`project.ts`), `IsoScene` (the camera and grid floor), blocks, pointers, and reusable pieces (`CellRow`, `LinkedNodes`, `Buckets`, `FrameStack` for call frames). Also `SceneFit` (measures each step) and `camera.ts` (pure framing math). |
 | [`src/hooks/`](src/hooks) | `useKeyboard`, `useTheme`, `useProgress`, `useLang`, `useMedia`. Persisted values go in `localStorage` under `tracepoint-*`. |
-| [`src/design/`](src/design) | `tokens.css` holds every colour as a token, with light and dark values. `ui.tsx` holds shared bits (`Icon`, `Badge`, `Kbd`, …). |
+| [`src/theory/`](src/theory) | The reading layer: one guide per section (`guides/`), the types, the text checker (`check.ts`) and the markup renderer. Each lesson's own theory lives in its `theory.ts`. |
+| [`src/design/`](src/design) | `tokens.css` holds every colour as a token, with light and dark values. `ui.tsx` holds shared bits (`Icon`, `Kbd`, …). |
 | [`src/curriculum.ts`](src/curriculum.ts) | The full course outline. Lessons that aren't built yet show as "soon". |
 | [`src/app.css`](src/app.css) | Layout, including the narrow single-column mode below 1120px wide or 680px tall. |
 
 How `lessons/` and `iso/` divide the work: a lesson's `Scene.tsx` decides *what* to draw from its own `state`. `iso/` decides *how* it looks and where the camera points.
+
+Two more routes show the reading layer: `#/guide/:sectionId` renders a folder guide, and `#/:lessonId/learn` renders a lesson's theory tab. `#/` opens the Foundations guide.
 
 ### Data flow: opening `#/stack/5`
 
@@ -120,6 +126,7 @@ How `lessons/` and `iso/` divide the work: a lesson's `Scene.tsx` decides *what*
    - `generate.ts`: a pure function from input to `Step[]`. Start with a `problem` step and end with a `recap`.
    - `Scene.tsx`: draws one step's `state` using the pieces in `src/iso/`.
    - `code/Main.java`, `code/main.py`, `code/main.cpp`: tag the lines to highlight with `// @a name` or `# @a name`.
+   - `theory.ts`: the lesson's theory, which is required. A new section also needs a guide in `src/theory/guides/`.
    - `index.ts`: `defineLesson({ … })`, which covers input parsing, presets, metrics, the memory view and the checklist.
    - `generate.test.ts`: covers the generator's steps and return values. `testkit.ts` has `run`, `at` and `rets` helpers.
 3. Register the lesson in [`src/lessons/index.ts`](src/lessons/index.ts). It then appears in the course tree, and `lessons.test.ts` checks it automatically: default input parses, every anchor exists, the checklist is valid, and the lesson is in the curriculum.

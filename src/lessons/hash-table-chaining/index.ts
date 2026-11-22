@@ -5,6 +5,7 @@ import { BUCKETS, CHAIN_MAX, generateChaining, type ChainState } from "./generat
 import java from "./code/Main.java?raw";
 import python from "./code/main.py?raw";
 import cpp from "./code/main.cpp?raw";
+import theory from "./theory";
 
 /** Rejects inputs whose chains would grow past what the stage can show. */
 function fits(ops: Op[]): boolean {
@@ -68,6 +69,8 @@ export default defineLesson<Op[], ChainState>({
     ["contains scans only one chain", (s) => s.anchors.includes("contains.miss") || s.anchors.includes("contains.hit")],
     ["remove unlinks from that chain", (s) => s.anchors.includes("remove.hit")]
   ],
+
+  theory,
 
   code: { java, python, cpp }
 });

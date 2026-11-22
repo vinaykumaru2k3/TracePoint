@@ -4,6 +4,7 @@ import { generateString, parseWord, type StringState } from "./generate";
 import java from "./code/Main.java?raw";
 import python from "./code/main.py?raw";
 import cpp from "./code/main.cpp?raw";
+import theory from "./theory";
 
 export default defineLesson<string, StringState>({
   id: "strings",
@@ -46,6 +47,8 @@ export default defineLesson<string, StringState>({
     ["a palindrome equals its own reverse", (s) => s.state.same === true],
     ["the first mismatch ends the comparison", (s) => s.state.same === false]
   ],
+
+  theory,
 
   code: { java, python, cpp }
 });

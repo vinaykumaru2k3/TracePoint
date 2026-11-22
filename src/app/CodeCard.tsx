@@ -27,12 +27,12 @@ function colour(src: string, lang: Lang): ReactNode[] {
   return out;
 }
 
-const reduced = () => !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+const reduced = () => typeof window !== "undefined" && !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
-interface Props { lesson: AnyLesson; step: AnyStep; idx: number }
+interface Props { lesson: AnyLesson; step: AnyStep; idx: number; /** Text for the empty trace strip. */ idle?: string }
 
 /** Code with Java, Python and C++ tabs. The highlight follows the step's anchors, so it stays in sync in every language. */
-export default function CodeCard({ lesson, step, idx }: Props) {
+export default function CodeCard({ lesson, step, idx, idle = "Step forward to see which lines run." }: Props) {
   const [lang, setLang] = useLang();
   const code = useMemo(() => parseAll(lesson.code), [lesson]);
   const parsed = code[lang];
@@ -114,7 +114,7 @@ export default function CodeCard({ lesson, step, idx }: Props) {
       </pre>
       <div className="trace">
         {!total
-          ? <div className="idle">Step forward to see which lines run.</div>
+          ? <div className="idle">{idle}</div>
           : rows.map((a) => <div className="row" key={a}><b>line {parsed.anchors[a][0]}</b><span>{step.notes[a]}</span></div>)}
       </div>
     </section>

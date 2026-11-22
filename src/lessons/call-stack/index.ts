@@ -5,6 +5,7 @@ import { generateCallStack, type CallStackState } from "./generate";
 import java from "./code/Main.java?raw";
 import python from "./code/main.py?raw";
 import cpp from "./code/main.cpp?raw";
+import theory from "./theory";
 
 export default defineLesson<NumsInput, CallStackState>({
   id: "call-stack",
@@ -48,6 +49,8 @@ export default defineLesson<NumsInput, CallStackState>({
     ["the base case stops the recursion", (s) => s.kind === "found"],
     ["returns pop frames in reverse order", (s) => s.kind === "remove"]
   ],
+
+  theory,
 
   code: { java, python, cpp }
 });

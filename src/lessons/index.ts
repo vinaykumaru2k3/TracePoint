@@ -25,6 +25,13 @@ import insertionSort from "./insertion-sort";
 import mergeSort from "./merge-sort";
 import quickSort from "./quick-sort";
 import countingSort from "./counting-sort";
+import treeTraversals from "./tree-traversals";
+import bst from "./bst";
+import avlRotations from "./avl-rotations";
+import binaryHeap from "./binary-heap";
+import heapSort from "./heap-sort";
+import trie from "./trie";
+import autocomplete from "./autocomplete";
 
 /** Playable lessons, in course order. Add a lesson here and it lights up in the course tree. */
 export const LESSONS: AnyLesson[] = [
@@ -32,7 +39,14 @@ export const LESSONS: AnyLesson[] = [
   stack, queue, deque, sll, dll, fastSlow,
   chaining, openAddressing, freqMap,
   callStack, backtracking, nQueens,
-  linearSearch, binarySearch, bubbleSort, selectionSort, insertionSort, mergeSort, quickSort, countingSort
+  linearSearch, binarySearch, bubbleSort, selectionSort, insertionSort, mergeSort, quickSort, countingSort,
+  treeTraversals,
+  bst,
+  avlRotations,
+  binaryHeap,
+  heapSort,
+  trie,
+  autocomplete
 ];
 
 export const LESSON_BY_ID: Record<string, AnyLesson> = Object.fromEntries(LESSONS.map((l) => [l.id, l]));
