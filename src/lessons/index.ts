@@ -39,6 +39,7 @@ import topologicalSort from "./topological-sort";
 import dijkstra from "./dijkstra";
 import unionFind from "./union-find";
 import kruskalAndPrim from "./kruskal-and-prim";
+import fibonacci from "./fibonacci";
 
 /** Playable lessons, in course order. Add a lesson here and it lights up in the course tree. */
 export const LESSONS: AnyLesson[] = [
@@ -60,7 +61,8 @@ export const LESSONS: AnyLesson[] = [
   topologicalSort,
   dijkstra,
   unionFind,
-  kruskalAndPrim
+  kruskalAndPrim,
+  fibonacci
 ];
 
 export const LESSON_BY_ID: Record<string, AnyLesson> = Object.fromEntries(LESSONS.map((l) => [l.id, l]));
