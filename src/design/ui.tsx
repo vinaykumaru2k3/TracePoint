@@ -52,7 +52,10 @@ const CHIP: Record<string, string> = {
   check: "var(--c-blue)", move: "var(--c-amber)", found: "var(--c-green)", recap: "var(--c-lav)"
 };
 
+/** The colour of a step kind, shared by the chip and the timeline. */
+export const kindColor = (kind: string) => CHIP[kind] ?? "var(--surface-2)";
+
 /** The step-kind chip. Cycle 2 reuses the kinds to build "predict the next step" choices. */
 export function KindChip({ kind }: { kind: string }) {
-  return <span className="chip" style={{ background: CHIP[kind] ?? "var(--surface-2)" }}>{kind}</span>;
+  return <span className="chip" style={{ background: kindColor(kind) }}>{kind}</span>;
 }
