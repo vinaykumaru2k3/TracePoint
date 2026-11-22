@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type SyntheticEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent, type SyntheticEvent } from "react";
 import { Link, Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { sectionOf } from "../curriculum";
-import { Icon, Kbd, KindChip, MetricCard } from "../design/ui";
+import { Icon, Kbd, KindChip, MetricCard, kindColor } from "../design/ui";
 import { usePlayer } from "../engine/usePlayer";
 import type { AnyLesson, MemoryCell } from "../engine/types";
 import { useKeyboard } from "../hooks/useKeyboard";
@@ -203,19 +203,32 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
     </section>
   );
 
-  /* The timeline: one stop per step on a track; the track is filled up to the playhead (the current step). */
+  /* The timeline. The run map shows the whole run at once, one segment per step coloured by its kind,
+     so the algorithm's rhythm reads before any step is named; drag along it to scrub. Below it, the rail:
+     one stop per step on a track filled up to the playhead (the current step). */
+  const scrub = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (e.type === "pointermove" && !e.currentTarget.hasPointerCapture(e.pointerId)) return;
+    if (e.type === "pointerdown") e.currentTarget.setPointerCapture(e.pointerId);
+    const r = e.currentTarget.getBoundingClientRect();
+    const i = Math.max(0, Math.min(last, Math.floor(((e.clientX - r.left) / r.width) * steps.length)));
+    if (i !== idx) player.jump(i);
+  };
+  const stopCls = (i: number) => (i === idx ? "cur" : i < idx ? "past" : i <= reached ? "seen" : "");
   const rail = (
     <div className="rail-wrap" key="rail">
       <div className="rail-head">
         <span className="lbl">Timeline</span>
         <span className="muted">{stepOf} · <b>{label(idx)}</b></span>
       </div>
+      <div className="run-map" aria-hidden="true" onPointerDown={scrub} onPointerMove={scrub} title="Drag to scrub through the run">
+        {steps.map((s, i) => <i key={i} className={stopCls(i)} style={{ "--k": kindColor(s.kind) } as CSSProperties} />)}
+      </div>
       <ol className="rail" ref={railRef} aria-label="Steps">
-        {steps.map((_, i) => {
-          const cls = i === idx ? "cur" : i < idx ? "past" : i <= reached ? "seen" : "";
+        {steps.map((s, i) => {
+          const cls = stopCls(i);
           const state = i < idx ? ", done" : i > idx && i <= reached ? ", seen" : "";
           return (
-            <li key={i} className={cls}>
+            <li key={i} className={cls} style={{ "--k": kindColor(s.kind) } as CSSProperties}>
               <button type="button" aria-current={i === idx ? "step" : undefined} onClick={() => player.jump(i)} title={`Step ${i + 1}: ${label(i)}`} aria-label={`Step ${i + 1}: ${label(i)}${state}`}>
                 <span className="ix">{nn(i)}</span>
                 <span className="node" aria-hidden="true" />
