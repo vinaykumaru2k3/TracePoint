@@ -503,7 +503,6 @@ a { color: inherit; text-decoration: none; }
 .marks.warn .mark { background: var(--st-active-t); }
 .marks.warn .lead-in { font-weight: 600; color: var(--ink); }
 .marks.warn .lead-rest { color: var(--muted); }
-.prose s.wrong code { background: var(--wrong-chip); }
 .fit-pair { display: grid; gap: 0 40px; }
 @container (min-width: 640px) { .fit-pair { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
@@ -646,14 +645,24 @@ a { color: inherit; text-decoration: none; }
   padding: 0 2px; margin: 0 -2px;
 }
 .prose .marks.no strong { --mark: var(--mark-no); --mark-edge: var(--mark-no-edge); }
-.prose s.wrong { text-decoration: none; position: relative; display: inline-block; color: var(--muted); }
-.prose s.wrong::after {
-  content: ""; position: absolute; left: -3px; right: -3px; top: 50%; height: 2px; margin-top: -1px;
-  background: var(--danger); border-radius: 1px; rotate: -7deg; transform-origin: left center; pointer-events: none;
+/* The strike is a background, not a rotated box: a diagonal from the bottom-left to the top-right corner
+   of a 0.5em band across the middle of the glyphs. It stays inline, so a long wrong form wraps with the
+   sentence, and box-decoration-break gives each line its own diagonal. The rise is the band's height
+   whatever the width, so the strike never climbs out of its line (a fixed -7deg rotation rose 35px over a
+   long phrase and crossed the line above). Code inside carries the same layer over its chip, which
+   would otherwise paint over the parent's strike. */
+.prose s.wrong {
+  --strike: linear-gradient(to bottom right, transparent calc(50% - 1.6px), var(--danger) calc(50% - 0.8px),
+    var(--danger) calc(50% + 0.8px), transparent calc(50% + 1.6px));
+  text-decoration: none; color: var(--muted);
+  background: var(--strike) no-repeat 0 55% / 100% 0.5em;
+  -webkit-box-decoration-break: clone; box-decoration-break: clone;
 }
+.prose s.wrong code { background: var(--strike) no-repeat 0 55% / 100% 0.5em, var(--wrong-chip); -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 @media (prefers-reduced-motion: no-preference) {
   .prose strong { transition: background-size 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
   .prose strong[data-ink="wait"] { background-size: 0% 2px, 0% 0.56em; }
-  .prose s.wrong::after { transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.15s; }
-  .prose s.wrong[data-ink="wait"]::after { transform: scaleX(0); }
+  .prose s.wrong, .prose s.wrong code { transition: background-size 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.15s; }
+  .prose s.wrong[data-ink="wait"] { background-size: 0% 0.5em; }
+  .prose s.wrong[data-ink="wait"] code { background-size: 0% 0.5em, auto; }
 }
