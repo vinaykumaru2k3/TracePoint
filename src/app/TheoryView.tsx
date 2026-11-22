@@ -12,8 +12,8 @@ import Walkthrough from "./Walkthrough";
 export function LessonTabs({ id, view, search }: { id: string; view: "theory" | "trace"; search: string }) {
   return (
     <nav className="lesson-tabs" aria-label="Lesson view">
-      <Link to={`/${id}/learn${search}`} className={`tab${view === "theory" ? " on" : ""}`} aria-current={view === "theory" ? "page" : undefined}>theory</Link>
-      <Link to={`/${id}/1${search}`} className={`tab${view === "trace" ? " on" : ""}`} aria-current={view === "trace" ? "page" : undefined}>trace</Link>
+      <Link to={`/${id}/learn${search}`} className={`tab${view === "theory" ? " on" : ""}`} aria-current={view === "theory" ? "page" : undefined}><Icon name="file" size={13} />theory</Link>
+      <Link to={`/${id}/1${search}`} className={`tab${view === "trace" ? " on" : ""}`} aria-current={view === "trace" ? "page" : undefined}><Icon name="play" size={11} />trace</Link>
     </nav>
   );
 }
