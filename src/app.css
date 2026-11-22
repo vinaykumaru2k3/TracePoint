@@ -314,6 +314,10 @@ a { color: inherit; text-decoration: none; }
 .box { transition: transform 0.45s cubic-bezier(0.3, 0.8, 0.3, 1); }
 .box polygon { stroke: var(--stroke); stroke-width: 1; stroke-linejoin: round; transition: fill 0.3s; }
 .f-top { fill: var(--top); } .f-left { fill: var(--lft); } .f-right { fill: var(--rgt); }
+/* Light from the back left: a soft contact shadow grounds each slab, and a lit rim bevels its top face. */
+.box polygon.shade { fill: var(--iso-shade); stroke: none; }
+.box .rim { fill: none; stroke: var(--iso-rim); stroke-width: 1; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+.s-stale .rim { opacity: 0.4; }
 .s-default { --top: var(--slab-t); --lft: var(--slab-l); --rgt: var(--slab-r); }
 .s-active { --top: var(--st-active-t); --lft: var(--st-active-l); --rgt: var(--st-active-r); }
 .s-found { --top: var(--st-found-t); --lft: var(--st-found-l); --rgt: var(--st-found-r); }
@@ -350,6 +354,7 @@ a { color: inherit; text-decoration: none; }
 .ptr { transition: transform 0.45s cubic-bezier(0.3, 0.8, 0.3, 1), opacity 0.3s; }
 .ptr rect { fill: var(--surface); stroke: var(--edge); stroke-width: 1; }
 .ptr line { stroke: var(--edge); stroke-width: 1.2; stroke-dasharray: 3 3; }
+.ptr .ptr-tip { fill: var(--edge); }
 .ptr text { font-family: var(--mono); font-size: 11px; font-weight: 600; fill: var(--ink); }
 .ptr.dim { opacity: 0.55; }
 /* The drawing goes on past this edge of the close-up. Fades in once the camera has landed. */
