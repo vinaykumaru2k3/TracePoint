@@ -32,6 +32,13 @@ import binaryHeap from "./binary-heap";
 import heapSort from "./heap-sort";
 import trie from "./trie";
 import autocomplete from "./autocomplete";
+import representations from "./representations";
+import bfs from "./bfs";
+import dfs from "./dfs";
+import topologicalSort from "./topological-sort";
+import dijkstra from "./dijkstra";
+import unionFind from "./union-find";
+import kruskalAndPrim from "./kruskal-and-prim";
 
 /** Playable lessons, in course order. Add a lesson here and it lights up in the course tree. */
 export const LESSONS: AnyLesson[] = [
@@ -46,7 +53,14 @@ export const LESSONS: AnyLesson[] = [
   binaryHeap,
   heapSort,
   trie,
-  autocomplete
+  autocomplete,
+  representations,
+  bfs,
+  dfs,
+  topologicalSort,
+  dijkstra,
+  unionFind,
+  kruskalAndPrim
 ];
 
 export const LESSON_BY_ID: Record<string, AnyLesson> = Object.fromEntries(LESSONS.map((l) => [l.id, l]));

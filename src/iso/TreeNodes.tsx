@@ -107,11 +107,13 @@ interface StripProps {
   slots?: number;
   name?: string;
   index?: boolean;
+  /** Names for the index row, such as node letters; `[A]` instead of `[0]`. Implies `index`. */
+  labels?: string[];
   pointers?: TilePointer[];
 }
 
 /** Tiles in one screen-level row, left to right, each a small square slab. Empty slots are not drawn; the footprint shows them. */
-export function Strip({ tiles, X, Y, slots, name, index = false, pointers = [] }: StripProps) {
+export function Strip({ tiles, X, Y, slots, name, index = false, labels, pointers = [] }: StripProps) {
   const n = Math.max(slots ?? 0, tiles.length, 1);
   const half = TILE_A * U, pad = 10;
   const xL = X - half - pad, xR = X + (n - 1) * TILE_STEP + half + pad, hy = half / 2 + pad / 2;
@@ -131,8 +133,8 @@ export function Strip({ tiles, X, Y, slots, name, index = false, pointers = [] }
         const [gx, gy] = cell(i);
         return <IsoBlock key={i} x={gx - TILE_A / 2} y={gy - TILE_A / 2} w={TILE_A} d={TILE_A} h={TILE_H} state={t.state ?? "default"} label={t.v} />;
       })}
-      {index && Array.from({ length: n }, (_, i) => (
-        <text key={`i${i}`} className="plate-index" x={X + i * TILE_STEP} y={Y + half / 2 + 18} textAnchor="middle">{`[${i}]`}</text>
+      {(index || labels) && Array.from({ length: n }, (_, i) => (
+        <text key={`i${i}`} className="plate-index" x={X + i * TILE_STEP} y={Y + half / 2 + 18} textAnchor="middle">{`[${labels?.[i] ?? i}]`}</text>
       ))}
       {[...merged.values()].map((p) => {
         const [gx, gy] = cell(p.at);

@@ -12,6 +12,9 @@ describe("growthRank", () => {
     expect(growthRank("O(k)")).toBe(2);
     expect(growthRank("O(n log n) avg, O(n^2) worst")).toBe(3);
     expect(growthRank("O(n²)")).toBe(4);
+    expect(growthRank("O(deg)")).toBe(2);
+    expect(growthRank("O(α(n))")).toBe(0);
+    expect(growthRank("O(e log n)")).toBe(3);
     expect(growthRank("O(n^2), O(n) if sorted")).toBe(4);
     expect(growthRank("O(n × k)")).toBe(4);
     expect(growthRank("O(n · 2^n)")).toBe(5);
