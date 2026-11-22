@@ -68,7 +68,7 @@ The guide and theory pages are reading surfaces inside the existing debugger she
 - JetBrains Mono, with body prose at 14px and line height 1.65. Each paragraph keeps a measure of about 72 characters, but the page uses the full width: on wide screens related parts sit side by side in bands, and a guide opens on a hero with a start/continue button and the section's first scene.
 - Each part sits under a `.pane-title`-style label.
 - Tables use hairline rules.
-- The cheat sheet is the one table that gets `--surface-2` row striping.
+- Cost tables are heatmaps: each cost sits in a chip tinted by its growth class, with its meter at the chip's right edge.
 - Colour comes from tokens only, and no unicode glyph is used as an icon.
 
 **Pictures, not only prose.**
@@ -78,7 +78,7 @@ The guide and theory pages are reading surfaces inside the existing debugger she
 - Lessons here shows a thumbnail of each lesson's scene.
 - Use/avoid lists, pitfalls and tips carry state marks.
 
-**Reading marks.** Bold phrases carry a highlighter band (`--mark`, the amber active colour; `--mark-no`, red, in Avoid it when), and struck wrong forms carry a tilted `--danger` rule. Both are drawn by default. `theory/useInk.ts` holds back the marks below the fold and draws each one as it crosses a reading line at 85% of the viewport height, with the strike a beat after the band; reaching the end of the page draws the rest. With reduced motion, the marks are simply there.
+**Reading marks.** Bold phrases carry a highlighter band (`--mark`, the amber active colour; `--mark-no`, red, in Avoid it when); in dark the band is a faint wash with a crisp edge (`--mark-edge`), and struck wrong forms carry a tilted `--danger` rule. Both are drawn by default. `theory/useInk.ts` holds back the marks below the fold and draws each one as it crosses a reading line at 85% of the viewport height, with the strike a beat after the band; reaching the end of the page draws the rest. With reduced motion, the marks are simply there.
 
 **Folder colours.** Each explorer folder has its own hue, one per section, so the course reads as ten distinct topics at a glance:
 - The folder icon is filled with the section's hue, and its outline stays ink.

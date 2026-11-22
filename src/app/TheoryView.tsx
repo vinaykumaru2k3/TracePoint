@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import type { AnyLesson } from "../engine/types";
 import { Icon, type IconName } from "../design/ui";
 import { Rich } from "../theory/inline";
-import { Cost } from "../theory/Meter";
+import { Cost, heatClass } from "../theory/Meter";
 import { useInk } from "../theory/useInk";
 import { Part } from "./GuidePage";
 import Walkthrough from "./Walkthrough";
@@ -52,7 +52,7 @@ export default function TheoryView({ lesson, search }: { lesson: AnyLesson; sear
             <table className="cheat plain">
               <thead><tr><th scope="col">Operation</th><th scope="col">Cost</th><th scope="col">Note</th></tr></thead>
               <tbody>{t.ops.map(([op, cost, note], i) => (
-                <tr key={i}><td><Rich text={op} /></td><td><Cost>{cost}</Cost></td><td><Rich text={note} /></td></tr>
+                <tr key={i}><td><Rich text={op} /></td><td className={heatClass(cost)}><Cost>{cost}</Cost></td><td className="cheat-note"><Rich text={note} /></td></tr>
               ))}</tbody>
             </table>
           </div>
@@ -62,7 +62,7 @@ export default function TheoryView({ lesson, search }: { lesson: AnyLesson; sear
         <div className="table-wrap">
           <table className="cheat plain glance">
             <thead><tr><th scope="col">Operation</th><th scope="col">Cost</th></tr></thead>
-            <tbody>{lesson.costs.map(([name, cost]: [string, string]) => <tr key={name}><td>{name}</td><td><Cost>{cost}</Cost></td></tr>)}</tbody>
+            <tbody>{lesson.costs.map(([name, cost]: [string, string]) => <tr key={name}><td>{name}</td><td className={heatClass(cost)}><Cost>{cost}</Cost></td></tr>)}</tbody>
           </table>
         </div>
       </Part>

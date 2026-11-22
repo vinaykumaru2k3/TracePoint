@@ -10,7 +10,7 @@ import GrowthChart from "../theory/GrowthChart";
 import { useInk } from "../theory/useInk";
 import { growthRank } from "../theory/growth";
 import { Rich } from "../theory/inline";
-import { Cost } from "../theory/Meter";
+import { Cost, heatClass } from "../theory/Meter";
 import type { Guide } from "../theory/types";
 import { Analogy, MarkList } from "./TheoryView";
 import { defaultRun } from "./Walkthrough";
@@ -76,6 +76,13 @@ function LessonRows({ guide, hooks, thumbs = false }: { guide: Guide; hooks: boo
 /** Cheat-sheet cells that name a cost class get a meter. */
 const Cell = ({ text }: { text: string }) => (growthRank(text) === null ? <Rich text={text} /> : <Cost>{text}</Cost>);
 
+/** A row's name, with a trailing "(qualifier)" set on its own muted line. */
+function RowName({ text }: { text: string }) {
+  const m = /^(.+?)\s*\(([^()]+)\)$/.exec(text);
+  if (!m) return <span className="cheat-name"><Rich text={text} /></span>;
+  return <><span className="cheat-name"><Rich text={m[1]} /></span><span className="cheat-qual"><Rich text={m[2]} /></span></>;
+}
+
 /** One guide, pure: the parts in the order the spec fixes. */
 export function GuideView({ guide }: { guide: Guide }) {
   /* The growth classes the cheat sheet names, inked on the chart. */
@@ -106,7 +113,11 @@ export function GuideView({ guide }: { guide: Guide }) {
             <thead><tr>{guide.cheat.head.map((h) => <th key={h} scope="col">{h}</th>)}</tr></thead>
             <tbody>
               {guide.cheat.rows.map((row, i) => (
-                <tr key={i}>{row.map((c, j) => <td key={j}>{j === 0 || j === row.length - 1 ? <Rich text={c} /> : <Cell text={c} />}</td>)}</tr>
+                <tr key={i}>{row.map((c, j) => {
+                  const last = j === row.length - 1;
+                  if (j === 0) return <th key={j} scope="row"><RowName text={c} /></th>;
+                  return <td key={j} className={last ? "cheat-note" : heatClass(c)}>{last ? <Rich text={c} /> : <Cell text={c} />}</td>;
+                })}</tr>
               ))}
             </tbody>
           </table>

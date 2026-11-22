@@ -15,6 +15,11 @@ const at = (path: string) => renderToStaticMarkup(
 
 describe("GuideView", () => {
   const html = renderToStaticMarkup(<MemoryRouter><GuideView guide={GUIDES.foundations} /></MemoryRouter>);
+  it("sets a cheat-sheet row name as a row header with its qualifier on its own line, and tints cost cells", () => {
+    const sorting = renderToStaticMarkup(<MemoryRouter><GuideView guide={GUIDES.sorting} /></MemoryRouter>);
+    expect(sorting).toContain('<th scope="row"><span class="cheat-name">Binary search</span><span class="cheat-qual">sorted input only</span></th>');
+    expect(sorting).toMatch(/<td class="heat t-swap"><span class="cost"><span class="cost-v">O\(n²\)/);
+  });
   it("renders the parts in spec order", () => {
     const h2 = [...html.matchAll(/<h2[^>]*>(.*?)<\/h2>/g)].map((m) => m[1]);
     expect(h2).toEqual(["Core idea", "Analogy", "Before you start", "Key terms", "Cheat sheet", "When you see…", "Tips and traps", "Case studies", "Lessons here"]);
@@ -108,8 +113,9 @@ describe("guide css", () => {
     expect(css).toMatch(/\.cheat \{[^}]*min-width: 34rem/);
     expect(css).toMatch(/\.table-wrap \{ overflow-x: auto/);
   });
-  it("keeps cost cells on one line but lets the first and last columns wrap", () => {
-    expect(css).toMatch(/\.cheat td:not\(:first-child\):not\(:last-child\)\s*\{[^}]*white-space:\s*nowrap/);
+  it("never breaks a cost class inside its chip, and tints chips by growth class", () => {
+    expect(css).toMatch(/\.cheat td\.heat \.cost-v \{ min-width: 10\.5ch/);
+    expect(css).toMatch(/\.cheat td\.t-swap \.cost \{ background: var\(--heat-swap\)/);
   });
 });
 

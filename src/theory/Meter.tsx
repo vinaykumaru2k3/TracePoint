@@ -16,6 +16,12 @@ export function GrowthMeter({ cost }: { cost: string }) {
   );
 }
 
+/** The class a table cell takes for a cost, tinting it by growth class; undefined when the text is not a cost. */
+export function heatClass(cost: string): string | undefined {
+  const r = growthRank(cost);
+  return r === null ? undefined : `heat t-${TONE[r]}`;
+}
+
 /** A cost with its meter beside it. */
 export function Cost({ children }: { children: string }) {
   return <span className="cost"><span className="cost-v">{children}</span><GrowthMeter cost={children} /></span>;
