@@ -27,11 +27,17 @@ function Box({ x, y, z = 0, w, d, h, state = "default", label, labelOn = "top", 
   const left = [project(0, d, h), project(w, d, h), project(w, d, 0), project(0, d, 0)];
   const right = [project(w, 0, h), project(w, d, h), project(w, d, 0), project(w, 0, 0)];
   const c = labelOn === "front" ? project(w / 2, d, h / 2) : project(w / 2, d / 2, h);
+  // Contact shadow: the footprint nudged toward the front right, under a light from the back left.
+  const base = [project(0, 0, 0), project(w, 0, 0), project(w, d, 0), project(0, d, 0)].map((p) => ({ x: p.x + 5, y: p.y + 3 }));
+  // Rim: a lit bevel just inside the top face's two front edges.
+  const rim = [project(0, d, h), project(w, d, h), project(w, 0, h)].map((p) => ({ x: p.x, y: p.y - 1.5 }));
   return (
     <g className={`box s-${state} ${className}`} style={{ transform: `translate(${o.x}px, ${o.y}px)` }}>
+      <polygon className="shade" points={poly(base)} aria-hidden="true" />
       <polygon className="f-left" points={poly(left)} />
       <polygon className="f-right" points={poly(right)} />
       <polygon className="f-top" points={poly(top)} />
+      <polyline className="rim" points={poly(rim)} aria-hidden="true" />
       {label !== undefined && <text className="box-label" x={c.x} y={c.y} textAnchor="middle" dominantBaseline="central">{label}</text>}
     </g>
   );

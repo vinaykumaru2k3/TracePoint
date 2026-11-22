@@ -36,7 +36,7 @@
 
   --float-shadow: 0 12px 32px -12px rgba(35, 29, 23, 0.3), 0 2px 6px rgba(35, 29, 23, 0.08);
   --grid-line: rgba(35, 29, 23, 0.14);
-  --grid-dot: rgba(35, 29, 23, 0.38);
+  --grid-dot: rgba(35, 29, 23, 0.3);
   --win-fill: rgba(58, 49, 41, 0.1);
   --scrim: rgba(21, 18, 15, 0.42);
 
@@ -50,6 +50,8 @@
   /* Isometric scene: warm greys, colour only for state */
   --stroke: #3a3129;
   --slab-ink: #231d17;
+  --iso-shade: rgba(35, 29, 23, 0.13);
+  --iso-rim: rgba(255, 253, 249, 0.75);
   --stale-ink: #4f463d;
   --slab-t: #f7f3ed;
   --slab-l: #ddd5ca;
@@ -97,11 +99,12 @@
     --signal: #ff8a4c; --done: #8cc47a; --on-done: #15120f; --inv-bg: var(--ink); --inv-fg: var(--surface);
     --c-green: #bcd69c; --c-green-2: #a5c886; --c-green-3: #8cc47a; --c-amber: #efc97a; --c-amber-2: #e8a33a; --c-blue: #bccfe6; --c-pink: #ebb6a8; --c-lav: #d0c0e4;
     --float-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.72), 0 2px 8px rgba(0, 0, 0, 0.42);
-    --grid-line: rgba(240, 232, 221, 0.1); --grid-dot: rgba(240, 232, 221, 0.32);
+    --grid-line: rgba(240, 232, 221, 0.1); --grid-dot: rgba(240, 232, 221, 0.26);
     --win-fill: rgba(210, 199, 184, 0.14); --scrim: rgba(0, 0, 0, 0.6);
     --syn-k: #c4b1ff; --syn-t: #9bd49b; --syn-n: #ffad7a; --syn-s: #f4a7b6;
     --ln-on: rgba(232, 163, 58, 0.18);
     --stroke: #c4b8a8; --slab-ink: #231d17; --stale-ink: #ece3d6;
+    --iso-shade: rgba(0, 0, 0, 0.32); --iso-rim: rgba(255, 250, 242, 0.4);
     --slab-t: #b8ad9f; --slab-l: #a09486; --slab-r: #948879;
     --sec-01: #6f8499;
     --sec-02: #7b9068;
@@ -134,11 +137,12 @@
   --signal: #ff8a4c; --done: #8cc47a; --on-done: #15120f; --inv-bg: var(--ink); --inv-fg: var(--surface);
   --c-green: #bcd69c; --c-green-2: #a5c886; --c-green-3: #8cc47a; --c-amber: #efc97a; --c-amber-2: #e8a33a; --c-blue: #bccfe6; --c-pink: #ebb6a8; --c-lav: #d0c0e4;
   --float-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.72), 0 2px 8px rgba(0, 0, 0, 0.42);
-  --grid-line: rgba(240, 232, 221, 0.1); --grid-dot: rgba(240, 232, 221, 0.32);
+  --grid-line: rgba(240, 232, 221, 0.1); --grid-dot: rgba(240, 232, 221, 0.26);
   --win-fill: rgba(210, 199, 184, 0.14); --scrim: rgba(0, 0, 0, 0.6);
   --syn-k: #c4b1ff; --syn-t: #9bd49b; --syn-n: #ffad7a; --syn-s: #f4a7b6;
   --ln-on: rgba(232, 163, 58, 0.18);
   --stroke: #c4b8a8; --slab-ink: #231d17; --stale-ink: #ece3d6;
+  --iso-shade: rgba(0, 0, 0, 0.32); --iso-rim: rgba(255, 250, 242, 0.4);
   --slab-t: #b8ad9f; --slab-l: #a09486; --slab-r: #948879;
   --sec-01: #6f8499;
   --sec-02: #7b9068;
