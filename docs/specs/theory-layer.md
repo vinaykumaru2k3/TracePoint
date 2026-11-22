@@ -59,7 +59,7 @@ These rules apply to every guide and theory. Tests check the mechanical ones; th
 4. **No talking down.** The words "simply", "obviously", "clearly", "just", "trivial", "trivially" and "easy" are banned. (Tested.)
 5. **Concrete before abstract.** Show a small example before the general rule.
 6. **Every claim is true.** Complexities are the standard worst-case bounds unless the text says "average" or "amortized". No claim in theory may contradict the lesson's `costs`.
-7. **Plain markup only.** Text may use `` `code` ``, `**bold**` (the key phrase of a paragraph, at most a few per part), `~~wrong form~~` (a mistaken form in a pitfall, struck through; it may hold `code`), and links `[[lesson-id]]` or `[[guide:section-id]]`, with an optional label after `|`. Every link must resolve. (Tested.)
+7. **Plain markup only.** Text may use `` `code` ``, `**bold**` (the key phrase of a paragraph, at most a few per part), `~~wrong form~~` (a mistaken form in a pitfall, set on a red chip; it may hold `code`), and links `[[lesson-id]]` or `[[guide:section-id]]`, with an optional label after `|`. Every link must resolve. (Tested.)
 8. **Same voice as the trace.** Second person, present tense, no exclamation marks. (The exclamation-mark ban is tested.)
 
 ## Design
@@ -78,7 +78,7 @@ The guide and theory pages are reading surfaces inside the existing debugger she
 - Lessons here shows a thumbnail of each lesson's scene.
 - Use/avoid lists carry state marks. Pitfalls and tips read like a compiler's warning list: hairline rows with an amber warn badge, and in pitfalls the first sentence is the headline (keep it short and self-contained; the rest follows in muted text).
 
-**Reading marks.** Bold phrases carry a highlighter band (`--mark`, the amber active colour; `--mark-no`, red, in Avoid it when); in dark the band is a faint wash with a crisp edge (`--mark-edge`), and struck wrong forms carry a tilted `--danger` rule. Both are drawn by default. `theory/useInk.ts` holds back the marks below the fold and draws each one as it crosses a reading line at 85% of the viewport height, with the strike a beat after the band; reaching the end of the page draws the rest. With reduced motion, the marks are simply there.
+**Reading marks.** Bold phrases carry a highlighter band (`--mark`, the amber active colour; `--mark-no`, red, in Avoid it when); in dark the band is a faint wash with a crisp edge (`--mark-edge`). A wrong form sits on a red `--wrong-chip` with no line across it, so it stays readable. Bands are drawn by default. `theory/useInk.ts` holds back the marks below the fold and draws each one as it crosses a reading line at 85% of the viewport height; reaching the end of the page draws the rest. With reduced motion, the marks are simply there.
 
 **Folder colours.** Each explorer folder has its own hue, one per section, so the course reads as ten distinct topics at a glance:
 - The folder icon is filled with the section's hue, and its outline stays ink.
