@@ -315,6 +315,16 @@ a { color: inherit; text-decoration: none; }
 .edge.e-active { stroke: var(--edge-active); stroke-width: 2.2; }
 .edge.e-dim { opacity: 0.35; }
 .arrow-head { fill: var(--muted); }
+.edge.e-tree { stroke: var(--st-found-r); stroke-width: 2.6; }
+.e-active .arrow-head { fill: var(--edge-active); }
+.e-tree .arrow-head { fill: var(--st-found-r); }
+.e-dim .arrow-head { opacity: 0.35; }
+.edge-w rect { fill: var(--surface); stroke: var(--line-strong); stroke-width: 1; }
+.edge-w text { font-family: var(--mono); font-size: 11px; font-weight: 600; fill: var(--muted); }
+.edge-w.e-active rect { stroke: var(--edge-active); stroke-width: 1.6; }
+.edge-w.e-active text { fill: var(--ink); }
+.edge-w.e-tree rect { stroke: var(--st-found-r); stroke-width: 1.6; }
+.edge-w.e-dim { opacity: 0.5; }
 .tree-tag { transition: transform 0.45s cubic-bezier(0.3, 0.8, 0.3, 1); }
 .tree-tag rect { fill: var(--surface); stroke: var(--line-strong); stroke-width: 1; }
 .tree-tag text { font-family: var(--mono); font-size: 11px; font-weight: 600; fill: var(--muted); }

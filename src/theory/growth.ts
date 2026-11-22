@@ -2,11 +2,13 @@
 export const LADDER = ["O(1)", "O(log n)", "O(n)", "O(n log n)", "O(n²)", "O(2ⁿ)", "O(n!)"] as const;
 
 /** Rank of the first big-O class in `cost` on `LADDER`, or null when it names none.
- *  Linear forms in other letters (`O(k)`, `O(n + k)`, `O(m + n)`) rank as O(n). */
+ *  Linear forms in other letters (`O(k)`, `O(n + k)`, `O(m + n)`, `O(deg)`) rank as O(n).
+ *  The inverse Ackermann `O(α(n))` grows so slowly that it ranks with O(1). */
 export function growthRank(cost: string): number | null {
   const m = cost.match(/O\(([^)]*)\)/);
   if (!m) return null;
-  const e = m[1].toLowerCase().replace(/\s+/g, "").replace(/²/g, "^2").replace(/ⁿ/g, "^n").replace(/[·×]/g, "*");
+  if (m[1].includes("α")) return 0;
+  const e = m[1].toLowerCase().replace(/\s+/g, "").replace(/²/g, "^2").replace(/ⁿ/g, "^n").replace(/[·×]/g, "*").replace(/deg/g, "d");
   if (e.includes("!")) return 6;
   if (/2\^n/.test(e)) return 5;
   if (/\^2/.test(e) || /^([a-z])\*\1$/.test(e)) return 4;
