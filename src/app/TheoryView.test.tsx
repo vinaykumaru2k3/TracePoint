@@ -59,7 +59,7 @@ describe("LessonTabs", () => {
     expect(h).toContain('href="/stack/learn?in=1%202"');
     expect(h).toContain('href="/stack/1?in=1%202"');
     expect(h.match(/aria-current="page"/g)?.length).toBe(1);
-    expect(h).toMatch(/aria-current="page"[^>]*>theory|href="\/stack\/learn[^"]*"[^>]*aria-current="page"/);
+    expect(h).toMatch(/aria-current="page"[^>]*>(<svg.*?<\/svg>)?theory|href="\/stack\/learn[^"]*"[^>]*aria-current="page"/);
   });
 });
 
