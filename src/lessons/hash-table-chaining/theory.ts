@@ -2,7 +2,7 @@ import type { LessonTheory } from "../../theory/types";
 
 const theory: LessonTheory = {
   definition:
-    "A hash table with chaining is an array of buckets, where each bucket holds a short list, its chain, of the keys that land there. A hash function turns each key into a bucket number, so a lookup scans one chain instead of every key.",
+    "A hash table with chaining is an array of buckets, where each bucket holds a short list, its chain, of the keys that land there. A hash function turns each key into a bucket number, so a lookup **scans one chain instead of every key**.",
   analogy:
     "Think of a wall of mail slots sorted by the last digit of a flat number. To find mail for flat 27, you go straight to slot 7. Several flats share that slot, so you leaf through the few letters in it. You never touch the other slots.",
   steps: [

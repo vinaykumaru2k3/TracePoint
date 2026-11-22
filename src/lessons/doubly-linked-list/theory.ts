@@ -2,7 +2,7 @@ import type { LessonTheory } from "../../theory/types";
 
 const theory: LessonTheory = {
   definition:
-    "A doubly linked list is a chain of nodes where each node points both to the next node and back to the previous one. The list keeps `head` and `tail`, so both ends are one step away.",
+    "A doubly linked list is a chain of nodes where each node points both to the next node and **back to the previous one**. The list keeps `head` and `tail`, so both ends are one step away.",
   analogy:
     "Think of people holding hands in a line, each holding a neighbour on both sides. Anyone can find the person before them without walking back from the front.",
   steps: [

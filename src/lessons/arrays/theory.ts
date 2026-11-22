@@ -2,7 +2,7 @@ import type { LessonTheory } from "../../theory/types";
 
 const theory: LessonTheory = {
   definition:
-    "An array is a fixed number of slots that sit side by side in memory, each reached by its index. It keeps a `size`, the count of slots in use.",
+    "An array is a fixed number of slots that sit **side by side in memory**, each reached by its index. It keeps a `size`, the count of slots in use.",
   analogy:
     "Think of a row of numbered parking spaces, filled from space 0. You can drive straight to space 5. But to fit a car into space 2, every car from space 2 onward must move back one space first.",
   steps: [
@@ -36,7 +36,7 @@ const theory: LessonTheory = {
   ],
   pitfalls: [
     "Shifting in the wrong order. An insert must copy from the end backwards, or it overwrites items before it moves them.",
-    "Reading `a[size]`. The last item is at `size - 1`.",
+    "Reading ~~`a[size]`~~. The last item is at `size - 1`.",
     "Forgetting capacity. This lesson's array is fixed. A dynamic array grows by copying into a bigger block, so its append is O(1) amortized, meaning O(1) on average over many appends."
   ]
 };

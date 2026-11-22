@@ -2,7 +2,7 @@ import type { LessonTheory } from "../../theory/types";
 
 const theory: LessonTheory = {
   definition:
-    "Open addressing is a hash table, a structure that computes where each key lives, that keeps every key in one array. When a key's slot is taken, it probes, or tries, the following slots until it finds a free one.",
+    "Open addressing is a hash table, a structure that computes where each key lives, that keeps every key in one array. When a key's slot is taken, it **probes, or tries, the following slots** until it finds a free one.",
   analogy:
     "Think of a car park where your ticket names a space. If someone is already in it, you take the next space along the row. To find your car later, you start at the named space and walk forward until you reach it.",
   steps: [

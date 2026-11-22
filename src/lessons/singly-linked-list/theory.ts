@@ -2,7 +2,7 @@ import type { LessonTheory } from "../../theory/types";
 
 const theory: LessonTheory = {
   definition:
-    "A singly linked list is a chain of nodes, small objects that each hold a value and a `next` pointer to the following node. The list keeps `head`, the first node, and here also `tail`, the last.",
+    "A singly linked list is **a chain of nodes**, small objects that each hold a value and a `next` pointer to the following node. The list keeps `head`, the first node, and here also `tail`, the last.",
   analogy:
     "Think of a treasure hunt. Each clue tells you where the next clue is hidden. To reach the fifth clue, you must follow the first four. Adding a new first clue only needs it to point at the old first one.",
   steps: [

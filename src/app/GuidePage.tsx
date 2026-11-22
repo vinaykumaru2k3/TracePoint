@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { folderName, sectionOf } from "../curriculum";
 import { DEFAULT_STEP_COUNT, LESSON_BY_ID } from "../lessons";
@@ -7,6 +7,7 @@ import { useMedia } from "../hooks/useMedia";
 import { GUIDES } from "../theory";
 import { Icon } from "../design/ui";
 import GrowthChart from "../theory/GrowthChart";
+import { useInk } from "../theory/useInk";
 import { growthRank } from "../theory/growth";
 import { Rich } from "../theory/inline";
 import { Cost } from "../theory/Meter";
@@ -80,8 +81,10 @@ export function GuideView({ guide }: { guide: Guide }) {
   /* The growth classes the cheat sheet names, inked on the chart. */
   const marked = new Set(guide.cheat.rows.flat().map(growthRank).filter((r): r is number => r !== null));
   const [first, ...rest] = guide.core;
+  const ref = useRef<HTMLDivElement>(null);
+  useInk(ref, guide.section);
   return (
-    <div className="prose">
+    <div className="prose" ref={ref}>
       <div className="band">
         <Part id="core" title="Core idea">
           <p className="lead"><Rich text={first} /></p>

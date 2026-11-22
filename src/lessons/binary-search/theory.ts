@@ -2,7 +2,7 @@ import type { LessonTheory } from "../../theory/types";
 
 const theory: LessonTheory = {
   definition:
-    "Binary search finds a target in a sorted array, one in order from smallest to largest. It checks the middle of a range, then keeps only the half that can still hold the target.",
+    "Binary search finds a target in a sorted array, one in order from smallest to largest. It checks the middle of a range, then **keeps only the half that can still hold the target**.",
   analogy:
     "Think of guessing a number from 1 to 100 when you are told higher or lower. You guess 50 first. Each answer rules out half of the numbers left. Seven guesses are always enough, because seven halvings take 100 down to 1.",
   steps: [
@@ -37,9 +37,9 @@ const theory: LessonTheory = {
   ],
   pitfalls: [
     "Running it on unsorted data. It returns wrong answers with no error, because dropping a half is safe only when the data is sorted.",
-    "Writing `lo = mid` or `hi = mid` instead of `mid + 1` and `mid - 1`. The range can stop shrinking, and the loop never ends.",
-    "Using `lo < hi` as the loop test. A range of one cell is then never checked.",
-    "Computing `(lo + hi) / 2` with fixed-size integers. On huge arrays the sum can overflow, going past the largest value the type holds. `lo + (hi - lo) / 2` avoids that."
+    "Writing ~~`lo = mid`~~ or ~~`hi = mid`~~ instead of `mid + 1` and `mid - 1`. The range can stop shrinking, and the loop never ends.",
+    "Using ~~`lo < hi`~~ as the loop test. A range of one cell is then never checked.",
+    "Computing ~~`(lo + hi) / 2`~~ with fixed-size integers. On huge arrays the sum can overflow, going past the largest value the type holds. `lo + (hi - lo) / 2` avoids that."
   ]
 };
 

@@ -2,7 +2,7 @@ import type { LessonTheory } from "../../theory/types";
 
 const theory: LessonTheory = {
   definition:
-    "A stack is a collection where you add and remove items at one end only, called the top. The last item you add (push) is the first one you remove (pop), which is called LIFO (last in, first out).",
+    "A stack is a collection where you **add and remove items at one end only**, called the top. The last item you add (push) is the first one you remove (pop), which is called LIFO (last in, first out).",
   analogy:
     "Think of a pile of plates in a kitchen. You put a clean plate on top, and you take the top plate when you need one. The plate at the bottom waited longest, but it comes out last.",
   steps: [

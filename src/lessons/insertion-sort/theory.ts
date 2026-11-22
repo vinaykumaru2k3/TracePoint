@@ -2,7 +2,7 @@ import type { LessonTheory } from "../../theory/types";
 
 const theory: LessonTheory = {
   definition:
-    "Insertion sort grows a sorted part at the front of the array. It takes each next value, the key, and slides it left past every bigger value into its place.",
+    "Insertion sort grows a sorted part at the front of the array. It takes each next value, the key, and **slides it left past every bigger value** into its place.",
   analogy:
     "Think of sorting playing cards as you pick them up. The cards in your hand are always in order. Each new card slides left past the higher cards until it meets one that is not higher. Then it drops into the gap.",
   steps: [
@@ -37,7 +37,7 @@ const theory: LessonTheory = {
   ],
   pitfalls: [
     "Overwriting the key. Save `a[i]` in `key` before shifting, or the first shift destroys it.",
-    "Testing `a[j] >= key`. Equal values then shift past each other, and the sort is no longer stable.",
+    "Testing ~~`a[j] >= key`~~. Equal values then shift past each other, and the sort is no longer stable.",
     "Forgetting the `j >= 0` check. A key smaller than everything walks off the front of the array."
   ]
 };

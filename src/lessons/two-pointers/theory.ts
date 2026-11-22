@@ -2,7 +2,7 @@ import type { LessonTheory } from "../../theory/types";
 
 const theory: LessonTheory = {
   definition:
-    "Two pointers is a technique where two indexes, `lo` and `hi`, start at the two ends of a sorted array and move toward each other. Here they find a pair whose sum equals a target.",
+    "Two pointers is a technique where two indexes, `lo` and `hi`, start at the two ends of a sorted array and **move toward each other**. Here they find a pair whose sum equals a target.",
   analogy:
     "Picture a line of people sorted by height, shortest on the left. Two friends start at the two ends, looking for a pair whose heights add up to a set total. If the pair is too short, the left friend steps right. If it is too tall, the right friend steps left.",
   steps: [
@@ -33,7 +33,7 @@ const theory: LessonTheory = {
   pitfalls: [
     "Running it on unsorted data. The moves rely on order, so they can skip past the answer.",
     "Quoting O(n) when you had to sort first. The sort costs O(n log n), so the whole job is O(n log n).",
-    "Looping while `lo <= hi`. Then both pointers can land on one item and count it twice.",
+    "Looping while ~~`lo <= hi`~~. Then both pointers can land on one item and count it twice.",
     "Moving both pointers at once. Move only the one the comparison rules out."
   ]
 };

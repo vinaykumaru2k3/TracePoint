@@ -2,7 +2,7 @@ import type { LessonTheory } from "../../theory/types";
 
 const theory: LessonTheory = {
   definition:
-    "Big-O by counting means you count how many steps code takes for an input of size `n`, then keep only the fastest-growing part. It describes how the work grows, not how many seconds it takes.",
+    "Big-O by counting means you count how many steps code takes for an input of size `n`, then **keep only the fastest-growing part**. It describes how the work grows, not how many seconds it takes.",
   analogy:
     "Picture greeting guests at a party. Saying hello to each guest takes one greeting per person. Making sure every pair of guests shakes hands takes far more. Ten guests need 45 handshakes, and a hundred guests need 4,950.",
   steps: [

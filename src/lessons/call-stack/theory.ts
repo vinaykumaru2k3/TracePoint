@@ -2,7 +2,7 @@ import type { LessonTheory } from "../../theory/types";
 
 const theory: LessonTheory = {
   definition:
-    "Recursion is a function that calls itself on a smaller input until it reaches a base case, an input it answers without calling again. Every call gets its own frame, a block of memory holding its `n` and where to return.",
+    "Recursion is **a function that calls itself on a smaller input** until it reaches a base case, an input it answers without calling again. Every call gets its own frame, a block of memory holding its `n` and where to return.",
   analogy:
     "Picture a pile of sticky notes on your desk. Each note is a task that waits on a smaller task. You write a new note on top for the smaller task. When the top task is done, you peel that note off and finish the one under it.",
   steps: [

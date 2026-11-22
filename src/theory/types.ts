@@ -1,4 +1,4 @@
-/** Inline text. May contain `code`, **bold**, [[target]] or [[target|label]]. */
+/** Inline text. May contain `code`, **bold**, ~~struck wrong form~~, [[target]] or [[target|label]]. */
 export type Inline = string;
 
 export interface Guide {

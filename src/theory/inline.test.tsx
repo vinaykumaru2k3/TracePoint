@@ -16,6 +16,14 @@ describe("parseInline", () => {
   it("treats an unclosed marker as text", () => {
     expect(parseInline("a `b")).toEqual([{ t: "text", v: "a `b" }]);
   });
+  it("parses a struck wrong form that holds code", () => {
+    expect(parseInline("use ~~`<`~~ not")).toEqual([
+      { t: "text", v: "use " }, { t: "strike", v: "`<`" }, { t: "text", v: " not" }]);
+  });
+  it("renders a struck wrong form with its code", () => {
+    const html = renderToStaticMarkup(<MemoryRouter><Rich text="~~`lo = mid`~~" /></MemoryRouter>);
+    expect(html).toContain('<s class="wrong"><code>lo = mid</code></s>');
+  });
   it("lists link targets", () => {
     expect(linkTargets("[[stack]] [[guide:linear]]")).toEqual(["stack", "guide:linear"]);
   });

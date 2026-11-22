@@ -2,7 +2,7 @@ import type { LessonTheory } from "../../theory/types";
 
 const theory: LessonTheory = {
   definition:
-    "N-Queens places n queens on an n×n chessboard so that no two attack each other. A queen attacks every square in its row, its column and both of its diagonals.",
+    "N-Queens places n queens on an n×n chessboard so that **no two attack each other**. A queen attacks every square in its row, its column and both of its diagonals.",
   analogy:
     "Picture seating guests one row at a time in a hall, where rivals must not sit in line with each other. You seat a guest in the first seat that is safe. If the next row has no safe seat, you go back and move the last guest one seat along.",
   steps: [

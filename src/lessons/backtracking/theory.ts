@@ -2,7 +2,7 @@ import type { LessonTheory } from "../../theory/types";
 
 const theory: LessonTheory = {
   definition:
-    "Backtracking builds an answer one choice at a time, explores everything that follows, then undoes that choice and tries the next. Here it lists every subset, meaning every selection of the items from none to all.",
+    "Backtracking builds an answer one choice at a time, explores everything that follows, then **undoes that choice and tries the next**. Here it lists every subset, meaning every selection of the items from none to all.",
   analogy:
     "Picture a sandwich counter with three toppings. You go down the line saying yes or no to each one. After you write down a full sandwich, you step back to the last topping, change your answer, and go on. Yes or no for 3 toppings gives 2 × 2 × 2 = 8 sandwiches.",
   steps: [

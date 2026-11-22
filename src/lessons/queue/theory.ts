@@ -2,7 +2,7 @@ import type { LessonTheory } from "../../theory/types";
 
 const theory: LessonTheory = {
   definition:
-    "A queue is a collection where items join at the back, or rear, and leave from the front. The item that waited longest leaves first, which is called FIFO (first in, first out).",
+    "A queue is a collection where items join at the back, or rear, and leave from the front. **The item that waited longest leaves first**, which is called FIFO (first in, first out).",
   analogy:
     "Think of a line at a ticket desk. New people join at the back. The clerk serves whoever is at the front, and nobody cuts in.",
   steps: [

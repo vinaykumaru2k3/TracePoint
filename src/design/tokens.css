@@ -78,6 +78,8 @@
   --st-swap-t: #f6d3c6; --st-swap-l: #e8ae9c; --st-swap-r: #d48d7a;
   --st-visited-t: #efe3c8; --st-visited-l: #dac9a3; --st-visited-r: #c1ae87;
   --st-stale-t: #e6e0d7; --st-stale-l: #d3cbbf; --st-stale-r: #beb4a6;
+  /* reading marks: the band drawn under a key phrase (active amber; swap red in avoid lists) */
+  --mark: color-mix(in oklab, var(--st-active-l) 72%, transparent); --mark-no: color-mix(in oklab, var(--st-swap-l) 72%, transparent);
 
   --radius: 6px;
 }
@@ -115,6 +117,7 @@
     --st-swap-t: #dc9d8e; --st-swap-l: #c38676; --st-swap-r: #b37a6a;
     --st-visited-t: #bcab88; --st-visited-l: #a59574; --st-visited-r: #978868;
     --st-stale-t: #5a5148; --st-stale-l: #4a423a; --st-stale-r: #3e3731;
+    --mark: color-mix(in oklab, var(--st-active-l) 34%, transparent); --mark-no: color-mix(in oklab, var(--st-swap-l) 34%, transparent);
   }
 }
 
@@ -151,4 +154,5 @@
   --st-swap-t: #dc9d8e; --st-swap-l: #c38676; --st-swap-r: #b37a6a;
   --st-visited-t: #bcab88; --st-visited-l: #a59574; --st-visited-r: #978868;
   --st-stale-t: #5a5148; --st-stale-l: #4a423a; --st-stale-r: #3e3731;
+  --mark: color-mix(in oklab, var(--st-active-l) 34%, transparent); --mark-no: color-mix(in oklab, var(--st-swap-l) 34%, transparent);
 }

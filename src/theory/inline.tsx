@@ -6,6 +6,8 @@ import type { Inline } from "./types";
 
 export type Token =
   | { t: "text" | "code" | "bold"; v: string }
+  /** A wrong form, struck through. Its body may hold `code`. */
+  | { t: "strike"; v: string }
   | { t: "link"; target: string; label: string };
 
 /** Single left-to-right scan. An unclosed marker is plain text. */
@@ -31,6 +33,14 @@ export function parseInline(s: Inline): Token[] {
       if (end > i + 2) {
         flush();
         out.push({ t: "bold", v: s.slice(i + 2, end) });
+        i = end + 2;
+        continue;
+      }
+    } else if (s.startsWith("~~", i)) {
+      const end = s.indexOf("~~", i + 2);
+      if (end > i + 2) {
+        flush();
+        out.push({ t: "strike", v: s.slice(i + 2, end) });
         i = end + 2;
         continue;
       }
@@ -63,6 +73,7 @@ export function Rich({ text }: { text: Inline }) {
       {parseInline(text).map((k, i) => {
         if (k.t === "code") return <code key={i}>{k.v}</code>;
         if (k.t === "bold") return <strong key={i}>{k.v}</strong>;
+        if (k.t === "strike") return <s key={i} className="wrong"><Rich text={k.v} /></s>;
         if (k.t === "link") {
           if (k.target.startsWith("guide:")) {
             const id = k.target.slice(6);

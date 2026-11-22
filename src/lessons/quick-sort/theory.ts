@@ -2,7 +2,7 @@ import type { LessonTheory } from "../../theory/types";
 
 const theory: LessonTheory = {
   definition:
-    "Quick sort picks one value, the pivot, and moves smaller values to its left and the rest to its right. It then sorts each side the same way.",
+    "Quick sort picks one value, the pivot, and **moves smaller values to its left and the rest to its right**. It then sorts each side the same way.",
   analogy:
     "Think of sorting a class by height around one student. Everyone shorter stands to their left, and everyone else to their right. That student is now in the right spot for good. Then each group repeats the trick with a student of its own.",
   steps: [

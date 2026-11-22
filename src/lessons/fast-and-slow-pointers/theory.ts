@@ -2,7 +2,7 @@ import type { LessonTheory } from "../../theory/types";
 
 const theory: LessonTheory = {
   definition:
-    "Fast and slow pointers walk a linked list, a chain of linked nodes, with `slow` moving one node per round and `fast` moving two. If the list has a cycle, a loop that never reaches the end, they meet.",
+    "Fast and slow pointers walk a linked list, a chain of linked nodes, with `slow` moving one node per round and `fast` moving two. If the list has a cycle, a loop that never reaches the end, **they meet**.",
   analogy:
     "Think of two runners on a track. On a straight road the faster one pulls ahead for good. On a circular track the faster one laps the slower one and runs up behind them.",
   steps: [

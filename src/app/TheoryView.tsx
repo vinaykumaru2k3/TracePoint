@@ -1,8 +1,10 @@
+import { useRef } from "react";
 import { Link } from "react-router-dom";
 import type { AnyLesson } from "../engine/types";
 import { Icon, type IconName } from "../design/ui";
 import { Rich } from "../theory/inline";
 import { Cost } from "../theory/Meter";
+import { useInk } from "../theory/useInk";
 import { Part } from "./GuidePage";
 import Walkthrough from "./Walkthrough";
 
@@ -34,8 +36,10 @@ export function Analogy({ text }: { text: string }) {
 export default function TheoryView({ lesson, search }: { lesson: AnyLesson; search: string }) {
   const t = lesson.theory;
   const watch = <Link to={`/${lesson.id}/1${search}`} className="btn primary watch">Watch it run <Icon name="right" size={13} /></Link>;
+  const ref = useRef<HTMLDivElement>(null);
+  useInk(ref, lesson.id);
   return (
-    <div className="prose theory">
+    <div className="prose theory" ref={ref}>
       <div className="band">
         <Part id="definition" title="Definition"><p className="lead"><Rich text={t.definition} /></p></Part>
         <Part id="analogy" title="Analogy"><Analogy text={t.analogy} /></Part>

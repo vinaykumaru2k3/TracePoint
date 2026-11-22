@@ -4,9 +4,9 @@ const foundations: Guide = {
   section: "foundations",
   tagline: "How to measure an algorithm by counting its steps, and the array techniques that cut those steps down.",
   core: [
-    "Adding up 10 numbers takes about 10 steps. Adding up a million numbers takes about a million. An algorithm, a step-by-step method for solving a problem, is judged by how its step count grows with the input size `n`. Seconds depend on the machine, so you count steps instead.",
-    "You write that growth in Big-O. O(n) means the steps grow in proportion to `n`. O(n²) means doubling `n` roughly quadruples the work. O(1) means the work stays the same at any size.",
-    "The array is the first data structure in this section. It keeps its items side by side in memory. So the computer finds item `i` with one calculation from the start address, the place in memory where the array begins. That is why reading by index is O(1). Every technique here is built on that fact."
+    "Adding up 10 numbers takes about 10 steps. Adding up a million numbers takes about a million. An algorithm, a step-by-step method for solving a problem, is judged by **how its step count grows** with the input size `n`. Seconds depend on the machine, so you count steps instead.",
+    "You write that growth in Big-O. O(n) means the steps grow in proportion to `n`. O(n²) means doubling `n` roughly quadruples the work. O(1) means **the work stays the same at any size**.",
+    "The array is the first data structure in this section. It keeps its items side by side in memory. So the computer finds item `i` with one calculation from the start address, the place in memory where the array begins. That is why **reading by index is O(1)**. Every technique here is built on that fact."
   ],
   analogy:
     "Picture a hallway of numbered lockers. With a locker number, you walk straight to it, and that takes one trip however long the hallway is. Without a number, you open lockers in turn until you find your bag, so a longer hallway means more steps. An array works the same way. Big-O is the habit of asking how the steps grow as the hallway gets longer.",
