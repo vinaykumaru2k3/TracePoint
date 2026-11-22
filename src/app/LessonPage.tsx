@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent, type SyntheticEvent } from "react";
-import { Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { Link, Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { sectionOf } from "../curriculum";
 import { Icon, Kbd, KindChip, MetricCard, kindColor } from "../design/ui";
 import { usePlayer } from "../engine/usePlayer";
@@ -273,7 +273,7 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
       <div className="idea"><small>watch</small><div>{step.idea}</div></div>
       <div className="nav">
         <button className="btn" type="button" onClick={player.back} disabled={idx === 0}><Icon name="left" />Back</button>
-        <button className="btn primary" type="button" onClick={player.next}><span>{idx >= last ? "Start over" : `Next: ${label(idx + 1)}`}</span><Icon name={idx >= last ? "replay" : "right"} /></button>
+        <button className="btn primary cue" type="button" onClick={player.next}><span>{idx >= last ? "Start over" : `Next: ${label(idx + 1)}`}</span><Icon name={idx >= last ? "replay" : "right"} /></button>
       </div>
       <p className="keys"><Kbd>←</Kbd><Kbd>→</Kbd> step · <Kbd>Home</Kbd><Kbd>End</Kbd> ends · <Kbd>Space</Kbd> play · <Kbd>R</Kbd> reset · <Kbd>F</Kbd> show all</p>
     </section>
@@ -319,9 +319,11 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
         </main>
         {/* Back and Next stay under the thumb while the page scrolls. */}
         <nav className="stepbar" aria-label="Step controls">
+          {/* The view switch scrolls away on a phone; the way back to theory stays under the thumb. */}
+          <Link className="btn to-theory" to={`/${lesson.id}/learn${query}`} aria-label="Theory" title="Theory"><Icon name="file" /></Link>
           <button className="btn" type="button" onClick={player.back} disabled={idx === 0} aria-label="Back"><Icon name="left" /></button>
           <span className="stepbar-at">Step {idx + 1}/{steps.length} · <b>{label(idx)}</b></span>
-          <button className="btn primary" type="button" onClick={player.next}><span>{idx >= last ? "Start over" : "Next"}</span><Icon name={idx >= last ? "replay" : "right"} /></button>
+          <button className="btn primary cue" type="button" onClick={player.next}><span>{idx >= last ? "Start over" : "Next"}</span><Icon name={idx >= last ? "replay" : "right"} /></button>
         </nav>
       </div>
     );
