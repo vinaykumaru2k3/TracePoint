@@ -20,11 +20,11 @@ Every step is tied to the exact line of real code that causes it, in Java, Pytho
 
 ## Operating Context
 
-Desktop browser first, also usable on a phone. Learners step with the keyboard (arrows, Space, R) or buttons, jump via a step rail, and come back to a lesson later through a URL that names the step (`#/stack/5`). Progress is kept per browser.
+Desktop browser first, also usable on a phone. Learners step with the keyboard (arrows, Space, R) or buttons, jump via the timeline scrubber, and come back to a lesson later through a URL that names the step (`#/stack/5`). Progress is kept per browser.
 
 ## Capabilities and Constraints
 
-- Lessons: 15 live across sections 1-3 (foundations, linear structures, hashing); about 49 planned across 10 sections (`src/curriculum.ts`).
+- Lessons: all 49 live across 10 sections, from foundations to dynamic programming and advanced topics (`src/curriculum.ts`), each with a theory tab and a section guide.
 - Stack: React 18, Vite, TypeScript, SVG diagrams, deploy on Vercel.
 - Code highlighting with Java / Python / C++ tabs and the running line highlighted must stay (user, 2026-11-21).
 - Diagrams follow the debugger direction: flat outlined cool-grey isometric slabs with 1px outlines, a dot grid floor locked to the camera, a dashed footprint outline, colour only for state (user, 2026-11-21). Rejected: the earlier harsh iso (thick borders, saturated blocks, dashed walls) and flat textbook 2D diagrams.
