@@ -144,7 +144,7 @@ a { color: inherit; text-decoration: none; }
 .center { padding: 14px 6px 14px; display: flex; flex-direction: column; }
 .lesson { flex: 1; min-height: 0; padding: 14px 18px 14px; display: flex; flex-direction: column; gap: 12px; }
 /* Holds the page open while a lesson chunk loads: as tall as the stage can be at least, so nothing jumps. */
-.lesson-loading { flex: 1; min-height: clamp(320px, 56vh, 540px); }
+.lesson-loading { flex: 1; min-height: clamp(260px, 45vh, 540px); }
 .lesson > * { flex: none; }
 .lesson > .stagecard { flex: 1 1 auto; min-height: 0; display: flex; }
 .lesson-head { display: grid; gap: 4px; }
@@ -472,7 +472,7 @@ a { color: inherit; text-decoration: none; }
   .flow-main > .lesson-head, .flow-main > .stagecard, .flow-main > .rail-wrap, .flow-main > .run-fold, .flow-main > .mem { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; }
   .flow-main > .stagecard { margin: 0; padding: 0; overflow: hidden; }
   .flow-main > .codewrap { display: flex; flex-direction: column; }
-  .stage { height: clamp(320px, 56vh, 540px); padding: 10px 12px; }
+  .stage { height: clamp(260px, 45vh, 540px); padding: 10px 12px; }
   .stagecard { scroll-margin-top: 64px; }
   .page.flow { padding-bottom: 84px; }
   .stepbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; display: flex; align-items: center; gap: 8px; padding: 8px 12px calc(8px + env(safe-area-inset-bottom)); background: var(--bg); border-top: 1px solid var(--line); }
