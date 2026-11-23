@@ -46,6 +46,7 @@ import knapsack from "./knapsack";
 import lcs from "./lcs";
 import editDistance from "./edit-distance";
 import bitManipulation from "./bit-manipulation";
+import greedyIntervals from "./greedy-intervals";
 
 /** Playable lessons, in course order. Add a lesson here and it lights up in the course tree. */
 export const LESSONS: AnyLesson[] = [
@@ -74,7 +75,8 @@ export const LESSONS: AnyLesson[] = [
   knapsack,
   lcs,
   editDistance,
-  bitManipulation
+  bitManipulation,
+  greedyIntervals
 ];
 
 export const LESSON_BY_ID: Record<string, AnyLesson> = Object.fromEntries(LESSONS.map((l) => [l.id, l]));
