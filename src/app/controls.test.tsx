@@ -72,7 +72,14 @@ describe("stylesheet", () => {
     const end = css.indexOf("\n}\n", from);
     expect(css.slice(from, end)).toMatch(/\.tabs \.soon\s*\{\s*display:\s*none/);
   });
-  it("reserves the widest speed label so the toolbar does not reflow", () => {
-    expect(css).toMatch(/\.stage-ctl \.btn\.speed\s*\{[^}]*min-inline-size:\s*90px/);
+  it("reserves the widest speed label at every breakpoint so the toolbar does not reflow", () => {
+    /* "Speed 0.5×" is 10 characters of 0.6em mono at --fs-chrome (12px), plus inline padding and a 1px border each side. */
+    const text = 10 * 0.6 * 12;
+    const reserve = (src: string) => Number(src.match(/\.stage-ctl \.btn\.speed\s*\{[^}]*min-inline-size:\s*(\d+)px/)![1]);
+    const desktop = reserve(css);
+    expect(desktop).toBeGreaterThanOrEqual(text + 2 * 10 + 2);
+    const from = css.indexOf("@media (max-width: 560px) {");
+    const phone = reserve(css.slice(from, css.indexOf("\n}\n", from)));
+    expect(phone).toBeGreaterThanOrEqual(text + 2 * 8 + 2);
   });
 });
