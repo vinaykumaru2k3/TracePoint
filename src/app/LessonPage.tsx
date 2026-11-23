@@ -249,7 +249,7 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
       <p>{step.text}</p>
       <p className="sr" aria-live="polite" aria-atomic="true">{said}</p>
       <div className="idea"><small>watch</small><div>{step.idea}</div></div>
-      <div className="nav">
+      <div className="nav" id="step-controls">
         <button className="btn" type="button" onClick={player.back} disabled={idx === 0}><Icon name="left" />Back</button>
         <button className={`btn primary${cue ? " cue" : ""}`} type="button" onClick={player.next}><span>{idx >= last ? "Start over" : `Next: ${railName(idx + 1)}`}</span><Icon name={idx >= last ? "replay" : "right"} /></button>
       </div>
@@ -296,7 +296,7 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
           {[head, stage, explain, rail, code, form, memory, learn]}
         </main>
         {/* Back and Next stay under the thumb while the page scrolls. */}
-        <nav className="stepbar" aria-label="Step controls">
+        <nav className="stepbar" aria-label="Step controls" data-step-controls="">
           {/* The view switch scrolls away on a phone; the way back to theory stays under the thumb. */}
           <Link className="btn to-theory" to={`/${lesson.id}/learn${query}`} aria-label="Theory" title="Theory"><Icon name="file" /></Link>
           <button className="btn" type="button" onClick={player.back} disabled={idx === 0} aria-label="Back"><Icon name="left" /></button>

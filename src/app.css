@@ -9,6 +9,8 @@ button { font: inherit; color: inherit; }
 a { color: inherit; text-decoration: none; }
 ::selection { background: color-mix(in oklab, var(--c-amber-2) 35%, transparent); color: var(--ink); }
 :focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.skip { position: fixed; inset-block-start: 8px; inset-inline-start: 8px; z-index: 100; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip:focus-visible { width: auto; height: auto; overflow: visible; clip: auto; padding: 8px 12px; background: var(--inv-bg); color: var(--inv-fg); border-radius: var(--radius); box-shadow: var(--float-shadow); font-size: var(--fs-chrome); text-decoration: none; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .muted { color: var(--muted); }
 .icon { flex: none; display: block; }
