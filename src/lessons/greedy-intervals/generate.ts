@@ -60,10 +60,10 @@ export function generateGreedy(input: GreedyInput): Step<GreedyState>[] {
   }, list, list.map(() => "none"));
 
   snap({
-    kind: "peek", op: "last end = 0", anchors: ["greedy.init"], notes: { "greedy.init": "lastEnd = 0" },
+    kind: "peek", op: "last end = 0", anchors: ["greedy.init"], notes: { "greedy.init": "lastEnd = 0, count = 0" },
     title: "Start with last end = 0",
     idea: "last end is where the time taken so far stops. An interval may start there or later.",
-    text: "Nothing is taken yet, so last end starts at 0, the start of the number line. Every start is 0 or more, so the first interval always fits."
+    text: "Nothing is taken yet, so count starts at 0 and last end starts at 0, the start of the number line. Every start is 0 or more, so the first interval always fits."
   }, list, list.map(() => "none"), [{ r: 0, c: 0, label: "last end" }]);
 
   const marks: Mark[] = list.map(() => "none");
@@ -96,7 +96,7 @@ export function generateGreedy(input: GreedyInput): Step<GreedyState>[] {
         notes: { "greedy.loop": loop, "greedy.cmp": `${x.s} >= ${old}: false` },
         title: `Skip ${label(x)}`,
         idea: "An interval that starts before last end overlaps the last one taken, so it is skipped.",
-        text: `It starts at ${x.s}, but last end is ${old}. Since ${x.s} < ${old}, the time from ${x.s} to ${old} is already used, so the two overlap. Skip ${label(x)}. Last end stays ${old}.`
+        text: `${label(x)} starts at ${x.s}, before ${takenNames[takenNames.length - 1]} ends at ${old}. Since ${x.s} < ${old}, the two overlap. Skip ${label(x)}. Last end stays ${old}.`
       }, list, marks, [{ r: k, c: old, label: "last end" }, { r: k, c: x.s, label: "start", dim: true }]);
     }
   });

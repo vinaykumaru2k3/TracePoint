@@ -47,6 +47,13 @@ describe("greedy-intervals generator", () => {
     expect(grid(take).grid[0][1].state).toBe("found");
   });
 
+  it("a skip names the interval it clashes with, not a span that may be free", () => {
+    const skip = run(lesson, "5-6, 1-7").find((s) => s.op === "skip 1-7")!;
+    expect(skip.text).toMatch(/1-7 starts at 1, before 5-6 ends at 6/);
+    expect(skip.text).not.toMatch(/already used/);
+    expect(skip.text).toMatch(/overlap/);
+  });
+
   it("touching intervals 1-3, 3-5 take both and say why", () => {
     expect(picked("1-3, 3-5")).toEqual(["1-3", "3-5"]);
     const steps = run(lesson, "1-3, 3-5");

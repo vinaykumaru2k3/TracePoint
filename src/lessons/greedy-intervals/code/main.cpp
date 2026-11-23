@@ -4,10 +4,10 @@
 
 // Each interval is {start, end}. stable_sort keeps input order for equal ends.
 int maxIntervals(std::vector<std::pair<int, int>> iv) {
-    std::stable_sort(iv.begin(), iv.end(),
-        [](auto& a, auto& b) { return a.second < b.second; });     // @a greedy.sort
+    std::stable_sort(iv.begin(), iv.end(),                         // @a greedy.sort
+        [](auto& a, auto& b) { return a.second < b.second; });
     int lastEnd = 0;                                               // @a greedy.init
-    int count = 0;
+    int count = 0;                                                 // @a greedy.init
     for (auto& [s, e] : iv) {                                      // @a greedy.loop
         if (s >= lastEnd) {                                        // @a greedy.cmp
             count++;                                               // @a greedy.take
