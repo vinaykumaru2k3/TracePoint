@@ -68,7 +68,7 @@ export default defineLesson<SegInput, SegState>({
   Scene: TreeScene,
   legend: [
     { cls: "s-active", label: "node being split, set or re-added" },
-    { cls: "s-compare", label: "children read, or the query range in a" },
+    { cls: "s-compare", label: "children read, or positions of a asked or changed" },
     { cls: "s-found", label: "node taken whole into the answer" },
     { cls: "s-visited", label: "split or passed, still waiting" },
     { cls: "s-stale", label: "outside the query, adds 0" }

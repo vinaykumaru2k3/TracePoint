@@ -61,6 +61,13 @@ describe("segment-tree generator", () => {
     const check = (n: number, ops: string) => {
       const steps = run(lesson, `array ${Array.from({ length: n }, (_, i) => i + 1).join(" ")}, ${ops}`);
       expect(steps.length).toBeLessThanOrEqual(80);
+      expect(steps.length).toBeGreaterThanOrEqual(6);
+      for (const s of steps.filter((x) => x.kind !== "recap")) {
+        // compare tiles in a: a query range or a position being changed; compare nodes: children being read
+        const tile = s.state.strip?.tiles.some((x: { state?: string }) => x.state === "compare");
+        if (tile) expect(["query", "update"]).toContain(s.state.phase);
+        if (s.state.nodes.some((x: { state?: string }) => x.state === "compare") && s.state.phase !== "query") expect(["add", "move", "check"]).toContain(s.kind);
+      }
       steps.forEach((s, i) => {
         if (s.op) expect((s.short ?? s.op).length).toBeLessThanOrEqual(14);
         if (i > 0) expect(s.short ?? s.op ?? "").not.toBe(steps[i - 1].short ?? steps[i - 1].op ?? "");
@@ -79,6 +86,13 @@ describe("segment-tree generator", () => {
       worst = Math.max(worst, check(8, `query ${a.join(" ")}, query ${b.join(" ")}, query ${c.join(" ")}`));
     }
     expect(worst).toBeLessThanOrEqual(80);
+  });
+
+  it("keeps a bare one-value run and repeated updates readable", () => {
+    expect(run(lesson, "array 7, query 0 0").length).toBeGreaterThanOrEqual(6);
+    const steps = run(lesson, "array 7, update 0 4, update 0 4, query 0 0");
+    steps.forEach((s, i) => { if (i) expect(s.short ?? s.op).not.toBe(steps[i - 1].short ?? steps[i - 1].op); });
+    expect(steps.some((s) => /already holds/.test(s.text))).toBe(true);
   });
 
   it("keeps nodes at one depth at least two columns apart", () => {

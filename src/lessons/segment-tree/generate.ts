@@ -95,7 +95,15 @@ export function generateSegmentTree({ nums, ops }: SegInput): Step<SegState>[] {
     text: n === 1
       ? `With one value, the range 0..0 is a single position. It is both the root and the only leaf, and its sum is ${a[0]}.`
       : `Splitting 0..${n - 1} down to single positions gives ${n} leaves, one per value. Each leaf copies its value from the array. The ${n - 1} nodes above them are still to be filled.`
-  }, { states: leafStates, tiles: Object.fromEntries(a.map((_, k) => [k, "compare" as BlockState])) });
+  }, { states: leafStates });
+  if (n === 1) {
+    snap({
+      kind: "check", op: "no halves", anchors: ["build.leaf"], notes: { "build.leaf": "l == r, so build returns at once" },
+      title: "There is nothing to split",
+      idea: "The recursion stops at a single position, so a one-value tree is only a leaf and has no sums to add.",
+      text: "The range 0..0 has one position and cannot be halved. The build stops there: the tree is one node, and it already holds the sum of its range."
+    });
+  }
 
   const built = (idx: number): void => {
     const x = shape.get(idx)!;
@@ -205,10 +213,10 @@ export function generateSegmentTree({ nums, ops }: SegInput): Step<SegState>[] {
           sum.set(x.idx, v);
           const st = waiting(d); st.set(x.idx, "active");
           snap({
-            kind: "add", op: `set a[${i}]=${v}`, anchors: [...anchor, "update.leaf"], notes: { "update.leaf": `t[${x.idx}] = ${v}` },
+            kind: "add", op: `set a[${i}]=${v}`, short: `set a[${i}]=${v} #${k + 1}`, anchors: [...anchor, "update.leaf"], notes: { "update.leaf": `t[${x.idx}] = ${v}` },
             title: `Set the leaf for position ${i}`,
             idea: "The leaf holds the changed value. Every sum above it is stale until it is fixed.",
-            text: `${d === 0 ? tag : ""}The leaf ${range(x)} is a single position. Its value changes from ${old} to ${v}.${d === 0 ? "" : ` The sums above it, ${path.slice(0, d).reverse().map(range).join(", ")}, still count the old ${old}.`}`
+            text: `${d === 0 ? tag : ""}The leaf ${range(x)} is a single position. ${old === v ? `It already holds ${v}, so the value stays the same.` : `Its value changes from ${old} to ${v}.`}${d === 0 || old === v ? "" : ` The sums above it, ${path.slice(0, d).reverse().map(range).join(", ")}, still count the old ${old}.`}`
           }, { states: st, edges: edge, tiles: { [i]: "active" }, ptrs });
         }
       });
@@ -237,7 +245,7 @@ export function generateSegmentTree({ nums, ops }: SegInput): Step<SegState>[] {
     kind: "recap", op: null, anchors: [], notes: {}, state: { ...last, phase },
     title: "What happened",
     idea: "A query or an update touches only a few nodes per level, so each costs O(log n) after an O(n) build.",
-    text: `The build filled ${n - 1} internal node${n === 2 ? "" : "s"} once. ${qn} quer${qn === 1 ? "y" : "ies"} and ${ops.length - qn} update${ops.length - qn === 1 ? "" : "s"} followed. No operation went more than ${maxDepth + 1} level${maxDepth === 0 ? "" : "s"} deep in a tree of ${shape.size} nodes.`
+    text: `The build filled ${n - 1} internal node${n === 2 ? "" : "s"} once. ${qn} quer${qn === 1 ? "y" : "ies"} and ${ops.length - qn} update${ops.length - qn === 1 ? "" : "s"} followed. No operation went more than ${maxDepth + 1} level${maxDepth === 0 ? "" : "s"} deep in a tree of ${shape.size} node${shape.size === 1 ? "" : "s"}.`
   });
   return steps;
 }
