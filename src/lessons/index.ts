@@ -45,6 +45,7 @@ import coinChange from "./coin-change";
 import knapsack from "./knapsack";
 import lcs from "./lcs";
 import editDistance from "./edit-distance";
+import bitManipulation from "./bit-manipulation";
 
 /** Playable lessons, in course order. Add a lesson here and it lights up in the course tree. */
 export const LESSONS: AnyLesson[] = [
@@ -72,7 +73,8 @@ export const LESSONS: AnyLesson[] = [
   coinChange,
   knapsack,
   lcs,
-  editDistance
+  editDistance,
+  bitManipulation
 ];
 
 export const LESSON_BY_ID: Record<string, AnyLesson> = Object.fromEntries(LESSONS.map((l) => [l.id, l]));
