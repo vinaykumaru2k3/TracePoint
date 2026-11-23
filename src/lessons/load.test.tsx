@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { MemoryRouter } from "react-router-dom";
 import { AppRoutes } from "../app/App";
 import { LESSONS } from ".";
-import { clearLessons, loadLesson, peekLesson, primeLessons } from "./load";
+import { clearLessons, loadLesson, peekLesson, primeLessons, setLoadersForTest } from "./load";
 
 const renderAt = (path: string, onVisit: (id: string, idx: number) => void) => renderToStaticMarkup(
   <MemoryRouter initialEntries={[path]}><AppRoutes progress={{}} onVisit={onVisit} courseOpen={false} onCloseCourse={() => {}} /></MemoryRouter>);
@@ -25,6 +25,23 @@ describe("lesson loader", () => {
 
   it("rejects an unknown id", async () => {
     await expect(loadLesson("nope")).rejects.toThrow("No lesson called nope");
+  });
+
+  it("rejects with the loader's error, then retries on the next call", async () => {
+    clearLessons();
+    const stack = LESSONS.find((l) => l.id === "stack")!;
+    let calls = 0;
+    const loader = vi.fn(async () => { calls++; if (calls === 1) throw new Error("chunk failed"); return { default: stack }; });
+    setLoadersForTest({ stack: loader });
+    try {
+      await expect(loadLesson("stack")).rejects.toThrow("chunk failed");
+      expect(peekLesson("stack")).toBeUndefined();
+      await expect(loadLesson("stack")).resolves.toBe(stack);
+      expect(loader).toHaveBeenCalledTimes(2);
+    } finally {
+      setLoadersForTest();
+      primeLessons(LESSONS);
+    }
   });
 
   it("renders a loading state on a cold deep link and reports no progress", () => {

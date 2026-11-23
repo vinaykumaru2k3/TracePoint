@@ -8,8 +8,12 @@ const cache = new Map<string, AnyLesson>();
 const pending = new Map<string, Promise<AnyLesson>>();
 
 const folderOf = (path: string) => path.split("/")[1];
-const LOADERS: Record<string, () => Promise<{ default: AnyLesson }>> =
-  Object.fromEntries(Object.entries(MODULES).map(([p, load]) => [folderOf(p), load]));
+type Loaders = Record<string, () => Promise<{ default: AnyLesson }>>;
+const REAL_LOADERS: Loaders = Object.fromEntries(Object.entries(MODULES).map(([p, load]) => [folderOf(p), load]));
+let LOADERS: Loaders = REAL_LOADERS;
+
+/** Tests only: swap the loader map (pass nothing to restore the real one). */
+export function setLoadersForTest(map?: Loaders): void { LOADERS = map ?? REAL_LOADERS; pending.clear(); }
 
 /** Fetches a lesson's chunk (once) and caches it. An unknown id rejects. */
 export function loadLesson(id: string): Promise<AnyLesson> {
@@ -37,7 +41,8 @@ export function useLesson(id: string): AnyLesson | null {
   const [, tick] = useState(0);
   const [failed, setFailed] = useState<{ id: string; error: Error } | null>(null);
   useEffect(() => {
-    if (cache.has(id)) return;
+    /* Another consumer may have filled the cache after this render returned null: re-render to pick it up. */
+    if (cache.has(id)) { tick((n) => n + 1); return; }
     let live = true;
     loadLesson(id).then(
       () => { if (live) tick((n) => n + 1); },
