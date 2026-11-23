@@ -88,7 +88,7 @@ export function generateBfs(g: GraphInput): Step<BfsState>[] {
       tree[ekey(u, x, false)] = "tree";
       snap({
         kind: "add", anchors: ["bfs.new", "bfs.push"], notes: { "bfs.new": `dist[${x}] = ${dist[u]} + 1 = ${dist[x]}`, "bfs.push": `queue = [${queue.join(", ")}]` },
-        title: `${x} is new: distance ${dist[x]}`, short: `${x} = ${dist[x]}`,
+        title: `${x} is new: distance ${dist[x]}`, short: `dist ${x} = ${dist[x]}`,
         idea: "A new node is one edge further than the node that found it. It joins the back of the queue.",
         text: `${x} has not been seen, so its distance is ${dist[u]} + 1 = ${dist[x]}. It joins the back of the queue, and the edge ${u}-${x} becomes part of the search tree.`
       }, { cur: u, look: x, lookTone: "found", ptrs: [{ node: idOf(u), label: "u" }, { node: idOf(x), label: "x" }] });

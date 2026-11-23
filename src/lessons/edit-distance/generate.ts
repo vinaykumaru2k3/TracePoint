@@ -31,6 +31,9 @@ export function generateEdit({ a, b }: EditInput): Step<EditState>[] {
   const rowHead = ["-", ...a.split("")];
   const colHead = ["-", ...b.split("")];
 
+  /* The same name twice in a row would give two stops one label, so the repeat carries its position. */
+  const fresh = (name: string, at: string) => (steps.length > 0 && steps[steps.length - 1].short === name ? `${name} (${at})` : name);
+
   const snap = (
     st: Omit<Step<EditState>, "state" | "op">,
     v: { op?: string; i?: number; j?: number; mark?: Record<string, BlockState>; strip?: boolean; slots?: number } = {}
@@ -88,7 +91,7 @@ export function generateEdit({ a, b }: EditInput): Step<EditState>[] {
         dp[i][j] = diag;
         snap({
           kind: "check", anchors: [...row, "ed.col", "ed.match"], notes: { ...notes, "ed.match": `${a[i - 1]} = ${b[j - 1]}: dp[${i}][${j}] = dp[${i - 1}][${j - 1}] = ${diag}` },
-          title: `${a[i - 1]} matches: dp[${i}][${j}] = ${diag}`,
+          title: `${a[i - 1]} matches: dp[${i}][${j}] = ${diag}`, short: fresh(`${a[i - 1]} = ${b[j - 1]}`, `col ${j}`),
           idea: "When the two letters match, no edit is needed for them. The cell copies the diagonal, the answer for both words without their last letters.",
           text: `Letter ${i} of the first word is ${a[i - 1]} and letter ${j} of the second is ${b[j - 1]}. They match, so nothing is edited. The cell copies the diagonal dp[${i - 1}][${j - 1}] = ${diag}.`
         }, { op, i, j, mark });
@@ -103,7 +106,7 @@ export function generateEdit({ a, b }: EditInput): Step<EditState>[] {
         snap({
           kind: "add", anchors: [...row, "ed.col", "ed.match", "ed.min"],
           notes: { ...notes, "ed.match": `${a[i - 1]} ≠ ${b[j - 1]}: the letters differ`, "ed.min": `dp[${i}][${j}] = 1 + min(${diag}, ${up}, ${left}) = ${best}` },
-          title: `${a[i - 1]} ≠ ${b[j - 1]}: dp[${i}][${j}] = ${best} (${how})`,
+          title: `${a[i - 1]} ≠ ${b[j - 1]}: dp[${i}][${j}] = ${best} (${how})`, short: fresh(`${a[i - 1]} ≠ ${b[j - 1]}`, `col ${j}`),
           idea: "When the letters differ, one edit is needed. Replace uses the diagonal, delete uses the cell above, insert uses the cell to the left. Take the cheapest and add 1.",
           text: `${a[i - 1]} and ${b[j - 1]} differ. Replace costs ${diag} + 1, delete costs ${up} + 1, insert costs ${left} + 1. The cheapest is to ${why}. dp[${i}][${j}] = ${best}.`
         }, { op, i, j, mark });
@@ -135,10 +138,10 @@ export function generateEdit({ a, b }: EditInput): Step<EditState>[] {
     const anchors = ["ed.trace", "ed.tbmatch"];
     const notes: Record<string, string> = { "ed.trace": `row ${i}, column ${j}`, "ed.tbmatch": x !== undefined && x === y ? `${x} = ${y}: no edit` : `no match here` };
     if (k === 0) { anchors.unshift("ed.tbstart"); notes["ed.tbstart"] = `start at the corner (${i}, ${j})`; }
-    let title: string, idea: string, text: string, tag: string, to: string;
+    let short: string, title: string, idea: string, text: string, tag: string, to: string;
     if (mv.kind === "keep") {
       tag = `keep ${x}`; to = `(${i - 1}, ${j - 1})`;
-      title = `Keep ${x}`;
+      title = `Keep ${x}`; short = fresh(`back to ${x}`, `row ${i}`);
       idea = "To list the edits, walk back from the corner. When the letters match, keep the letter for free and move diagonally.";
       text = `Letter ${i} of the first word and letter ${j} of the second are both ${x}. Keep it, with no edit, and move up and left to ${to}.`;
     } else {
@@ -146,7 +149,7 @@ export function generateEdit({ a, b }: EditInput): Step<EditState>[] {
       if (mv.kind === "rep") {
         tag = `rep ${y}`; to = `(${i - 1}, ${j - 1})`;
         notes["ed.tbrep"] = `the cell is diagonal + 1: replace ${x} with ${y}, move to ${to}`;
-        title = `Replace ${x} with ${y}`;
+        title = `Replace ${x} with ${y}`; short = fresh(`back to ${x}`, `row ${i}`);
         idea = "When the letters differ and the cell is the diagonal plus 1, the edit was a replace. Move diagonally.";
         text = `${x} and ${y} differ, and the cell is the diagonal plus 1. So ${x} was replaced with ${y}. Move up and left to ${to}.`;
       } else {
@@ -154,21 +157,21 @@ export function generateEdit({ a, b }: EditInput): Step<EditState>[] {
         if (mv.kind === "del") {
           tag = `del ${x}`; to = `(${i - 1}, ${j})`;
           notes["ed.tbdel"] = `the cell is above + 1: delete ${x}, move to ${to}`;
-          title = `Delete ${x}`;
+          title = `Delete ${x}`; short = `up to row ${i - 1}`;
           idea = "When the cell is the cell above plus 1, the edit was a delete. Move up.";
           text = `The cell is the one above plus 1, so letter ${x} was deleted. Move up to ${to}.`;
         } else {
           anchors.push("ed.tbins");
           tag = `ins ${y}`; to = `(${i}, ${j - 1})`;
           notes["ed.tbins"] = `the cell is left + 1: insert ${y}, move to ${to}`;
-          title = `Insert ${y}`;
+          title = `Insert ${y}`; short = `left to col ${j - 1}`;
           idea = "When no other move fits, the cell is the cell to the left plus 1, so the edit was an insert. Move left.";
           text = `The cell is the one to the left plus 1, so ${y} was inserted. Move left to ${to}.`;
         }
       }
     }
     edits = [tag, ...edits];
-    snap({ kind: "found", anchors, notes, title, idea, text }, { op: `back i${i} j${j}`, i, j, mark, strip: true, slots: plan.length });
+    snap({ kind: "found", anchors, notes, title, short, idea, text }, { op: `back i${i} j${j}`, i, j, mark, strip: true, slots: plan.length });
     path[cur] = "found";
   });
   path["0,0"] = "found";

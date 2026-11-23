@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate, useParams, useSearchParams } from "react-r
 import { sectionOf } from "../curriculum";
 import { Icon, Kbd, KindChip, MetricCard } from "../design/ui";
 import { usePlayer } from "../engine/usePlayer";
+import { runOpOf, stepName } from "../engine/stepName";
 import type { AnyLesson } from "../engine/types";
 import { useKeyboard } from "../hooks/useKeyboard";
 import { useMedia } from "../hooks/useMedia";
@@ -130,17 +131,11 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
   const sec = sectionOf(lesson.section);
   const label = (i: number) => steps[i].op ?? (i === 0 ? "start" : "recap");
   const nn = (i: number) => String(i + 1).padStart(steps.length > 99 ? 3 : 2, "0");
-  /* A stop's name: its short form, else its op. When one op names most of the run (bfs(A) on every step),
-     the op says nothing about the step, so the stop falls back to the step's kind. */
-  const runOp = useMemo(() => {
-    const n = new Map<string, number>();
-    for (const s of steps) if (s.op) n.set(s.op, (n.get(s.op) ?? 0) + 1);
-    for (const [op, c] of n) if (c >= steps.length * 0.4) return op;
-    return null;
-  }, [steps]);
+  /* A stop's name (see stepName): when one op names most of the run, the stop falls back to the step's kind. */
+  const runOp = useMemo(() => runOpOf(steps), [steps]);
   /* The Next pulse only invites the first press; it stops once the learner moves or plays. */
   const cue = idx === 0 && !player.playing;
-  const railName = (i: number) => steps[i].short ?? (steps[i].op && steps[i].op === runOp ? steps[i].kind : label(i));
+  const railName = (i: number) => stepName(steps, i, runOp);
   const stepTitle = useCallback((i: number) => steps[i].title, [steps]);
 
   const run = (raw: string) => {

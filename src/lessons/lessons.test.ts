@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest";
 import { missingAnchors, parseAll } from "../engine/anchors";
 import { LANGS } from "../engine/types";
 import { CURRICULUM } from "../curriculum";
+import { COORD, runOpOf, stepName } from "../engine/stepName";
 import { LESSONS } from "./index";
+import { generateLcs } from "./lcs/generate";
+import { generateKnapsack } from "./knapsack/generate";
+import { generateCoinChange } from "./coin-change/generate";
 
 describe.each(LESSONS.map((l) => [l.id, l] as const))("lesson %s", (_id, lesson) => {
   const texts = [lesson.defaultText, ...lesson.presets.map((p) => p.text)];
@@ -39,6 +43,20 @@ describe.each(LESSONS.map((l) => [l.id, l] as const))("lesson %s", (_id, lesson)
     expect(new Set(sets).size).toBe(1);
   });
 
+  it("names every step readably", () => {
+    for (const t of texts) {
+      const r = lesson.parse(t);
+      if (!r.ok) throw new Error(r.error);
+      const steps = lesson.generate(r.input);
+      const op = runOpOf(steps);
+      steps.forEach((_, i) => {
+        const n = stepName(steps, i, op);
+        expect(n.length, `${t} / ${i}`).toBeLessThanOrEqual(24);
+        expect(n, `${t} / ${i}`).not.toMatch(COORD);
+      });
+    }
+  });
+
   it("covers every learn checklist item with the default input", () => {
     const r = lesson.parse(lesson.defaultText);
     if (!r.ok) throw new Error(r.error);
@@ -53,5 +71,20 @@ describe.each(LESSONS.map((l) => [l.id, l] as const))("lesson %s", (_id, lesson)
     const sec = CURRICULUM.find((s) => s.id === lesson.section);
     expect(sec).toBeDefined();
     expect(sec!.lessons.some((l) => l.id === lesson.id)).toBe(true);
+  });
+});
+
+describe("grid DP names", () => {
+  const names = (steps: Parameters<typeof runOpOf>[0]) => { const op = runOpOf(steps); return steps.map((_, i) => stepName(steps, i, op)); };
+  it("names LCS cells by their letters", () => {
+    const n = names(generateLcs({ a: "AB", b: "AB" }));
+    expect(n).toContain("A = A");
+    expect(n).toContain("A ≠ B");
+  });
+  it("names knapsack cells by item and room", () => {
+    expect(names(generateKnapsack({ items: [{ w: 1, v: 1 }, { w: 2, v: 3 }], cap: 5 }))).toContain("item 2, room 5");
+  });
+  it("names coin-change cells by amount and coin", () => {
+    expect(names(generateCoinChange({ coins: [1, 2], amount: 5 }))).toContain("amount 5, coin 2");
   });
 });

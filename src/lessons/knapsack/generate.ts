@@ -90,7 +90,7 @@ export function generateKnapsack({ items, cap }: KnapInput): Step<KnapState>[] {
         snap({
           kind: "add", anchors: w === 1 ? ["kn.item", "kn.fit", "kn.take"] : ["kn.fit", "kn.take"],
           notes: { ...(w === 1 ? { "kn.item": `item ${i} (${tag(it)}): a new row starts` } : {}), "kn.fit": `w = ${w}, item ${i} weighs ${it.w}: it fits`, "kn.take": `dp[${i}][${w}] = ${it.v} + dp[${i - 1}][${w - it.w}] = ${take}` },
-          title: `Take item ${i} (${tag(it)}): dp[${i}][${w}] = ${take}`,
+          title: `Take item ${i} (${tag(it)}): dp[${i}][${w}] = ${take}`, short: `item ${i}, room ${w}`,
           idea: "Taking the item gives its value plus the best value for the room that is left. When that beats skipping it, the cell takes the larger number.",
           text: `Item ${i} weighs ${it.w}, so ${w - it.w} room is left, worth dp[${i - 1}][${w - it.w}] = ${left}. Taking it gives ${it.v} + ${left} = ${take}, more than skipping (${skip}). dp[${i}][${w}] = ${take}.`
         }, { op, i, w, mark, strip: "items" });
@@ -103,7 +103,7 @@ export function generateKnapsack({ items, cap }: KnapInput): Step<KnapState>[] {
             "kn.copy": `dp[${i}][${w}] = dp[${i - 1}][${w}] = ${skip}`,
             "kn.fit": fits ? `w = ${w}: taking gives ${take}, not more than ${skip}` : `w = ${w}: item ${i} weighs ${it.w}, too heavy`
           },
-          title: fits ? `Skip item ${i}: dp[${i}][${w}] = ${skip}` : `Item ${i} is too heavy for ${w}`,
+          title: fits ? `Skip item ${i}: dp[${i}][${w}] = ${skip}` : `Item ${i} is too heavy for ${w}`, short: `item ${i}, room ${w}`,
           idea: "When the item does not fit, or taking it does not beat skipping it, the cell copies the cell above: the best value without this item.",
           text: fits
             ? `Item ${i} weighs ${it.w} and fits. Taking it gives ${it.v} + ${left} = ${take}, which is not more than ${skip}. So dp[${i}][${w}] copies the cell above: ${skip}.`
@@ -131,7 +131,7 @@ export function generateKnapsack({ items, cap }: KnapInput): Step<KnapState>[] {
         "kn.tb": `dp[${i}][${w}] = ${dp[i][w]} differs from dp[${i - 1}][${w}] = ${dp[i - 1][w]}, so item ${i} was taken`,
         "kn.step": `w = ${w} - ${it.w} = ${w - it.w}`
       },
-      title: `Item ${i} (${tag(it)}) was taken`,
+      title: `Item ${i} (${tag(it)}) was taken`, short: `take item ${i}`,
       idea: "To see which items were taken, walk back from the last cell. If a cell differs from the one above it, the item in that row was taken, so move left by its weight and up a row.",
       text: `dp[${i}][${w}] = ${dp[i][w]} but the cell above is ${dp[i - 1][w]}, so item ${i} was taken. Room ${w} drops to ${w - it.w}, and we move up to row ${i - 1}.`
     }, { op: `take i${i}`, mark: { ...cmp, ...path }, strip: "taken", slots: total });

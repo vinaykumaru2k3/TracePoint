@@ -81,7 +81,7 @@ export function generateCoinChange({ coins, amount }: CoinInput): Step<CoinState
         snap({
           kind: "add", anchors: ["coin.try", "coin.take"],
           notes: { "coin.try": `a = ${a}, coin = ${c}`, "coin.take": `dp[${a}] = dp[${a - c}] + 1 = ${cand}` },
-          title: `Coin ${c} gives dp[${a}] = ${cand}`,
+          title: `Coin ${c} gives dp[${a}] = ${cand}`, short: `amount ${a}, coin ${c}`,
           idea: "Using this coin, the rest is amount a minus the coin. One more coin than that cell is a candidate, and a smaller candidate replaces the old value.",
           text: `Coin ${c} leaves ${a - c}, and dp[${a - c}] = ${from}. That is ${cand} coin${cand === 1 ? "" : "s"}, fewer than ${show(before)}, so dp[${a}] becomes ${cand}.`
         }, { op: `a${a} c${c}`, a, coin: c, mark: { [a]: "active", [a - c]: "compare" } });
@@ -89,7 +89,7 @@ export function generateCoinChange({ coins, amount }: CoinInput): Step<CoinState
         snap({
           kind: "check", anchors: ["coin.try"],
           notes: { "coin.try": `a = ${a}, coin = ${c}: ${candText} does not beat ${show(before)}` },
-          title: `Coin ${c} does not beat dp[${a}] = ${show(before)}`,
+          title: `Coin ${c} does not beat dp[${a}] = ${show(before)}`, short: `amount ${a}, coin ${c}`,
           idea: "A coin only helps when it gives a smaller count. A cell that shows ∞ for the rest gives no way at all.",
           text: from === Infinity
             ? `Coin ${c} leaves ${a - c}, and dp[${a - c}] is ∞, so there is no way yet. dp[${a}] stays ${show(before)}.`
@@ -112,7 +112,7 @@ export function generateCoinChange({ coins, amount }: CoinInput): Step<CoinState
       snap({
         kind: "found", anchors: ["coin.trace"],
         notes: { "coin.trace": `dp[${a - c}] + 1 = dp[${a}], so coin ${c} was used` },
-        title: `Coin ${c} was used at ${a}`,
+        title: `Coin ${c} was used at ${a}`, short: `use coin ${c}`,
         idea: "To see which coins were used, step back from the answer. A coin was used when the cell it leaves plus one equals the cell you stand on.",
         text: `dp[${a}] = ${dp[a]}, and dp[${a - c}] + 1 = ${dp[a - c] + 1}. So coin ${c} was used, and we move to ${a - c}.`
       }, { op: `pick ${c}@${a}`, a, mark: { ...path }, strip: "picked", slots: total });

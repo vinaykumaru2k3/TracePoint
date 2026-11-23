@@ -102,7 +102,7 @@ export function generateDijkstra(g: GraphInput): Step<DijkstraState>[] {
         push(x, nd);
         snap({
           kind: "add", anchors: ["dij.relax", "dij.push"], notes: { "dij.relax": `${d} + ${w} = ${nd} < ${distText(was)}`, "dij.push": `push ${x}:${nd}` },
-          title: `Cheaper route to ${x}: ${nd}`, short: `${x} = ${nd}`,
+          title: `Cheaper route to ${x}: ${nd}`, short: `dist ${x} = ${nd}`,
           idea: "Relaxing an edge asks whether going through this node is cheaper. If so, the distance drops and a new entry is queued.",
           text: Number.isFinite(was)
             ? `Through ${u}, ${x} costs ${d} + ${w} = ${nd}, less than the ${was} known before. dist[${x}] drops to ${nd} and ${x}:${nd} is queued. The old entry ${x}:${was} stays in the queue, now out of date.`
