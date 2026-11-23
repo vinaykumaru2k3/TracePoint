@@ -16,8 +16,10 @@ import { Analogy, MarkList } from "./TheoryView";
 import { defaultRun } from "./Walkthrough";
 import CourseDrawer, { NARROW } from "./CourseDrawer";
 import CourseSidebar from "./CourseSidebar";
+import SideCol from "./SideCol";
+import type { ExplorerKind, ExplorerPrefs } from "../hooks/useExplorer";
 
-interface Props { progress: Progress; courseOpen: boolean; onCloseCourse(): void; sectionId?: string }
+interface Props { progress: Progress; courseOpen: boolean; onCloseCourse(): void; sectionId?: string; explorer: ExplorerPrefs; onExplorer(kind: ExplorerKind, open: boolean): void }
 
 /** The parts of a guide in reading order, with the id each one is linked by. */
 const PARTS = [
@@ -165,7 +167,7 @@ function Notice({ sectionName }: { sectionName: string }) {
 }
 
 /** Route: /guide/:sectionId. Also rendered at the root with sectionId "foundations". */
-export default function GuidePage({ progress, courseOpen, onCloseCourse, sectionId: fixed }: Props) {
+export default function GuidePage({ progress, courseOpen, onCloseCourse, sectionId: fixed, explorer, onExplorer }: Props) {
   const params = useParams();
   const sectionId = fixed ?? params.sectionId ?? "";
   const narrow = useMedia(NARROW);
@@ -235,8 +237,8 @@ export default function GuidePage({ progress, courseOpen, onCloseCourse, section
     );
   }
   return (
-    <div className="page">
-      <div className="side-col">{sidebar}</div>
+    <div className={`page${explorer.read ? "" : " side-shut"}`}>
+      <SideCol open={explorer.read} onToggle={() => onExplorer("read", !explorer.read)}>{sidebar}</SideCol>
       <div className="center">
         <main className="lesson card guide" aria-label="Guide">{head}<div className="gbody">{body}</div></main>
       </div>

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
+import { DEFAULT_EXPLORER, useExplorer, type ExplorerKind, type ExplorerPrefs } from "../hooks/useExplorer";
 import { useProgress, type Progress } from "../hooks/useProgress";
 import { useTheme } from "../hooks/useTheme";
 import GuidePage from "./GuidePage";
@@ -7,12 +8,19 @@ import LessonPage from "./LessonPage";
 import SearchDialog from "./SearchDialog";
 import TopNav from "./TopNav";
 
-interface RoutesProps { progress: Progress; onVisit(id: string, idx: number): void; courseOpen: boolean; onCloseCourse(): void }
+interface RoutesProps {
+  progress: Progress; onVisit(id: string, idx: number): void; courseOpen: boolean; onCloseCourse(): void;
+  /** Desktop explorer state per kind of page; defaults to folded on traces, open elsewhere. */
+  explorer?: ExplorerPrefs; onExplorer?(kind: ExplorerKind, open: boolean): void;
+}
+
+const noop = () => {};
 
 /** The page routes, split out so a test can mount them in a MemoryRouter. */
-export function AppRoutes({ progress, onVisit, courseOpen, onCloseCourse }: RoutesProps) {
-  const page = (view: "theory" | "trace") => <LessonPage view={view} progress={progress} onVisit={onVisit} courseOpen={courseOpen} onCloseCourse={onCloseCourse} />;
-  const guide = (id?: string) => <GuidePage sectionId={id} progress={progress} courseOpen={courseOpen} onCloseCourse={onCloseCourse} />;
+export function AppRoutes({ progress, onVisit, courseOpen, onCloseCourse, explorer = DEFAULT_EXPLORER, onExplorer = noop }: RoutesProps) {
+  const side = { explorer, onExplorer };
+  const page = (view: "theory" | "trace") => <LessonPage view={view} progress={progress} onVisit={onVisit} courseOpen={courseOpen} onCloseCourse={onCloseCourse} {...side} />;
+  const guide = (id?: string) => <GuidePage sectionId={id} progress={progress} courseOpen={courseOpen} onCloseCourse={onCloseCourse} {...side} />;
   return (
     <Routes>
       <Route path="/" element={guide("foundations")} />
@@ -28,6 +36,7 @@ export function AppRoutes({ progress, onVisit, courseOpen, onCloseCourse }: Rout
 export default function App() {
   const [progress, visit] = useProgress();
   const [dark, toggleTheme] = useTheme();
+  const [explorer, setExplorer] = useExplorer();
   const [searching, setSearching] = useState(false);
   const [courseOpen, setCourseOpen] = useState(false);
   /* Focus goes back to the opener, also when a link swapped the page out from under the drawer. */
@@ -50,7 +59,7 @@ export default function App() {
   return (
     <div className="app">
       <TopNav dark={dark} onTheme={toggleTheme} onSearch={() => setSearching(true)} courseOpen={courseOpen} onCourse={() => setCourseOpen(true)} />
-      <AppRoutes progress={progress} onVisit={visit} courseOpen={courseOpen} onCloseCourse={closeCourse} />
+      <AppRoutes progress={progress} onVisit={visit} courseOpen={courseOpen} onCloseCourse={closeCourse} explorer={explorer} onExplorer={setExplorer} />
       <SearchDialog open={searching} onClose={() => setSearching(false)} />
     </div>
   );

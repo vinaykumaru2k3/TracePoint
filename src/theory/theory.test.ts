@@ -16,7 +16,9 @@ describe("theory contract", () => {
   });
   it("lists only live lessons per section", () => {
     expect(liveIdsOf("linear")).toContain("stack");
-    expect(liveIdsOf("dp")).toEqual([]);
+    expect(liveIdsOf("not-a-section")).toEqual([]);
+    /* Every section of the course is live now, so no curriculum lesson is left as "soon". */
+    expect(CURRICULUM.filter((s) => liveIdsOf(s.id).length !== s.lessons.length).map((s) => s.id)).toEqual([]);
   });
   it("keys every guide by a curriculum section id", () => {
     const ids = new Set(CURRICULUM.map((s) => s.id));

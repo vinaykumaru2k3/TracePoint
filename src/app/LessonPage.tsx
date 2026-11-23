@@ -13,9 +13,14 @@ import { DEFAULT_LESSON, LESSON_BY_ID } from "../lessons";
 import CodeCard from "./CodeCard";
 import CourseDrawer, { NARROW } from "./CourseDrawer";
 import CourseSidebar from "./CourseSidebar";
+import SideCol from "./SideCol";
+import type { ExplorerKind, ExplorerPrefs } from "../hooks/useExplorer";
 import TheoryView, { LessonTabs } from "./TheoryView";
 
-interface Props { view: "theory" | "trace"; progress: Progress; onVisit(id: string, idx: number): void; courseOpen: boolean; onCloseCourse(): void }
+interface Props {
+  view: "theory" | "trace"; progress: Progress; onVisit(id: string, idx: number): void; courseOpen: boolean; onCloseCourse(): void;
+  explorer: ExplorerPrefs; onExplorer(kind: ExplorerKind, open: boolean): void;
+}
 
 /** Below 0.85 px per scene unit the smallest scene labels drop under about 9px; read at 1:1 instead. */
 const LENS = { floor: 0.85, read: 1 };
@@ -32,7 +37,7 @@ export default function LessonPage(props: Props) {
   return <LessonView key={lesson.id} lesson={lesson} stepParam={step} {...props} />;
 }
 
-function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, onCloseCourse }: Props & { lesson: AnyLesson; stepParam?: string }) {
+function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, onCloseCourse, explorer, onExplorer }: Props & { lesson: AnyLesson; stepParam?: string }) {
   const navigate = useNavigate();
   const narrow = useMedia(NARROW);
   const [params] = useSearchParams();
@@ -151,6 +156,11 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
   }, [idx, steps, narrow]);
 
   const sidebar = <CourseSidebar currentId={lesson.id} currentIdx={isDefault && !theory ? idx : 0} progress={progress} />;
+  /* On the trace the explorer starts folded so the stage gets the width; the theory tab is a reading page. */
+  const sideKind: ExplorerKind = theory ? "read" : "trace";
+  const sideOpen = explorer[sideKind];
+  const sideCol = <SideCol open={sideOpen} onToggle={() => onExplorer(sideKind, !sideOpen)}>{sidebar}</SideCol>;
+  const pageCls = `page${sideOpen ? "" : " side-shut"}`;
   const playLabel = player.playing ? "Pause" : idx === last ? "Replay" : idx === 0 ? "Play all" : "Play";
   const stepOf = `Step ${idx + 1} of ${steps.length}`;
 
@@ -302,8 +312,8 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
       );
     }
     return (
-      <div className="page">
-        <div className="side-col">{sidebar}</div>
+      <div className={pageCls}>
+        {sideCol}
         <div className="center">
           <main className="lesson card guide" aria-label="Lesson theory">{head}<div className="gbody">{body}</div></main>
         </div>
@@ -333,8 +343,8 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
   }
 
   return (
-    <div className="page">
-      <div className="side-col">{sidebar}</div>
+    <div className={pageCls}>
+      {sideCol}
       <div className="center">
         <main className="lesson card" aria-label="Lesson">{[head, stage, rail, form, memory]}</main>
       </div>
@@ -375,15 +385,29 @@ function MemoryStrip({ lesson, step }: { lesson: AnyLesson; step: ReturnType<Any
         <span className="lbl">{mem.title}</span>
         <span className="costs">{lesson.costs.map(([n, c]: [string, string]) => <span key={n}><b>{c}</b> {n}</span>)}</span>
       </summary>
-      <div className="cells" style={{ gridTemplateColumns: `repeat(${mem.cells.length}, minmax(0, 1fr))` }}>
-        {mem.cells.map((c: MemoryCell, i: number) => (
-          <div key={i} className={"cell" + (c.v === null ? " empty" : c.live ? "" : " stale") + (c.act ? " act" + (c.tone ? ` t-${c.tone}` : "") : "")}>
-            <div className="box">{c.v === null ? "·" : c.v}</div>
-            <div className="idx">{c.tag ?? `[${i}]`}</div>
-            <div className="mk">{c.marks.join(" ")}</div>
-          </div>
-        ))}
-      </div>
+      {mem.layout === "table" ? (
+        <div className="cells tbl" role="table" aria-label={mem.title}>
+          {mem.head !== undefined && (
+            <div className="trow thead" role="row"><div className="idx" role="columnheader">col</div><div className="box" role="columnheader">{mem.head}</div></div>
+          )}
+          {mem.cells.map((c: MemoryCell, i: number) => (
+            <div key={i} role="row" className={"trow" + (c.live ? "" : " stale") + (c.act ? " act" + (c.tone ? ` t-${c.tone}` : "") : "")}>
+              <div className="idx" role="rowheader">{c.tag ?? `[${i}]`}</div>
+              <div className="box" role="cell">{c.v === null ? "·" : c.v}</div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="cells" style={{ gridTemplateColumns: `repeat(${mem.cells.length}, minmax(0, 1fr))` }}>
+          {mem.cells.map((c: MemoryCell, i: number) => (
+            <div key={i} className={"cell" + (c.v === null ? " empty" : c.live ? "" : " stale") + (c.act ? " act" + (c.tone ? ` t-${c.tone}` : "") : "")}>
+              <div className="box">{c.v === null ? "·" : c.v}</div>
+              <div className="idx">{c.tag ?? `[${i}]`}</div>
+              <div className="mk">{c.marks.join(" ")}</div>
+            </div>
+          ))}
+        </div>
+      )}
       <p className="memnote">{mem.note}</p>
     </details>
   );

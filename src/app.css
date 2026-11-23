@@ -69,11 +69,18 @@ a { color: inherit; text-decoration: none; }
 .help li { display: flex; gap: 8px; align-items: center; }
 .help p { color: var(--muted); }
 
-.page { flex: 1; min-height: 0; display: grid; grid-template-columns: 272px minmax(0, 1fr) 400px; }
+.page { --side-open: 272px; --side-w: var(--side-open); --side-ease: 0.22s cubic-bezier(0.3, 0.8, 0.3, 1); flex: 1; min-height: 0; display: grid; grid-template-columns: var(--side-w) minmax(0, 1fr) 400px; transition: grid-template-columns var(--side-ease); }
+/* the explorer folds to a strip holding only its toggle, so the stage gets the width */
+.page.side-shut { --side-w: 44px; }
 /* desktop: everything fits the window; only the code box scrolls */
 .page > * { min-height: 0; overflow: hidden; }
-.side-col { display: flex; flex-direction: column; }
-
+.side-col { position: relative; display: flex; flex-direction: column; }
+/* the tree keeps its open width while the column narrows, so it slides under the edge instead of reflowing */
+.side-body { flex: 1; min-height: 0; width: var(--side-open); display: flex; flex-direction: column; transition: opacity 0.16s ease-out, visibility 0s; }
+.side-col.shut .side-body { opacity: 0; visibility: hidden; transition: opacity 0.12s ease-in, visibility 0s 0.22s; }
+.side-body .side .pane-title { padding-right: 46px; }
+.side-toggle { position: absolute; top: 3px; right: 10px; z-index: 1; width: 24px; height: 24px; border-color: transparent; background: transparent; }
+.side-toggle[aria-expanded="false"] { color: var(--ink); border-color: var(--line); background: var(--surface); }
 /* ---------- course tree (explorer) ---------- */
 .side { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .side .tree { flex: 1; min-height: 0; overflow-y: auto; padding: 8px 8px 8px 6px; }
@@ -244,6 +251,17 @@ a { color: inherit; text-decoration: none; }
 .cell.t-compare .box { border-color: var(--edge); background: var(--c-blue); color: var(--on-c); }
 .cell.t-found .box { border-color: var(--edge); background: var(--c-green); color: var(--on-c); }
 .cell.t-visited .box { border-color: var(--edge); background: var(--st-visited-t); color: var(--on-c); }
+/* table layout: one monospaced line per table row; spaces kept, the line scrolls sideways rather than spilling out */
+.cells.tbl { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+.trow { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 8px; align-items: center; min-width: 0; }
+.trow .idx { text-align: right; min-width: 5ch; }
+.trow .box { height: auto; min-height: 26px; padding: 2px 10px; display: block; white-space: pre; overflow-x: auto; font-weight: 600; font-size: 13px; line-height: 20px; text-align: left; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface); }
+.trow.thead .box { font-weight: 400; color: var(--muted); border-color: transparent; background: transparent; }
+.trow.stale .box { color: var(--muted-2); border-style: dashed; background: var(--surface-2); }
+.trow.act .box { border-color: var(--edge); background: var(--c-amber); color: var(--on-c); }
+.trow.t-compare .box { border-color: var(--edge); background: var(--c-blue); color: var(--on-c); }
+.trow.t-found .box { border-color: var(--edge); background: var(--c-green); color: var(--on-c); }
+.trow.t-visited .box { border-color: var(--edge); background: var(--st-visited-t); color: var(--on-c); }
 .cell .idx { font-size: 11px; color: var(--muted-2); }
 .cell .mk { min-height: 1.3em; font-size: 11px; font-weight: 600; }
 .memnote { font-size: 12px; color: var(--muted); }
@@ -375,14 +393,14 @@ a { color: inherit; text-decoration: none; }
 
 @media (prefers-reduced-motion: reduce) {
   .btn.cue { animation: none; box-shadow: 0 0 0 3px color-mix(in oklab, var(--edge-active) 45%, transparent); }
-  .box, .ptr, .tree-tag, .bar i, .btn, .ln, .edge, .win, .icon-btn, .rail button { transition: none; }
+  .box, .ptr, .tree-tag, .bar i, .btn, .ln, .edge, .win, .icon-btn, .rail button, .page, .side-body, .side-col.shut .side-body { transition: none; }
   .enter, .crop-cues path, .ring.fresh .ring-arc, .ring.fresh .ring-check, .drawer[open] .drawer-sheet, .drawer[open]::backdrop { animation: none; }
   .tick { display: none; }
   .leaving { display: none; }
 }
 
 @media (forced-colors: active) {
-  .cell.act .box, .codetabs button[aria-selected="true"], .lnk.on, .tab.on, .btn.primary { outline: 2px solid CanvasText; }
+  .cell.act .box, .trow.act .box, .codetabs button[aria-selected="true"], .lnk.on, .tab.on, .btn.primary { outline: 2px solid CanvasText; }
   .ln.on { border-left-color: Highlight; }
   .rail button { border-color: ButtonText; }
   .rail li.cur button { forced-color-adjust: none; background: Highlight; border-color: Highlight; color: HighlightText; }
@@ -394,7 +412,7 @@ a { color: inherit; text-decoration: none; }
 
 /* ---------- mid-width desktop windows: give the stage back some room ---------- */
 @media (min-width: 1121px) and (max-width: 1360px) {
-  .page { grid-template-columns: 256px minmax(0, 1fr) 372px; }
+  .page { --side-open: 256px; grid-template-columns: var(--side-w) minmax(0, 1fr) 372px; }
   /* keep the live values on one line so the stage does not lose a row */
   .stage-top .metrics { flex-wrap: nowrap; flex: 0 1 auto; min-width: 0; }
   .stage-top .metric { min-width: 48px; padding-right: 10px; }
@@ -408,6 +426,7 @@ a { color: inherit; text-decoration: none; }
   .lesson-head h1 { font-size: 22px; }
   .lesson { gap: 10px; padding-top: 12px; }
   .cell .box { height: 30px; }
+  .trow .box { min-height: 22px; line-height: 18px; }
   .explain { gap: 8px; padding-bottom: 12px; }
 }
 
