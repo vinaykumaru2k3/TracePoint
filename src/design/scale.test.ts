@@ -32,6 +32,12 @@ describe("type scale", () => {
     expect(rule(".metric small")).toContain("font-size: var(--fs-chrome)");
   });
 
+  it("the kind chip and the memory head sit in the chrome tier", () => {
+    expect(rule(".explain .chip")).toContain("font-size: var(--fs-chrome)");
+    expect(rule(".memhead .lbl")).toContain("font-size: var(--fs-chrome)");
+    expect(rule(".memhead .costs")).toContain("font-size: var(--fs-chrome)");
+  });
+
   it("the result readout is unboxed", () => {
     const r = rule(".result");
     expect(r).not.toMatch(/border/);

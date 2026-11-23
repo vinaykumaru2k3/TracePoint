@@ -33,6 +33,7 @@ a { color: inherit; text-decoration: none; }
 .icon-btn:hover { background: var(--surface-2); color: var(--ink); }
 .icon-btn[aria-pressed="true"] { color: var(--ink); border-color: var(--line-strong); }
 .chip { display: inline-block; font-family: var(--mono); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; padding: 0 8px; border: 1px solid var(--line-strong); border-radius: var(--radius); color: var(--on-c); }
+.explain .chip { font-size: var(--fs-chrome); }
 .kbd { font: inherit; font-family: var(--mono); font-size: 11px; padding: 0 5px; border: 1px solid var(--line-strong); border-bottom-width: 2px; border-radius: 4px; background: var(--surface); color: var(--muted); }
 /* Live values read as a row of figures split by hairlines, not as cards inside the lesson card. */
 .metric { min-width: 0; padding: 2px 14px 2px 0; }
@@ -232,7 +233,8 @@ a { color: inherit; text-decoration: none; }
 .lesson > .run .hint.quiet { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 .memhead { font-size: var(--fs-chrome); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: baseline; }
-.memhead .lbl { color: var(--ink); }
+.memhead .lbl { color: var(--ink); font-size: var(--fs-chrome); }
+.memhead .costs { font-size: var(--fs-chrome); }
 .mem > summary { list-style: none; cursor: pointer; border-radius: 4px; }
 .mem > summary::-webkit-details-marker { display: none; }
 .memhead .lbl { display: inline-flex; align-items: center; gap: 8px; }
@@ -269,7 +271,7 @@ a { color: inherit; text-decoration: none; }
 /* ---------- right column ---------- */
 .right { padding: 14px 14px 14px 8px; display: flex; flex-direction: column; gap: 12px; }
 .right > * { flex: none; }
-.explain { padding: 0 0 14px; display: grid; gap: 10px; }
+.explain { padding: 0 0 12px; display: grid; gap: 8px; }
 .explain > :not(.pane-title) { margin-inline: 16px; }
 .explain .head { display: flex; align-items: center; justify-content: space-between; font-family: var(--mono); font-size: var(--fs-chrome); font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
 .explain h2 { font-size: var(--fs-title); line-height: 1.3; font-weight: 600; }
@@ -287,16 +289,16 @@ a { color: inherit; text-decoration: none; }
 .right > .codewrap { flex: 1 1 auto; min-height: 140px; display: flex; flex-direction: column; overflow: hidden; }
 .codewrap > * { flex: none; }
 .codewrap > .code { flex: 1 1 auto; min-height: 0; }
-.codetabs { display: flex; gap: 10px; padding: 6px 14px; border-bottom: 1px solid var(--line); align-items: center; }
+.codetabs { display: flex; gap: 10px; padding: 4px 14px; border-bottom: 1px solid var(--line); align-items: center; }
 .codetabs .pane-title-label { margin-right: 4px; }
 .codetabs [role="tablist"] { display: flex; gap: 4px; }
 .codetabs button { padding: 2px 10px; border: 1px solid transparent; border-radius: var(--radius); background: none; cursor: pointer; font-weight: 500; font-size: 12px; color: var(--muted); }
 .codetabs button:hover { color: var(--ink); }
 /* selected: inverted fill and weight, not colour alone */
 .codetabs button[aria-selected="true"] { border-color: var(--inv-bg); background: var(--inv-bg); color: var(--inv-fg); font-weight: 600; }
-.vars { padding: 4px 14px; border-bottom: 1px solid var(--line); font-size: var(--fs-chrome); color: var(--muted); overflow-wrap: anywhere; }
+.vars { padding: 2px 14px; line-height: 1.3; border-bottom: 1px solid var(--line); font-size: var(--fs-chrome); color: var(--muted); overflow-wrap: anywhere; }
 .vars:empty { display: none; }
-.code { margin: 0; font-family: var(--mono); overflow: auto; padding: 8px 0; font-size: 12px; line-height: 1.65; }
+.code { margin: 0; font-family: var(--mono); overflow: auto; padding: 4px 0; font-size: 12px; line-height: 1.65; }
 .code:focus-visible { outline-offset: -2px; }
 .ln { font-family: var(--mono); display: flex; padding: 0 12px 0 0; border-left: 3px solid transparent; transition: background 0.2s; }
 .ln.on { background: var(--ln-on); border-left-color: var(--c-amber-2); }
@@ -481,15 +483,19 @@ a { color: inherit; text-decoration: none; }
   .lesson-head.trace-head .meta { display: none; }
   .flow-main .explain { padding-top: 12px; }
   .stage-foot { gap: 6px 10px; align-items: center; }
-  .legend-fold { flex: 1 1 100%; font-size: 11px; color: var(--muted); }
+  .legend-fold { flex: 0 0 auto; font-size: 11px; color: var(--muted); }
+  .legend-fold[open] { flex: 1 1 100%; }
   .legend-fold summary { display: flex; align-items: center; gap: 8px; min-height: 28px; cursor: pointer; list-style: none; }
   .legend-fold summary::-webkit-details-marker { display: none; }
   .legend-fold summary::after { content: "+"; margin-left: 2px; }
   .legend-fold[open] summary::after { content: "−"; }
   .legend-dots { display: inline-flex; gap: 4px; }
   .legend-fold .legend { padding: 6px 0 2px; }
-  .result { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 8px; margin-left: 0; max-width: none; padding: 3px 0; }
+  /* the returns readout is one line beside the folded legend, so the stage foot stays one row tall */
+  .result { display: block; flex: 1 1 0; min-width: 0; margin-left: 0; max-width: none; padding: 3px 0; text-align: end; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .result small, .result em { display: inline; }
+  .result small { margin-inline-end: 8px; }
+  .result em { margin-inline-start: 8px; }
   .result b { font-size: 14px; }
   .topnav { gap: 6px; padding: 0 10px; }
   .brand { font-size: 14px; gap: 6px; }
