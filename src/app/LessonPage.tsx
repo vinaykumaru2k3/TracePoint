@@ -10,7 +10,8 @@ import { usePageFocus, usePageTitle } from "../hooks/usePage";
 import type { Progress } from "../hooks/useProgress";
 import { CameraContext, ZoomContext, type Shot, type Zoom } from "../iso/IsoScene";
 import SceneFit from "../iso/SceneFit";
-import { DEFAULT_LESSON, LESSON_BY_ID } from "../lessons";
+import { LazyLesson } from "../lessons/load";
+import { DEFAULT_LESSON, META_BY_ID } from "../lessons/meta";
 import CodeCard from "./CodeCard";
 import CourseDrawer, { NARROW } from "./CourseDrawer";
 
@@ -37,9 +38,14 @@ const reduced = () => !!window.matchMedia?.("(prefers-reduced-motion: reduce)").
 /** Route: /<lesson>/<step>?in=<own input>, with step counted from 1, or /<lesson>/learn for the theory tab. */
 export default function LessonPage(props: Props) {
   const { lessonId = "", step } = useParams();
-  const lesson = LESSON_BY_ID[lessonId];
-  if (!lesson) return <Navigate to={`/${DEFAULT_LESSON}/1`} replace />;
-  return <LessonView key={lesson.id} lesson={lesson} stepParam={step} {...props} />;
+  const meta = META_BY_ID[lessonId];
+  if (!meta) return <Navigate to={`/${DEFAULT_LESSON}/1`} replace />;
+  /* The lesson's chunk loads on demand. Until it arrives nothing below runs, so no progress is reported. */
+  return (
+    <LazyLesson key={meta.id} id={meta.id} fallback={<main className="lesson-loading" aria-busy="true" aria-label={`Loading ${meta.title}`} />}>
+      {(lesson) => <LessonView lesson={lesson} stepParam={step} {...props} />}
+    </LazyLesson>
+  );
 }
 
 function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, onCloseCourse, explorer, onExplorer }: Props & { lesson: AnyLesson; stepParam?: string }) {

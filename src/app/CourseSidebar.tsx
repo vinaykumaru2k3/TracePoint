@@ -2,13 +2,13 @@ import { useRef, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import { COURSE, folderName } from "../curriculum";
 import { Icon } from "../design/ui";
-import { DEFAULT_STEP_COUNT, LESSON_BY_ID, LESSONS } from "../lessons";
+import { LESSON_META, META_BY_ID } from "../lessons/meta";
 import type { Progress } from "../hooks/useProgress";
 
 interface Props { currentId: string; currentIdx: number; progress: Progress; /** Section whose guide is open, if any. */ guideId?: string }
 
 const reachedOf = (id: string, p: Progress, cur: string, idx: number) => Math.max(p[id] ?? 0, id === cur ? idx : 0);
-const lastOf = (id: string) => Math.max(1, (DEFAULT_STEP_COUNT[id] ?? 1) - 1);
+const lastOf = (id: string) => Math.max(1, (META_BY_ID[id]?.steps ?? 1) - 1);
 const doneOf = (id: string, reached: number) => reached >= lastOf(id);
 
 /** A lesson's mark: an empty ring, a ring filling with the share of steps reached, then a closed ring with a check. */
@@ -27,11 +27,11 @@ function StatusMark({ done, fraction, fresh }: { done: boolean; fraction: number
 /** The course tree. Lessons that exist link to their theory tab until started, then to their first step, the rest are listed as "soon". */
 export default function CourseSidebar({ currentId, currentIdx, progress, guideId }: Props) {
   const isDone = (id: string) => doneOf(id, reachedOf(id, progress, currentId, currentIdx));
-  const completed = LESSONS.filter((l) => isDone(l.id)).length;
+  const completed = LESSON_META.filter((l) => isDone(l.id)).length;
   const planned = COURSE.sections.reduce((n, s) => n + s.lessons.length, 0);
   /* Lessons already done when the tree mounted keep a still mark; one finished now closes and draws its check once. */
   const doneAtMount = useRef<Set<string> | null>(null);
-  if (!doneAtMount.current) doneAtMount.current = new Set(LESSONS.filter((l) => isDone(l.id)).map((l) => l.id));
+  if (!doneAtMount.current) doneAtMount.current = new Set(LESSON_META.filter((l) => isDone(l.id)).map((l) => l.id));
 
   return (
     <nav className="side" aria-label="Course">
@@ -41,7 +41,7 @@ export default function CourseSidebar({ currentId, currentIdx, progress, guideId
         <summary><Icon name="folder" size={14} /><span className="sec-name">{COURSE.name}/</span><small>{planned} lessons</small></summary>
         <div className="root-body">
       {COURSE.sections.map((sec) => {
-        const live = sec.lessons.filter((l) => LESSON_BY_ID[l.id]);
+        const live = sec.lessons.filter((l) => META_BY_ID[l.id]);
         const doneHere = live.filter((l) => isDone(l.id)).length;
         const allDone = live.length > 0 && doneHere === live.length;
         const open = sec.id === guideId || sec.lessons.some((l) => l.id === currentId);
@@ -60,7 +60,7 @@ export default function CourseSidebar({ currentId, currentIdx, progress, guideId
                 </Link>
               </li>
               {sec.lessons.map((l) => {
-                if (!LESSON_BY_ID[l.id]) {
+                if (!META_BY_ID[l.id]) {
                   return <li key={l.id}><span className="lnk soon" aria-disabled="true"><span className="nm">{l.name}</span><small className="soon-tag">soon</small></span></li>;
                 }
                 const reached = reachedOf(l.id, progress, currentId, currentIdx);
@@ -83,9 +83,9 @@ export default function CourseSidebar({ currentId, currentIdx, progress, guideId
       </details>
       </div>
       <div className="side-foot">
-        <span className="lbl">Progress</span> <b>{completed} / {LESSONS.length}</b> live lessons done
-        <div className="bar" role="progressbar" aria-valuemin={0} aria-valuemax={LESSONS.length} aria-valuenow={completed}>
-          <i style={{ width: `${(completed / LESSONS.length) * 100}%` }} />
+        <span className="lbl">Progress</span> <b>{completed} / {LESSON_META.length}</b> live lessons done
+        <div className="bar" role="progressbar" aria-valuemin={0} aria-valuemax={LESSON_META.length} aria-valuenow={completed}>
+          <i style={{ width: `${(completed / LESSON_META.length) * 100}%` }} />
         </div>
       </div>
     </nav>

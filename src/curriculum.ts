@@ -2,7 +2,7 @@ export interface Section { id: string; n: string; name: string; color: string; l
 
 const L = (name: string, id = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")) => ({ id, name });
 
-/** The whole planned course. A lesson is playable once it is in lessons/index.ts; the rest show as "soon". */
+/** The whole planned course. A lesson is playable once it is in lessons/meta.ts; the rest show as "soon". */
 export const CURRICULUM: Section[] = [
   { id: "foundations", n: "01", name: "Foundations", color: "var(--sec-01)", lessons: [
     L("Big-O by counting"), L("Arrays"), L("Strings"), L("Two pointers"), L("Sliding window"), L("Prefix sums")] },

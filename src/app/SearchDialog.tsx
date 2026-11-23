@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CURRICULUM } from "../curriculum";
-import { LESSON_BY_ID } from "../lessons";
+import { META_BY_ID } from "../lessons/meta";
 import { GUIDES } from "../theory";
 
 interface Props { open: boolean; onClose(): void }
@@ -9,9 +9,9 @@ interface Props { open: boolean; onClose(): void }
 /** What search can open: each guide (as "<Section> guide"), then every live lesson. */
 export const SEARCH_ITEMS: { name: string; section: string; to: string }[] = [
   ...CURRICULUM.filter((s) => GUIDES[s.id]).map((s) => ({ name: `${s.name} guide`, section: s.name, to: `/guide/${s.id}` })),
-  ...CURRICULUM.flatMap((s) => s.lessons.filter((l) => LESSON_BY_ID[l.id]).map((l) => ({ name: l.name, section: s.name, to: `/${l.id}/1` })))
+  ...CURRICULUM.flatMap((s) => s.lessons.filter((l) => META_BY_ID[l.id]).map((l) => ({ name: l.name, section: s.name, to: `/${l.id}/1` })))
 ];
-const SOON = CURRICULUM.flatMap((s) => s.lessons.filter((l) => !LESSON_BY_ID[l.id]).map((l) => ({ name: l.name, section: s.name })));
+const SOON = CURRICULUM.flatMap((s) => s.lessons.filter((l) => !META_BY_ID[l.id]).map((l) => ({ name: l.name, section: s.name })));
 const ALL = [...SEARCH_ITEMS.map((i) => ({ ...i, live: true })), ...SOON.map((i) => ({ ...i, to: "", live: false }))];
 
 /** Ctrl/Cmd+K lesson search on a native <dialog>. */

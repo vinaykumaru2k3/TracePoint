@@ -1,4 +1,4 @@
-import { LESSON_BY_ID } from "../lessons";
+import { LESSON_META } from "../lessons/meta";
 import advanced from "./guides/advanced";
 import dp from "./guides/dp";
 import foundations from "./guides/foundations";
@@ -16,4 +16,4 @@ export const GUIDES: Record<string, Guide> = { foundations, linear, hashing, rec
 
 /** Every link target that resolves: live lesson ids and `guide:<id>` for each guide. */
 export const linkIds = (): Set<string> =>
-  new Set([...Object.keys(LESSON_BY_ID), ...Object.keys(GUIDES).map((k) => `guide:${k}`)]);
+  new Set([...LESSON_META.map((m) => m.id), ...Object.keys(GUIDES).map((k) => `guide:${k}`)]);

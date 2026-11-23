@@ -49,7 +49,7 @@ import bitManipulation from "./bit-manipulation";
 import greedyIntervals from "./greedy-intervals";
 import segmentTree from "./segment-tree";
 
-/** Playable lessons, in course order. Add a lesson here and it lights up in the course tree. */
+/** Every lesson module, eagerly. Tests use it; app code reads `meta.ts` and loads lessons through `load.tsx`. Same order as `LESSON_META`. */
 export const LESSONS: AnyLesson[] = [
   bigO, arrays, strings, twoPointers, slidingWindow, prefixSums,
   stack, queue, deque, sll, dll, fastSlow,
@@ -82,12 +82,3 @@ export const LESSONS: AnyLesson[] = [
 ];
 
 export const LESSON_BY_ID: Record<string, AnyLesson> = Object.fromEntries(LESSONS.map((l) => [l.id, l]));
-export const DEFAULT_LESSON = LESSONS[0].id;
-
-/** Steps in each lesson's default run. Progress counts a lesson as done once its last step was reached. */
-export const DEFAULT_STEP_COUNT: Record<string, number> = Object.fromEntries(
-  LESSONS.map((l) => {
-    const r = l.parse(l.defaultText);
-    return [l.id, r.ok ? l.generate(r.input).length : 1];
-  })
-);
