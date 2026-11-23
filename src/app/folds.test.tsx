@@ -30,13 +30,13 @@ describe("run form fold", () => {
     expect(html).toContain('<form class="run"');
   });
   it("opens for a link error, which is announced", () => {
-    store({});
+    store({ "tracepoint-run-open": "0" });
     const html = form({ linkError: "Bad input" });
     expect(html).toContain('<details class="run-fold" open="">');
     expect(html).toContain('role="alert"');
   });
   it("opens for a custom run", () => {
-    store({});
+    store({ "tracepoint-run-open": "0" });
     expect(form({ custom: true })).toContain('<details class="run-fold" open="">');
   });
   it("opens when the learner left it open", () => {
