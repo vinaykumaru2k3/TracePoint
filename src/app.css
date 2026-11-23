@@ -1,7 +1,7 @@
 *, *::before, *::after { box-sizing: border-box; }
 html, body, #root { height: 100%; }
 html { accent-color: var(--ink); scrollbar-color: var(--line-strong) transparent; }
-body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 13px; line-height: 1.6; font-variant-ligatures: none; -webkit-font-smoothing: antialiased; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 13px; line-height: 1.6; font-variant-ligatures: none; font-size-adjust: from-font; -webkit-font-smoothing: antialiased; }
 h1, h2, h3, p, dl, dd { margin: 0; }
 h1, h2, h3 { text-wrap: balance; }
 p { text-wrap: pretty; }
