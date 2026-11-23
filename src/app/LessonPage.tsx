@@ -13,6 +13,9 @@ import SceneFit from "../iso/SceneFit";
 import { DEFAULT_LESSON, LESSON_BY_ID } from "../lessons";
 import CodeCard from "./CodeCard";
 import CourseDrawer, { NARROW } from "./CourseDrawer";
+
+/* Matches the phone block in app.css, where the colour key folds. */
+const PHONE = "(max-width: 560px)";
 import CourseSidebar from "./CourseSidebar";
 import ErrorBoundary, { SceneError } from "./ErrorBoundary";
 import SideCol from "./SideCol";
@@ -42,6 +45,7 @@ export default function LessonPage(props: Props) {
 function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, onCloseCourse, explorer, onExplorer }: Props & { lesson: AnyLesson; stepParam?: string }) {
   const navigate = useNavigate();
   const narrow = useMedia(NARROW);
+  const phone = useMedia(PHONE);
   const [params] = useSearchParams();
   /* The input lives in the URL, so a custom run can be shared and survives a reload. */
   const asked = params.get("in");
@@ -202,6 +206,11 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
     </header>
   );
 
+  const legendList = (
+    <ul className="legend" aria-label="Colour key">
+      {lesson.legend.map((l: { cls: string; label: string }) => <li key={l.label}><i className={`swatch ${l.cls}`} aria-hidden="true" />{l.label}</li>)}
+    </ul>
+  );
   const stage = (
     <section className="stagecard" id="stage" aria-label="Animated diagram" aria-describedby="scene-state" key="stage">
       <p className="sr" id="scene-state">{sceneState}</p>
@@ -233,9 +242,16 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
           </CameraContext.Provider>
         </ZoomContext.Provider>
         <div className="stage-foot">
-          <ul className="legend" aria-label="Colour key">
-            {lesson.legend.map((l: { cls: string; label: string }) => <li key={l.label}><i className={`swatch ${l.cls}`} aria-hidden="true" />{l.label}</li>)}
-          </ul>
+          {/* On a phone the key folds to its swatches, so the explanation stays on the first screen. */}
+          {phone ? (
+            <details className="legend-fold">
+              <summary>
+                <span className="legend-dots" aria-hidden="true">{lesson.legend.map((l: { cls: string; label: string }) => <i key={l.label} className={`swatch ${l.cls}`} />)}</span>
+                Colour key
+              </summary>
+              {legendList}
+            </details>
+          ) : legendList}
           {step.op && step.ret !== undefined && (
             <div className="result">
               <small>{step.op} returns</small>
