@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Icon, Kbd } from "../design/ui";
+import { resetTips } from "../hooks/useStoredFlag";
 
 interface Props { dark: boolean; onTheme(): void; onSearch(): void; courseOpen: boolean; onCourse(): void }
 
@@ -45,6 +46,7 @@ export default function TopNav({ dark, onTheme, onSearch, courseOpen, onCourse }
         </ul>
         <h3>Your own input</h3>
         <p>Type values under the diagram and press Run. Copy link shares that exact run.</p>
+        <button className="btn sm" type="button" onClick={() => { resetTips(); document.getElementById("help")?.hidePopover?.(); }}>Show tips again</button>
       </div>
     </header>
   );

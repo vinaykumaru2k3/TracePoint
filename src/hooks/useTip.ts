@@ -1,7 +1,7 @@
 import { useEffect } from "react";
-import { useStoredFlag } from "./useStoredFlag";
+import { TIP_KEY, useStoredFlag } from "./useStoredFlag";
 
-export const TIP_KEY = "tracepoint-tip-seen";
+export { TIP_KEY };
 
 /** The first-visit trace tip: shown on steps 1 and 2 until dismissed, and remembered as seen once the viewer reaches step 3. */
 export function useTip(idx: number): { showTip: boolean; dismissTip(): void } {

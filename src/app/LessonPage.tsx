@@ -8,7 +8,7 @@ import type { AnyLesson } from "../engine/types";
 import { useKeyboard } from "../hooks/useKeyboard";
 import { useMedia } from "../hooks/useMedia";
 import { useTip } from "../hooks/useTip";
-import { useStoredFlag } from "../hooks/useStoredFlag";
+import { KEYS_SEEN_KEY, useStoredFlag } from "../hooks/useStoredFlag";
 import { usePageFocus, usePageTitle } from "../hooks/usePage";
 import type { Progress } from "../hooks/useProgress";
 import { CameraContext, ZoomContext, type Shot, type Zoom } from "../iso/IsoScene";
@@ -97,7 +97,7 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
   const speedRef = useRef<HTMLButtonElement>(null);
   const onWhole = () => { toggleWhole(); if (whole && !cropped) speedRef.current?.focus(); };
   /* The key legend teaches the keys once: it stays for this visit after a key press (no jump in the layout) and is gone on the next load. */
-  const [keysSeen, setKeysSeen] = useStoredFlag("tracepoint-keys-seen", false);
+  const [keysSeen, setKeysSeen] = useStoredFlag(KEYS_SEEN_KEY, false);
   const [showKeys] = useState(!keysSeen);
   /* The first-visit tip under the timeline goes once dismissed, or once the viewer reaches step 3 on their own. */
   const { showTip, dismissTip } = useTip(idx);

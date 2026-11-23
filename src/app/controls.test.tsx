@@ -2,6 +2,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { MemoryRouter } from "react-router-dom";
 import { AppRoutes } from "./App";
+import TopNav from "./TopNav";
 // @ts-expect-error node:fs has no types in the app tsconfig
 import { readFileSync } from "node:fs";
 
@@ -109,5 +110,14 @@ describe("stylesheet", () => {
     const from = css.indexOf("@media (max-width: 560px) {");
     const phone = reserve(css.slice(from, css.indexOf("\n}\n", from)));
     expect(phone).toBeGreaterThanOrEqual(text + 2 * 8 + 2);
+  });
+  it("offers a way back to the running input only when the box differs from it", () => {
+    expect(at("/stack/1?in=zzz")).toContain("Back to the running input");
+    expect(at("/stack/1")).not.toContain("Back to the running input");
+  });
+  it("puts Show tips again in the help popover", () => {
+    const nav = renderToStaticMarkup(<MemoryRouter><TopNav dark={false} onTheme={() => {}} onSearch={() => {}} courseOpen={false} onCourse={() => {}} /></MemoryRouter>);
+    const help = nav.match(/id="help"[^>]*>.*?<\/div>/)![0];
+    expect(help).toMatch(/<button[^>]*type="button"[^>]*>Show tips again<\/button>/);
   });
 });
