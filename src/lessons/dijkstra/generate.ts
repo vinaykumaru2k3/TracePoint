@@ -69,7 +69,7 @@ export function generateDijkstra(g: GraphInput): Step<DijkstraState>[] {
   push(s, 0);
   snap({
     kind: "add", anchors: ["dij.sig", "dij.init"], notes: { "dij.init": `dist[${s}] = 0, pq = [${s}:0]` },
-    title: `Start at ${s} with cost 0`,
+    title: `Start at ${s} with cost 0`, short: `start ${s}`,
     idea: "Every distance starts at ∞, meaning no route is known yet. The start costs nothing to reach.",
     text: `${s} gets distance 0 and goes into the queue as ${s}:0. Every other node shows d=∞.`
   }, { cur: s });
@@ -79,7 +79,7 @@ export function generateDijkstra(g: GraphInput): Step<DijkstraState>[] {
     if (d > dist[u]) {
       snap({
         kind: "remove", anchors: ["dij.pop", "dij.stale"], notes: { "dij.pop": `${u}:${d}`, "dij.stale": `${d} > dist[${u}] = ${dist[u]}, skip` },
-        title: `${u}:${d} is out of date`,
+        title: `${u}:${d} is out of date`, short: `skip ${u}:${d}`,
         idea: "A lazy queue never edits an entry. It leaves the old one in and throws it away when it comes out.",
         text: `This entry says ${u} costs ${d}, but a cheaper route of ${dist[u]} was found after it was queued. ${u} is already settled, so the entry is skipped.`
       }, { stale: `${u}:${d}`, ptrs: [{ node: idOf(u), label: "u" }] });
@@ -88,7 +88,7 @@ export function generateDijkstra(g: GraphInput): Step<DijkstraState>[] {
     done.add(u);
     snap({
       kind: "remove", anchors: ["dij.pop"], notes: { "dij.pop": `${u}:${d}` },
-      title: `Settle ${u} at cost ${d}`,
+      title: `Settle ${u} at cost ${d}`, short: `settle ${u}`,
       idea: "The smallest entry is final. Any other route to it would pass through a node that already costs at least as much.",
       text: `${u}:${d} is the cheapest entry in the queue, so ${d} is the true cost of ${u}. Now each edge out of ${u} is tried.`
     }, { cur: u, ptrs: [{ node: idOf(u), label: "u" }] });
@@ -102,7 +102,7 @@ export function generateDijkstra(g: GraphInput): Step<DijkstraState>[] {
         push(x, nd);
         snap({
           kind: "add", anchors: ["dij.relax", "dij.push"], notes: { "dij.relax": `${d} + ${w} = ${nd} < ${distText(was)}`, "dij.push": `push ${x}:${nd}` },
-          title: `Cheaper route to ${x}: ${nd}`,
+          title: `Cheaper route to ${x}: ${nd}`, short: `${x} = ${nd}`,
           idea: "Relaxing an edge asks whether going through this node is cheaper. If so, the distance drops and a new entry is queued.",
           text: Number.isFinite(was)
             ? `Through ${u}, ${x} costs ${d} + ${w} = ${nd}, less than the ${was} known before. dist[${x}] drops to ${nd} and ${x}:${nd} is queued. The old entry ${x}:${was} stays in the queue, now out of date.`
@@ -111,7 +111,7 @@ export function generateDijkstra(g: GraphInput): Step<DijkstraState>[] {
       } else {
         snap({
           kind: "check", anchors: ["dij.relax", "dij.keep"], notes: { "dij.relax": `${d} + ${w} = ${nd}`, "dij.keep": `${nd} ≥ ${dist[x]}, keep` },
-          title: `${x} keeps ${dist[x]}`,
+          title: `${x} keeps ${dist[x]}`, short: `${x} keeps`,
           idea: "A route that is not cheaper changes nothing. The known distance stays and nothing is queued.",
           text: `Through ${u}, ${x} would cost ${d} + ${w} = ${nd}. That is no better than ${dist[x]}, so ${x} keeps its distance.`
         }, { cur: u, look: x, ptrs });
@@ -122,7 +122,7 @@ export function generateDijkstra(g: GraphInput): Step<DijkstraState>[] {
   const missed = g.nodes.filter((x) => !Number.isFinite(dist[x]));
   snap({
     kind: "found", anchors: ["dij.done"], notes: { "dij.done": `return ${distLine(g.nodes, dist)}` }, ret: distLine(g.nodes, dist),
-    title: "The queue is empty",
+    title: "The queue is empty", short: "done",
     idea: missed.length ? "A node with no route from the start is never queued, so its distance stays ∞." : "Every distance is final. The green edges form a tree of cheapest routes from the start.",
     text: missed.length
       ? `The cheapest costs are ${distLine(g.nodes, dist)}. ${missed.join(", ")} ${missed.length === 1 ? "has" : "have"} no route from ${s}, so ${missed.length === 1 ? "it stays" : "they stay"} at ∞.`

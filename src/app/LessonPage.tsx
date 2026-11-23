@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent, type SyntheticEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type SyntheticEvent } from "react";
 import { Link, Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { sectionOf } from "../curriculum";
 import { Icon, Kbd, KindChip, MetricCard, kindColor } from "../design/ui";
@@ -13,9 +13,14 @@ import { DEFAULT_LESSON, LESSON_BY_ID } from "../lessons";
 import CodeCard from "./CodeCard";
 import CourseDrawer, { NARROW } from "./CourseDrawer";
 import CourseSidebar from "./CourseSidebar";
+import SideCol from "./SideCol";
+import type { ExplorerKind, ExplorerPrefs } from "../hooks/useExplorer";
 import TheoryView, { LessonTabs } from "./TheoryView";
 
-interface Props { view: "theory" | "trace"; progress: Progress; onVisit(id: string, idx: number): void; courseOpen: boolean; onCloseCourse(): void }
+interface Props {
+  view: "theory" | "trace"; progress: Progress; onVisit(id: string, idx: number): void; courseOpen: boolean; onCloseCourse(): void;
+  explorer: ExplorerPrefs; onExplorer(kind: ExplorerKind, open: boolean): void;
+}
 
 /** Below 0.85 px per scene unit the smallest scene labels drop under about 9px; read at 1:1 instead. */
 const LENS = { floor: 0.85, read: 1 };
@@ -32,7 +37,7 @@ export default function LessonPage(props: Props) {
   return <LessonView key={lesson.id} lesson={lesson} stepParam={step} {...props} />;
 }
 
-function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, onCloseCourse }: Props & { lesson: AnyLesson; stepParam?: string }) {
+function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, onCloseCourse, explorer, onExplorer }: Props & { lesson: AnyLesson; stepParam?: string }) {
   const navigate = useNavigate();
   const narrow = useMedia(NARROW);
   const [params] = useSearchParams();
@@ -109,7 +114,16 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
   const sec = sectionOf(lesson.section);
   const label = (i: number) => steps[i].op ?? (i === 0 ? "start" : "recap");
   const nn = (i: number) => String(i + 1).padStart(steps.length > 99 ? 3 : 2, "0");
-  const railName = (i: number) => steps[i].short ?? label(i);
+  /* A stop's name: its short form, else its op. When one op names most of the run (bfs(A) on every step),
+     the op says nothing about the step, so the stop falls back to the step's kind. */
+  const runOp = useMemo(() => {
+    const n = new Map<string, number>();
+    for (const s of steps) if (s.op) n.set(s.op, (n.get(s.op) ?? 0) + 1);
+    for (const [op, c] of n) if (c >= steps.length * 0.4) return op;
+    return null;
+  }, [steps]);
+  const railName = (i: number) => steps[i].short ?? (steps[i].op && steps[i].op === runOp ? steps[i].kind : label(i));
+  const [peek, setPeek] = useState<number | null>(null);
 
   const run = (raw: string) => {
     const r = lesson.parse(raw);
@@ -142,6 +156,11 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
   }, [idx, steps, narrow]);
 
   const sidebar = <CourseSidebar currentId={lesson.id} currentIdx={isDefault && !theory ? idx : 0} progress={progress} />;
+  /* On the trace the explorer starts folded so the stage gets the width; the theory tab is a reading page. */
+  const sideKind: ExplorerKind = theory ? "read" : "trace";
+  const sideOpen = explorer[sideKind];
+  const sideCol = <SideCol open={sideOpen} onToggle={() => onExplorer(sideKind, !sideOpen)}>{sidebar}</SideCol>;
+  const pageCls = `page${sideOpen ? "" : " side-shut"}`;
   const playLabel = player.playing ? "Pause" : idx === last ? "Replay" : idx === 0 ? "Play all" : "Play";
   const stepOf = `Step ${idx + 1} of ${steps.length}`;
 
@@ -203,35 +222,29 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
     </section>
   );
 
-  /* The timeline. The run map shows the whole run at once, one segment per step coloured by its kind,
-     so the algorithm's rhythm reads before any step is named; drag along it to scrub. Below it, the rail:
-     one stop per step on a track filled up to the playhead (the current step). */
-  const scrub = (e: ReactPointerEvent<HTMLDivElement>) => {
-    if (e.type === "pointermove" && !e.currentTarget.hasPointerCapture(e.pointerId)) return;
-    if (e.type === "pointerdown") e.currentTarget.setPointerCapture(e.pointerId);
-    const r = e.currentTarget.getBoundingClientRect();
-    const i = Math.max(0, Math.min(last, Math.floor(((e.clientX - r.left) / r.width) * steps.length)));
-    if (i !== idx) player.jump(i);
-  };
+  /* The timeline is a tape of step tiles, read left to right like a trace log. Tiles behind the playhead are
+     done (a quiet well), the current one is inverted with an ember caret above it, and tiles ahead stay open.
+     A small diamond before each number carries the step's kind colour. Hovering or focusing a tile previews
+     its title in the header, so the run can be read without moving the playhead. */
   const stopCls = (i: number) => (i === idx ? "cur" : i < idx ? "past" : i <= reached ? "seen" : "");
+  const shown = peek !== null && peek !== idx ? peek : idx;
   const rail = (
     <div className="rail-wrap" key="rail">
       <div className="rail-head">
         <span className="lbl">Timeline</span>
-        <span className="muted">{stepOf} · <b>{label(idx)}</b></span>
+        <span className={`muted rail-read${shown !== idx ? " peeking" : ""}`}>
+          {shown === idx ? stepOf : `Jump to step ${shown + 1}`} · <b>{steps[shown].title}</b>
+        </span>
       </div>
-      <div className="run-map" aria-hidden="true" onPointerDown={scrub} onPointerMove={scrub} title="Drag to scrub through the run">
-        {steps.map((s, i) => <i key={i} className={stopCls(i)} style={{ "--k": kindColor(s.kind) } as CSSProperties} />)}
-      </div>
-      <ol className="rail" ref={railRef} aria-label="Steps">
+      <ol className="rail" ref={railRef} aria-label="Steps" onMouseLeave={() => setPeek(null)}>
         {steps.map((s, i) => {
-          const cls = stopCls(i);
           const state = i < idx ? ", done" : i > idx && i <= reached ? ", seen" : "";
           return (
-            <li key={i} className={cls} style={{ "--k": kindColor(s.kind) } as CSSProperties}>
-              <button type="button" aria-current={i === idx ? "step" : undefined} onClick={() => player.jump(i)} title={`Step ${i + 1}: ${label(i)}`} aria-label={`Step ${i + 1}: ${label(i)}${state}`}>
-                <span className="ix">{nn(i)}</span>
-                <span className="node" aria-hidden="true" />
+            <li key={i} className={stopCls(i)} style={{ "--k": kindColor(s.kind) } as CSSProperties}>
+              <button type="button" aria-current={i === idx ? "step" : undefined} onClick={() => player.jump(i)}
+                onMouseEnter={() => setPeek(i)} onFocus={() => setPeek(i)} onBlur={() => setPeek(null)}
+                aria-label={`Step ${i + 1}: ${s.title}${state}`}>
+                <span className="ix"><i className="kd" aria-hidden="true" />{nn(i)}</span>
                 <span className="name">{railName(i)}</span>
               </button>
             </li>
@@ -299,8 +312,8 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
       );
     }
     return (
-      <div className="page">
-        <div className="side-col">{sidebar}</div>
+      <div className={pageCls}>
+        {sideCol}
         <div className="center">
           <main className="lesson card guide" aria-label="Lesson theory">{head}<div className="gbody">{body}</div></main>
         </div>
@@ -330,8 +343,8 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
   }
 
   return (
-    <div className="page">
-      <div className="side-col">{sidebar}</div>
+    <div className={pageCls}>
+      {sideCol}
       <div className="center">
         <main className="lesson card" aria-label="Lesson">{[head, stage, rail, form, memory]}</main>
       </div>
