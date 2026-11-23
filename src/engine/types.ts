@@ -43,7 +43,8 @@ export interface MemoryCell { v: number | string | null; live: boolean; act: boo
 /** The memory tone for a scene state, so a highlighted cell uses the same colour as the drawing. */
 export const toneOf = (state?: string | null): Tone | undefined =>
   state === "found" || state === "compare" || state === "visited" ? state : undefined;
-export interface MemoryView { title: string; cells: MemoryCell[]; note: string }
+/** `layout: "table"` stacks the cells as rows of preformatted text (`v`), under `head`, the column names. */
+export interface MemoryView { title: string; cells: MemoryCell[]; note: string; layout?: "table"; head?: string }
 
 export type ParseResult<I> = { ok: true; input: I } | { ok: false; error: string };
 

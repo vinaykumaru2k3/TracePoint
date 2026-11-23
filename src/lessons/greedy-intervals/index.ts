@@ -61,7 +61,7 @@ export default defineLesson<GreedyInput, GreedyState>({
   ],
   memory: ({ state: s }) => s.kind === "grid"
     ? tableMemory("In memory: sorted intervals", s.grid, s.rowHead, s.colHead,
-        "Each row is one interval, drawn over the plates for times 0 to 12. A gap is _ and a covered plate is a blank or x.")
+        "Each row is one interval, drawn over the plates for times 0 to 12. A gap is _, a covered plate is # when the interval is kept and x when it is skipped.")
     : { title: "In memory: sorted intervals", note: "", cells: [] },
   vars: ({ state: s }) => `last_end = ${s.lastEnd}   count = ${s.taken}`,
   costs: [["sort by end", "O(n log n)"], ["scan", "O(n)"], ["whole method", "O(n log n)"]],

@@ -26,15 +26,31 @@ export function paint(grid: Grid, cells: [number, number][], state: BlockState):
   return out;
 }
 
-/** Each row of the table as one memory cell: `row i: 0 1 1 2`. Uncomputed cells print `_`. */
-export function tableMemory(title: string, grid: Grid, rowHead: string[], _colHead: string[], note: string): MemoryView {
+/** What a memory table prints for a cell that holds an empty string (a covered plate). */
+export const BLANK = "#";
+/** What it prints for a cell not computed yet. */
+export const UNSET = "_";
+
+/**
+ * The table as a memory strip: one row per table row, one line of text per row, each column padded
+ * to a fixed width so the columns line up (the strip draws it in a monospaced, no-wrap box).
+ * `head` names the columns from `colHead`. An empty string prints BLANK and a null cell prints UNSET,
+ * so neither can vanish into a run of spaces.
+ */
+export function tableMemory(title: string, grid: Grid, rowHead: string[], colHead: string[], note: string): MemoryView {
+  const text = (c: Cell) => (c.v === null ? UNSET : c.v === "" ? BLANK : String(c.v));
+  const cols = Math.max(colHead.length, ...grid.map((r) => r.length));
+  const widths = Array.from({ length: cols }, (_, j) =>
+    Math.max((colHead[j] ?? "").length, ...grid.map((r) => (r[j] ? text(r[j]).length : 0))));
+  const line = (parts: string[]) => parts.map((t, j) => t.padEnd(widths[j])).join(" ").trimEnd();
   return {
-    title, note,
+    title, note, layout: "table",
+    head: line(Array.from({ length: cols }, (_, j) => colHead[j] ?? "")),
     cells: grid.map((row, i) => {
       const hot = row.filter((c) => c.state === "active" || toneOf(c.state));
       const tone = toneOf(hot.find((c) => toneOf(c.state))?.state);
       return {
-        v: row.map((c) => (c.v === null ? "_" : c.v)).join(" "),
+        v: line(row.map(text)),
         tag: `row ${rowHead[i] ?? i}`,
         live: row.some((c) => c.v !== null),
         act: hot.length > 0, tone, marks: []
@@ -43,18 +59,24 @@ export function tableMemory(title: string, grid: Grid, rowHead: string[], _colHe
   };
 }
 
+/** The example the empty-input error offers: always something the same field accepts. */
+const intsExample = (o: IntsOpts) => o.example ?? (o.maxCount === 1 ? `${o.min}` : `${o.min}, ${o.max}`);
+
+export interface IntsOpts { min: number; max: number; maxCount: number; /** Text to suggest when the field is empty; must itself parse. Defaults to min (one number) or "min, max". */ example?: string }
+
 /** Parse "3, 1 4": whole numbers in [min, max], at most maxCount of them. */
-export function parseInts(text: string, o: { min: number; max: number; maxCount: number }): ParseResult<number[]> {
+export function parseInts(text: string, o: IntsOpts): ParseResult<number[]> {
   const items = text.split(/[\s,;]+/).filter(Boolean);
-  if (!items.length) return { ok: false, error: `Type at least one whole number from ${o.min} to ${o.max}, like "${o.min}, ${o.max}".` };
+  const one = o.maxCount === 1;
+  if (!items.length) return { ok: false, error: one ? `Type a whole number from ${o.min} to ${o.max}, like "${intsExample(o)}".` : `Type at least one whole number from ${o.min} to ${o.max}, like "${intsExample(o)}".` };
   const out: number[] = [];
   for (const it of items) {
-    if (!/^-?\d+$/.test(it)) return { ok: false, error: `Could not read "${it}". Use whole numbers separated by commas.` };
+    if (!/^-?\d+$/.test(it)) return { ok: false, error: one ? `Could not read "${it}". Use a whole number.` : `Could not read "${it}". Use whole numbers separated by commas.` };
     const n = Number(it);
-    if (n < o.min || n > o.max) return { ok: false, error: `${n} is out of range. Use whole numbers from ${o.min} to ${o.max}.` };
+    if (n < o.min || n > o.max) return { ok: false, error: one ? `${n} is out of range. Use a whole number from ${o.min} to ${o.max}.` : `${n} is out of range. Use whole numbers from ${o.min} to ${o.max}.` };
     out.push(n);
   }
-  if (out.length > o.maxCount) return { ok: false, error: `Keep it to ${o.maxCount} numbers or fewer so the steps stay readable.` };
+  if (out.length > o.maxCount) return { ok: false, error: one ? "Type just one number." : `Keep it to ${o.maxCount} numbers or fewer so the steps stay readable.` };
   return { ok: true, input: out };
 }
 

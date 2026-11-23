@@ -385,15 +385,29 @@ function MemoryStrip({ lesson, step }: { lesson: AnyLesson; step: ReturnType<Any
         <span className="lbl">{mem.title}</span>
         <span className="costs">{lesson.costs.map(([n, c]: [string, string]) => <span key={n}><b>{c}</b> {n}</span>)}</span>
       </summary>
-      <div className="cells" style={{ gridTemplateColumns: `repeat(${mem.cells.length}, minmax(0, 1fr))` }}>
-        {mem.cells.map((c: MemoryCell, i: number) => (
-          <div key={i} className={"cell" + (c.v === null ? " empty" : c.live ? "" : " stale") + (c.act ? " act" + (c.tone ? ` t-${c.tone}` : "") : "")}>
-            <div className="box">{c.v === null ? "·" : c.v}</div>
-            <div className="idx">{c.tag ?? `[${i}]`}</div>
-            <div className="mk">{c.marks.join(" ")}</div>
-          </div>
-        ))}
-      </div>
+      {mem.layout === "table" ? (
+        <div className="cells tbl" role="table" aria-label={mem.title}>
+          {mem.head !== undefined && (
+            <div className="trow thead" role="row"><div className="idx" role="columnheader">col</div><div className="box" role="columnheader">{mem.head}</div></div>
+          )}
+          {mem.cells.map((c: MemoryCell, i: number) => (
+            <div key={i} role="row" className={"trow" + (c.live ? "" : " stale") + (c.act ? " act" + (c.tone ? ` t-${c.tone}` : "") : "")}>
+              <div className="idx" role="rowheader">{c.tag ?? `[${i}]`}</div>
+              <div className="box" role="cell">{c.v === null ? "·" : c.v}</div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="cells" style={{ gridTemplateColumns: `repeat(${mem.cells.length}, minmax(0, 1fr))` }}>
+          {mem.cells.map((c: MemoryCell, i: number) => (
+            <div key={i} className={"cell" + (c.v === null ? " empty" : c.live ? "" : " stale") + (c.act ? " act" + (c.tone ? ` t-${c.tone}` : "") : "")}>
+              <div className="box">{c.v === null ? "·" : c.v}</div>
+              <div className="idx">{c.tag ?? `[${i}]`}</div>
+              <div className="mk">{c.marks.join(" ")}</div>
+            </div>
+          ))}
+        </div>
+      )}
       <p className="memnote">{mem.note}</p>
     </details>
   );
