@@ -68,8 +68,10 @@ export default function TreeNodes({ nodes, edges, pointers = [] }: { nodes: TNod
         const w = Math.max(28, n.tag.length * 7 + 12);
         return (
           <g key={`t${n.id}`} className="tree-tag" style={at(n.col * COL, n.depth * ROW + TN_A * U * 0.5 + 13)}>
-            <rect x={-w / 2} y={-9} width={w} height={18} rx={4} />
-            <text textAnchor="middle" dominantBaseline="central">{n.tag}</text>
+            <g className="tag-body">
+              <rect x={-w / 2} y={-9} width={w} height={18} rx={4} />
+              <text textAnchor="middle" dominantBaseline="central">{n.tag}</text>
+            </g>
           </g>
         );
       })}

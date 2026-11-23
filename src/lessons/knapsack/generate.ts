@@ -132,7 +132,7 @@ export function generateKnapsack({ items, cap }: KnapInput): Step<KnapState>[] {
         "kn.step": `w = ${w} - ${it.w} = ${w - it.w}`
       },
       title: `Item ${i} (${tag(it)}) was taken`, short: `take item ${i}`,
-      idea: "To see which items were taken, walk back from the last cell. If a cell differs from the one above it, the item in that row was taken, so move left by its weight and up a row.",
+      idea: "To find the taken items, walk back from the last cell. If a cell differs from the one above, that row's item was taken: move left by its weight.",
       text: `dp[${i}][${w}] = ${dp[i][w]} but the cell above is ${dp[i - 1][w]}, so item ${i} was taken. Room ${w} drops to ${w - it.w}, and we move up to row ${i - 1}.`
     }, { op: `take i${i}`, mark: { ...cmp, ...path }, strip: "taken", slots: total });
     w -= it.w;

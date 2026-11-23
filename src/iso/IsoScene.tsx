@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { aim, boxString, crops, follow, lerpBox, parseBox, type Box, type Lens, type Shot } from "./camera";
 import { U } from "./project";
 
@@ -91,6 +91,7 @@ export default function IsoScene({ viewBox, label, children }: Props) {
     const apply = (b: Box) => {
       shown.current = b;
       svg.setAttribute("viewBox", boxString(b));
+      svg.style.setProperty("--px", String(size.w > 0 ? b.w / size.w : 1));
       const f = floorRef.current;
       if (f) { f.setAttribute("x", String(b.x)); f.setAttribute("y", String(b.y)); f.setAttribute("width", String(b.w)); f.setAttribute("height", String(b.h)); }
     };
@@ -108,7 +109,7 @@ export default function IsoScene({ viewBox, label, children }: Props) {
   }, [target, viewBox, size.w, size.h, measuring, lens, whole, onCrop]);
 
   return (
-    <svg className="iso" ref={svgRef} preserveAspectRatio="xMidYMid meet" role="img" aria-label={label}>
+    <svg className="iso" ref={svgRef} style={{ "--px": 1 } as CSSProperties} preserveAspectRatio="xMidYMid meet" role="img" aria-label={label}>
       {!measuring && (
         <g className="floor" aria-hidden="true">
           <defs>

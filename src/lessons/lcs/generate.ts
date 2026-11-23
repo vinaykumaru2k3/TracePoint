@@ -90,7 +90,7 @@ export function generateLcs({ a, b }: LcsInput): Step<LcsState>[] {
         snap({
           kind: "add", anchors: [...row, "lc.match"], notes: { ...rowNote, "lc.match": `${a[i - 1]} = ${b[j - 1]}: dp[${i}][${j}] = dp[${i - 1}][${j - 1}] + 1 = ${diag + 1}` },
           title: `${a[i - 1]} matches: dp[${i}][${j}] = ${diag + 1}`, short: fresh(`${a[i - 1]} = ${b[j - 1]}`, `col ${j}`),
-          idea: "When the two letters match, that letter extends the best answer for both words without their last letters. That answer is on the diagonal, so the cell is the diagonal plus 1.",
+          idea: "When the two letters match, that letter extends the best answer for both words without their last letters. That answer sits on the diagonal: add 1.",
           text: `Letter ${i} of the first word is ${a[i - 1]} and letter ${j} of the second is ${b[j - 1]}. They match, so the cell is the diagonal dp[${i - 1}][${j - 1}] = ${diag}, plus 1. dp[${i}][${j}] = ${diag + 1}.`
         }, { op, i, j, mark });
       } else {
@@ -99,7 +99,7 @@ export function generateLcs({ a, b }: LcsInput): Step<LcsState>[] {
         snap({
           kind: "check", anchors: [...row, "lc.match", "lc.max"], notes: { ...rowNote, "lc.match": `${a[i - 1]} ≠ ${b[j - 1]}: no match`, "lc.max": `dp[${i}][${j}] = max(${up}, ${left}) = ${best}` },
           title: `${a[i - 1]} ≠ ${b[j - 1]}: dp[${i}][${j}] = ${best}`, short: fresh(`${a[i - 1]} ≠ ${b[j - 1]}`, `col ${j}`),
-          idea: "When the letters differ, at least one of them is not used. So the cell takes the larger of the cell above (drop a letter of the first word) and the cell to the left (drop a letter of the second).",
+          idea: "When the letters differ, at least one is not used. So the cell takes the larger of the cell above (drop a first-word letter) and the cell to the left.",
           text: `${a[i - 1]} and ${b[j - 1]} differ. The cell above is ${up} and the cell to the left is ${left}. The larger is ${best}, so dp[${i}][${j}] = ${best}.`
         }, { op, i, j, mark });
       }

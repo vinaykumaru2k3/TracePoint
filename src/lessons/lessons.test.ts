@@ -44,6 +44,14 @@ describe.each(LESSONS.map((l) => [l.id, l] as const))("lesson %s", (_id, lesson)
     expect(new Set(sets).size).toBe(1);
   });
 
+  it("keeps watch notes to 160 characters", () => {
+    for (const t of texts) {
+      const r = lesson.parse(t);
+      if (!r.ok) throw new Error(r.error);
+      lesson.generate(r.input).forEach((step, i) => expect(step.idea.length, `${t} / ${i}: ${step.idea}`).toBeLessThanOrEqual(160));
+    }
+  });
+
   it("names every step readably", () => {
     for (const t of texts) {
       const r = lesson.parse(t);

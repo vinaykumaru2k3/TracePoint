@@ -68,7 +68,7 @@ export function generateEdit({ a, b }: EditInput): Step<EditState>[] {
     kind: "add", anchors: ["ed.init", "ed.edgecol", "ed.edgerow"],
     notes: { "ed.init": `dp = ${n + 1} rows by ${m + 1} columns`, "ed.edgecol": `column 0 holds 0 to ${n}: delete every letter`, "ed.edgerow": `row 0 holds 0 to ${m}: insert every letter` },
     title: "Base case: edges count 0, 1, 2, ...",
-    idea: "Turning i letters into nothing takes i deletes. Building j letters from nothing takes j inserts. So column 0 counts down the rows and row 0 counts along the columns.",
+    idea: "Turning i letters into nothing takes i deletes. Building j letters from nothing takes j inserts. So column 0 and row 0 just count up.",
     text: n === 0 || m === 0
       ? `One word is empty. Reaching the other word takes one edit per letter, so the table is just its edge and the answer is ${n + m}. There are no other cells to fill.`
       : `Column 0 holds 0 to ${n}, because ${a} turns into nothing with that many deletes. Row 0 holds 0 to ${m}, because ${b} is built from nothing with that many inserts. The other ${n * m} cells are filled one at a time.`
@@ -107,7 +107,7 @@ export function generateEdit({ a, b }: EditInput): Step<EditState>[] {
           kind: "add", anchors: [...row, "ed.col", "ed.match", "ed.min"],
           notes: { ...notes, "ed.match": `${a[i - 1]} ≠ ${b[j - 1]}: the letters differ`, "ed.min": `dp[${i}][${j}] = 1 + min(${diag}, ${up}, ${left}) = ${best}` },
           title: `${a[i - 1]} ≠ ${b[j - 1]}: dp[${i}][${j}] = ${best} (${how})`, short: fresh(`${a[i - 1]} ≠ ${b[j - 1]}`, `col ${j}`),
-          idea: "When the letters differ, one edit is needed. Replace uses the diagonal, delete uses the cell above, insert uses the cell to the left. Take the cheapest and add 1.",
+          idea: "When the letters differ, one edit is needed. Replace reads the diagonal, delete the cell above, insert the cell to the left. Take the cheapest, add 1.",
           text: `${a[i - 1]} and ${b[j - 1]} differ. Replace costs ${diag} + 1, delete costs ${up} + 1, insert costs ${left} + 1. The cheapest is to ${why}. dp[${i}][${j}] = ${best}.`
         }, { op, i, j, mark });
       }
