@@ -78,4 +78,15 @@ describe("knapsack generator", () => {
       });
     }
   });
+
+  it("anchors the copy line on check steps and the traceback lines on found steps", () => {
+    const steps = run(lesson, lesson.defaultText);
+    for (const s of steps.filter((x) => x.kind === "check")) expect(s.anchors).toContain("kn.copy");
+    for (const s of steps.filter((x) => x.kind === "found")) {
+      expect(s.anchors).toEqual(expect.arrayContaining(["kn.tb", "kn.step"]));
+      expect(Object.keys(s.notes)).toEqual(expect.arrayContaining(["kn.tb", "kn.step"]));
+      expect(statesOf(s).flat()).toContain("compare");
+    }
+    for (const i of [1, 2, 3, 4]) expect(steps.find((x) => x.op === `i${i} w1`)!.anchors).toContain("kn.item");
+  });
 });

@@ -88,8 +88,8 @@ export function generateKnapsack({ items, cap }: KnapInput): Step<KnapState>[] {
       if (fits && take > skip) {
         dp[i][w] = take;
         snap({
-          kind: "add", anchors: ["kn.fit", "kn.take"],
-          notes: { "kn.fit": `w = ${w}, item ${i} weighs ${it.w}: it fits`, "kn.take": `dp[${i}][${w}] = ${it.v} + dp[${i - 1}][${w - it.w}] = ${take}` },
+          kind: "add", anchors: w === 1 ? ["kn.item", "kn.fit", "kn.take"] : ["kn.fit", "kn.take"],
+          notes: { ...(w === 1 ? { "kn.item": `item ${i} (${tag(it)}): a new row starts` } : {}), "kn.fit": `w = ${w}, item ${i} weighs ${it.w}: it fits`, "kn.take": `dp[${i}][${w}] = ${it.v} + dp[${i - 1}][${w - it.w}] = ${take}` },
           title: `Take item ${i} (${tag(it)}): dp[${i}][${w}] = ${take}`,
           idea: "Taking the item gives its value plus the best value for the room that is left. When that beats skipping it, the cell takes the larger number.",
           text: `Item ${i} weighs ${it.w}, so ${w - it.w} room is left, worth dp[${i - 1}][${w - it.w}] = ${left}. Taking it gives ${it.v} + ${left} = ${take}, more than skipping (${skip}). dp[${i}][${w}] = ${take}.`
@@ -97,8 +97,12 @@ export function generateKnapsack({ items, cap }: KnapInput): Step<KnapState>[] {
       } else {
         dp[i][w] = skip;
         snap({
-          kind: "check", anchors: ["kn.fit"],
-          notes: { "kn.fit": fits ? `w = ${w}: taking gives ${take}, not more than ${skip}` : `w = ${w}: item ${i} weighs ${it.w}, too heavy` },
+          kind: "check", anchors: w === 1 ? ["kn.item", "kn.fit", "kn.copy"] : ["kn.fit", "kn.copy"],
+          notes: {
+            ...(w === 1 ? { "kn.item": `item ${i} (${tag(it)}): a new row starts` } : {}),
+            "kn.copy": `dp[${i}][${w}] = dp[${i - 1}][${w}] = ${skip}`,
+            "kn.fit": fits ? `w = ${w}: taking gives ${take}, not more than ${skip}` : `w = ${w}: item ${i} weighs ${it.w}, too heavy`
+          },
           title: fits ? `Skip item ${i}: dp[${i}][${w}] = ${skip}` : `Item ${i} is too heavy for ${w}`,
           idea: "When the item does not fit, or taking it does not beat skipping it, the cell copies the cell above: the best value without this item.",
           text: fits
@@ -118,14 +122,19 @@ export function generateKnapsack({ items, cap }: KnapInput): Step<KnapState>[] {
     if (dp[i][w] === dp[i - 1][w]) continue;
     const it = items[i - 1];
     taken.push(tag(it));
+    const cmp: Record<string, BlockState> = { [`${i},${w}`]: "compare", [`${i - 1},${w}`]: "compare" };
     path[`${i - 1},${w - it.w}`] = "found";
     snap({
-      kind: "found", anchors: ["kn.trace"],
-      notes: { "kn.trace": `dp[${i}][${w}] = ${dp[i][w]} differs from dp[${i - 1}][${w}] = ${dp[i - 1][w]}, so item ${i} was taken` },
+      kind: "found", anchors: ["kn.trace", "kn.tb", "kn.step"],
+      notes: {
+        "kn.trace": `row ${i}, room ${w}`,
+        "kn.tb": `dp[${i}][${w}] = ${dp[i][w]} differs from dp[${i - 1}][${w}] = ${dp[i - 1][w]}, so item ${i} was taken`,
+        "kn.step": `w = ${w} - ${it.w} = ${w - it.w}`
+      },
       title: `Item ${i} (${tag(it)}) was taken`,
       idea: "To see which items were taken, walk back from the last cell. If a cell differs from the one above it, the item in that row was taken, so move left by its weight and up a row.",
       text: `dp[${i}][${w}] = ${dp[i][w]} but the cell above is ${dp[i - 1][w]}, so item ${i} was taken. Room ${w} drops to ${w - it.w}, and we move up to row ${i - 1}.`
-    }, { op: `take i${i}`, mark: { ...path }, strip: "taken", slots: total });
+    }, { op: `take i${i}`, mark: { ...cmp, ...path }, strip: "taken", slots: total });
     w -= it.w;
   }
 
