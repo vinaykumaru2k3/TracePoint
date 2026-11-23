@@ -186,35 +186,32 @@ a { color: inherit; text-decoration: none; }
 /* every step drawn once, off-screen, to measure the run's frame */
 .scene-fit { position: absolute; left: 0; top: 0; width: 600px; height: 400px; overflow: hidden; visibility: hidden; pointer-events: none; clip-path: inset(50%); }
 .scene-fit * { animation: none !important; transition: none !important; }
-
-/* step timeline: a track with one stop per step. Executed steps fill the track up to the playhead
-   (the current step, in the ember signal); steps ahead stay hollow. Scrolls sideways when the run is long. */
-/* minmax(0, 1fr): the one-line step read-out and the tape must never size this column, or the page scrolls sideways on phones */
-.rail-wrap { display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px; min-width: 0; }
+/* step timeline: a scrubber. One tick per step in its kind's colour, the walked stretch filled in ink up to the
+   playhead (the ember knob, carrying the current step's number and name). Always fits its width. */
+/* minmax(0, 1fr): the one-line step read-out must never size this column, or the page scrolls sideways on phones */
+.rail-wrap { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; min-width: 0; }
 .rail-head { display: flex; justify-content: space-between; gap: 12px; min-width: 0; font-size: 12px; }
 .rail-head b { color: var(--ink); font-weight: 600; }
 .rail-read { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .rail-read.peeking b { color: var(--muted); font-weight: 500; }
-/* the tape: one tile per step, read left to right like a trace log */
-.rail { position: relative; list-style: none; margin: 0 -2px; padding: 9px 2px 6px; display: flex; gap: 4px; overflow-x: auto; scroll-snap-type: inline proximity; scrollbar-width: thin; overscroll-behavior-inline: contain; }
-.rail li { flex: 0 0 auto; position: relative; scroll-snap-align: center; }
-.rail button { display: grid; grid-template-rows: 16px 16px; align-content: center; justify-items: start; gap: 2px; min-width: 66px; height: 44px; padding: 0 10px; border: 1px solid var(--line); border-radius: 5px; background: var(--surface); cursor: pointer; color: var(--muted); font-family: var(--mono); font-size: 11px; line-height: 16px; white-space: nowrap; text-align: left; transition: background-color 0.2s, border-color 0.2s, color 0.2s; }
-.rail .ix { display: inline-flex; align-items: center; gap: 6px; font-variant-numeric: tabular-nums; }
-/* the kind diamond: outlined ahead, filled in the kind colour once reached */
-.rail .kd { width: 6px; height: 6px; border-radius: 1px; transform: rotate(45deg); border: 1px solid color-mix(in oklab, var(--k, var(--line-strong)) 50%, var(--muted)); background: transparent; }
-.rail .name { max-width: 14ch; overflow: hidden; text-overflow: ellipsis; color: var(--ink); }
-.rail li:not(.cur):not(.past):not(.seen) .name { color: var(--muted); }
-.rail li.past button { background: var(--surface-2); border-color: transparent; }
-.rail li.past .kd, .rail li.cur .kd { background: var(--k, var(--ink)); border-color: color-mix(in oklab, var(--k, var(--ink)) 50%, var(--ink)); }
-.rail li.seen button { border-color: var(--line-strong); }
-/* the current step: inverted, with the ember playhead caret above it */
-.rail li.cur button { background: var(--inv-bg); border-color: var(--inv-bg); color: var(--inv-fg); }
-.rail li.cur .name { color: var(--inv-fg); font-weight: 700; }
-.rail li.cur .kd { border-color: var(--inv-fg); }
-.rail li.cur::before { content: ""; position: absolute; top: -8px; left: 50%; width: 10px; height: 6px; margin-left: -5px; background: var(--signal); clip-path: polygon(0 0, 100% 0, 50% 100%); }
-.rail li:not(.cur) button:hover { border-color: var(--ink); color: var(--ink); }
-.rail li:not(.cur) button:hover .name { color: var(--ink); }
-.rail button:focus-visible { outline-offset: 2px; }
+.scrub { --ease: cubic-bezier(0.2, 0.8, 0.2, 1); position: relative; height: 48px; cursor: pointer; touch-action: pan-y; user-select: none; -webkit-user-select: none; border-radius: 4px; }
+.scrub:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
+.scrub-ticks { position: absolute; left: 0; right: 0; top: 30px; height: 18px; display: grid; align-items: center; list-style: none; margin: 0; padding: 0; }
+.scrub-ticks li { display: flex; justify-content: center; align-items: center; height: 100%; }
+.scrub-ticks li::before { content: ""; box-sizing: border-box; width: min(5px, 60%); min-width: 1px; height: 6px; border-radius: 2px; border: 1px solid color-mix(in oklab, var(--muted) 55%, var(--line-strong)); background: var(--surface); transition: height 0.2s var(--ease), background-color 0.2s, border-color 0.2s; }
+.scrub-ticks li.past::before { height: 14px; background: var(--k); border-color: color-mix(in oklab, var(--k) 45%, var(--ink)); }
+.scrub-ticks li.seen::before { height: 10px; background: color-mix(in oklab, var(--k) 45%, var(--surface)); border-color: color-mix(in oklab, var(--k) 40%, var(--line-strong)); }
+.scrub-ticks li.cur::before { visibility: hidden; }
+.scrub-ticks li.pk::before { height: 18px; border-color: var(--ink); }
+.scrub-base { position: absolute; left: 0; right: 0; top: 38px; height: 2px; border-radius: 1px; background: var(--line); transition: background-color 0.2s; }
+.scrub:hover .scrub-base { background: var(--line-strong); }
+.scrub-base i { display: block; height: 100%; border-radius: inherit; background: var(--ink); transition: width 0.28s var(--ease); }
+.scrub-head { position: absolute; top: 0; bottom: 0; width: 0; pointer-events: none; transition: left 0.28s var(--ease); }
+.scrub-head::before { content: ""; position: absolute; left: -1px; top: 20px; width: 2px; height: 20px; background: var(--signal); }
+.scrub-head::after { content: ""; position: absolute; left: -7px; top: 32px; width: 14px; height: 14px; border-radius: 50%; background: var(--signal); box-shadow: 0 0 0 3px var(--surface), 0 1px 3px 1px color-mix(in oklab, var(--ink) 25%, transparent); }
+.scrub-head b { position: absolute; top: 0; left: 0; transform: translateX(calc(var(--x) * -100%)); display: flex; gap: 6px; max-width: 28ch; height: 20px; padding: 0 8px; border-radius: 4px; background: var(--inv-bg); color: var(--inv-fg); font-family: var(--mono); font-size: 11px; font-weight: 600; line-height: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.scrub-head .n { font-weight: 500; color: color-mix(in oklab, var(--inv-fg) 60%, var(--inv-bg)); font-variant-numeric: tabular-nums; }
+.scrub-scale { display: flex; justify-content: space-between; margin-top: 2px; font-family: var(--mono); font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
 
 .run { display: grid; gap: 6px; }
 .run label { font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }
@@ -394,7 +391,7 @@ a { color: inherit; text-decoration: none; }
 
 @media (prefers-reduced-motion: reduce) {
   .btn.cue { animation: none; box-shadow: 0 0 0 3px color-mix(in oklab, var(--edge-active) 45%, transparent); }
-  .box, .ptr, .tree-tag, .bar i, .btn, .ln, .edge, .win, .icon-btn, .rail button, .page, .side-body, .side-col.shut .side-body { transition: none; }
+  .box, .ptr, .tree-tag, .bar i, .btn, .ln, .edge, .win, .icon-btn, .scrub-head, .scrub-base i, .scrub-ticks li::before, .page, .side-body, .side-col.shut .side-body { transition: none; }
   .enter, .crop-cues path, .ring.fresh .ring-arc, .ring.fresh .ring-check, .drawer[open] .drawer-sheet, .drawer[open]::backdrop { animation: none; }
   .tick { display: none; }
   .leaving { display: none; }
@@ -403,12 +400,13 @@ a { color: inherit; text-decoration: none; }
 @media (forced-colors: active) {
   .cell.act .box, .trow.act .box, .codetabs button[aria-selected="true"], .lnk.on, .tab.on, .btn.primary { outline: 2px solid CanvasText; }
   .ln.on { border-left-color: Highlight; }
-  .rail button { border-color: ButtonText; }
-  .rail li.cur button { forced-color-adjust: none; background: Highlight; border-color: Highlight; color: HighlightText; }
-  .rail li.cur .name { color: HighlightText; }
-  .rail .kd, .rail li.cur::before { forced-color-adjust: none; border-color: CanvasText; }
-  .rail li.past .kd, .rail li.cur .kd { background: CanvasText; }
-  .rail li.cur::before { background: Highlight; }
+  .scrub-ticks li::before, .scrub-base, .scrub-head::before, .scrub-head::after, .scrub-head b { forced-color-adjust: none; }
+  .scrub-ticks li::before { border-color: CanvasText; background: Canvas; }
+  .scrub-ticks li.past::before { height: 14px; background: CanvasText; }
+  .scrub-base { background: GrayText; }
+  .scrub-base i { background: CanvasText; }
+  .scrub-head::before, .scrub-head::after { background: Highlight; box-shadow: none; }
+  .scrub-head b { background: Highlight; color: HighlightText; }
 }
 
 /* ---------- mid-width desktop windows: give the stage back some room ---------- */
@@ -474,7 +472,6 @@ a { color: inherit; text-decoration: none; }
   .icon-btn { width: 40px; height: 40px; }
   .btn.sm, .btn { min-height: 40px; }
   .run select, .run input[type="text"] { min-height: 40px; }
-  .rail button { min-width: 60px; padding: 0 8px; }
   .search-btn { width: 40px; height: 40px; }
   .lesson-tabs .tab { min-height: 40px; }
   .copy-state { flex-basis: 100%; }

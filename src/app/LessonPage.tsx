@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type SyntheticEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as RPointerEvent, type SyntheticEvent } from "react";
 import { Link, Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { sectionOf } from "../curriculum";
 import { Icon, Kbd, KindChip, MetricCard, kindColor } from "../design/ui";
@@ -146,14 +146,27 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
     setTimeout(() => setCopyState(""), 2400);
   };
 
-  /* Keep the current stop in the middle of the rail; only the rail scrolls. */
-  const railRef = useRef<HTMLOListElement>(null);
-  useEffect(() => {
-    const rail = railRef.current;
-    const li = rail?.children[idx] as HTMLElement | undefined;
-    if (!rail || !li || rail.scrollWidth <= rail.clientWidth) return;
-    rail.scrollTo({ left: li.offsetLeft - (rail.clientWidth - li.offsetWidth) / 2, behavior: reduced() ? "auto" : "smooth" });
-  }, [idx, steps, narrow]);
+  /* The scrubber: a point on the track names a step; pressing jumps there and dragging scrubs. */
+  const scrubRef = useRef<HTMLDivElement>(null);
+  const scrubbing = useRef(false);
+  const stepAt = (clientX: number) => {
+    const r = scrubRef.current?.getBoundingClientRect();
+    if (!r || r.width === 0) return idx;
+    return Math.max(0, Math.min(steps.length - 1, Math.floor(((clientX - r.left) / r.width) * steps.length)));
+  };
+  const onScrubDown = (e: RPointerEvent<HTMLDivElement>) => {
+    if (e.button !== 0) return;
+    scrubbing.current = true;
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+    const i = stepAt(e.clientX);
+    if (i !== idx) player.jump(i);
+  };
+  const onScrubMove = (e: RPointerEvent<HTMLDivElement>) => {
+    const i = stepAt(e.clientX);
+    if (scrubbing.current) { if (i !== idx) player.jump(i); }
+    else if (e.pointerType === "mouse") setPeek(i);
+  };
+  const onScrubEnd = () => { scrubbing.current = false; };
 
   const sidebar = <CourseSidebar currentId={lesson.id} currentIdx={isDefault && !theory ? idx : 0} progress={progress} />;
   /* On the trace the explorer starts folded so the stage gets the width; the theory tab is a reading page. */
@@ -222,12 +235,13 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
     </section>
   );
 
-  /* The timeline is a tape of step tiles, read left to right like a trace log. Tiles behind the playhead are
-     done (a quiet well), the current one is inverted with an ember caret above it, and tiles ahead stay open.
-     A small diamond before each number carries the step's kind colour. Hovering or focusing a tile previews
-     its title in the header, so the run can be read without moving the playhead. */
-  const stopCls = (i: number) => (i === idx ? "cur" : i < idx ? "past" : i <= reached ? "seen" : "");
+  /* The timeline is a scrubber: one track, one tick per step in its kind's colour. The walked stretch is
+     filled in ink up to the playhead, an ember knob carrying the current step's number and name. Click or drag
+     anywhere on the track to scrub; arrows, Home and End move it from the keyboard. Hovering previews a step's
+     title in the header without moving the playhead. The track always fits its width, however long the run. */
+  const tickCls = (i: number) => (i === idx ? "cur" : i < idx ? "past" : i <= reached ? "seen" : "") + (peek === i && i !== idx ? " pk" : "");
   const shown = peek !== null && peek !== idx ? peek : idx;
+  const at = (i: number) => `${((i + 0.5) / steps.length) * 100}%`;
   const rail = (
     <div className="rail-wrap" key="rail">
       <div className="rail-head">
@@ -236,21 +250,20 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
           {shown === idx ? stepOf : `Jump to step ${shown + 1}`} · <b>{steps[shown].title}</b>
         </span>
       </div>
-      <ol className="rail" ref={railRef} aria-label="Steps" onMouseLeave={() => setPeek(null)}>
-        {steps.map((s, i) => {
-          const state = i < idx ? ", done" : i > idx && i <= reached ? ", seen" : "";
-          return (
-            <li key={i} className={stopCls(i)} style={{ "--k": kindColor(s.kind) } as CSSProperties}>
-              <button type="button" aria-current={i === idx ? "step" : undefined} onClick={() => player.jump(i)}
-                onMouseEnter={() => setPeek(i)} onFocus={() => setPeek(i)} onBlur={() => setPeek(null)}
-                aria-label={`Step ${i + 1}: ${s.title}${state}`}>
-                <span className="ix"><i className="kd" aria-hidden="true" />{nn(i)}</span>
-                <span className="name">{railName(i)}</span>
-              </button>
-            </li>
-          );
-        })}
-      </ol>
+      <div className="scrub" ref={scrubRef} role="slider" tabIndex={0} aria-label="Step"
+        aria-valuemin={1} aria-valuemax={steps.length} aria-valuenow={idx + 1} aria-valuetext={`${stepOf}: ${step.title}`}
+        onPointerDown={onScrubDown} onPointerMove={onScrubMove} onPointerUp={onScrubEnd} onPointerCancel={onScrubEnd}
+        onPointerLeave={() => setPeek(null)}
+        style={{ "--x": (idx + 0.5) / steps.length } as CSSProperties}>
+        <ol className="scrub-ticks" aria-hidden="true" style={{ gridTemplateColumns: `repeat(${steps.length}, minmax(0, 1fr))` }}>
+          {steps.map((s, i) => <li key={i} className={tickCls(i)} style={{ "--k": kindColor(s.kind) } as CSSProperties} />)}
+        </ol>
+        <div className="scrub-base" aria-hidden="true"><i style={{ width: at(idx) }} /></div>
+        <span className="scrub-head" aria-hidden="true" style={{ left: at(idx) }}>
+          <b><span className="n">{nn(idx)}</span>{railName(idx)}</b>
+        </span>
+      </div>
+      <div className="scrub-scale" aria-hidden="true"><span>{nn(0)}</span><span>{nn(last)}</span></div>
     </div>
   );
 
