@@ -44,6 +44,7 @@ import climbingStairs from "./climbing-stairs";
 import coinChange from "./coin-change";
 import knapsack from "./knapsack";
 import lcs from "./lcs";
+import editDistance from "./edit-distance";
 
 /** Playable lessons, in course order. Add a lesson here and it lights up in the course tree. */
 export const LESSONS: AnyLesson[] = [
@@ -70,7 +71,8 @@ export const LESSONS: AnyLesson[] = [
   climbingStairs,
   coinChange,
   knapsack,
-  lcs
+  lcs,
+  editDistance
 ];
 
 export const LESSON_BY_ID: Record<string, AnyLesson> = Object.fromEntries(LESSONS.map((l) => [l.id, l]));
