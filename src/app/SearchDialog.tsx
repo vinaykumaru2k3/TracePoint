@@ -14,7 +14,7 @@ export const SEARCH_ITEMS: { name: string; section: string; to: string }[] = [
 const SOON = CURRICULUM.flatMap((s) => s.lessons.filter((l) => !META_BY_ID[l.id]).map((l) => ({ name: l.name, section: s.name })));
 const ALL = [...SEARCH_ITEMS.map((i) => ({ ...i, live: true })), ...SOON.map((i) => ({ ...i, to: "", live: false }))];
 
-const countText = (n: number) => (n === 0 ? "No results" : `${n} results`);
+export const countText = (n: number) => (n === 0 ? "No results" : n === 1 ? "1 result" : `${n} results`);
 
 /** Ctrl/Cmd+K lesson search on a native <dialog>. */
 export default function SearchDialog({ open, onClose }: Props) {
@@ -65,7 +65,7 @@ export default function SearchDialog({ open, onClose }: Props) {
       <input autoFocus value={q} onChange={(e) => { setQ(e.target.value); setSel(0); }} onKeyDown={onKey}
         role="combobox" aria-expanded={results.length > 0} aria-controls="search-list" aria-autocomplete="list"
         aria-activedescendant={results.length > 0 ? "search-opt-" + sel : undefined}
-        placeholder="Search lessons…" aria-label="Search lessons" />
+        placeholder="Search lessonsâ€¦" aria-label="Search lessons" />
       <p role="status" className="sr">{status}</p>
       {results.length === 0
         ? <p className="empty">Nothing matches "{q}".</p>
@@ -74,7 +74,7 @@ export default function SearchDialog({ open, onClose }: Props) {
             {results.map((r, i) => (
               <li key={r.to || r.name} id={"search-opt-" + i} role="option" aria-selected={i === sel}
                 aria-disabled={!r.live || undefined} onClick={() => choose(i)} onMouseMove={() => setSel(i)}>
-                {r.name}<small>{r.section}{r.live ? "" : " · soon"}</small>
+                {r.name}<small>{r.section}{r.live ? "" : " Â· soon"}</small>
               </li>
             ))}
           </ul>

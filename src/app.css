@@ -752,7 +752,14 @@ a { color: inherit; text-decoration: none; }
 /* Headings take focus on a page change so screen readers start there; the ring would only confuse sighted users. */
 .lesson-head h1:focus { outline: none; }
 
-/* touch screens: every control is at least 44px in both directions */
+/* touch screens: every control is at least 44px in both directions (the search button keeps its own wider minimum inline size) */
 @media (pointer: coarse) {
-  .icon-btn, .btn, .search-btn, .lesson-tabs .tab { min-inline-size: 44px; min-block-size: 44px; }
+  .icon-btn, .btn, .btn.sm, .lesson-tabs .tab { min-inline-size: 44px; min-block-size: 44px; }
+  .search-btn { min-block-size: 44px; }
+}
+
+/* four 44px targets no longer fit a 375px bar at the usual gaps, so tighten the gaps, not the targets */
+@media (pointer: coarse) and (max-width: 560px) {
+  .topnav { gap: 2px; padding-inline: 6px; }
+  .brand { margin-right: 0; }
 }
