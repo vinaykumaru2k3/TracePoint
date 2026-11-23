@@ -56,7 +56,20 @@ const CHIP: Record<string, string> = {
 /** The colour of a step kind, shared by the chip and the timeline. */
 export const kindColor = (kind: string) => CHIP[kind] ?? "var(--surface-2)";
 
+/** What each step kind means, in one plain sentence (the chip's tooltip). */
+export const KIND_MEANING: Record<string, string> = {
+  problem: "PROBLEM: the question this run sets out to answer.",
+  add: "ADD: something new enters the structure.",
+  remove: "REMOVE: something leaves the structure.",
+  peek: "PEEK: look at a value without changing anything.",
+  empty: "EMPTY: the structure has nothing left, or nothing to give.",
+  check: "CHECK: compare or test something before deciding.",
+  move: "MOVE: a pointer, index or value shifts to a new place.",
+  found: "FOUND: the answer for this run is reached.",
+  recap: "RECAP: the run is done; here is what happened."
+};
+
 /** The step-kind chip. Cycle 2 reuses the kinds to build "predict the next step" choices. */
 export function KindChip({ kind }: { kind: string }) {
-  return <span className="chip" style={{ background: kindColor(kind) }}>{kind}</span>;
+  return <span className="chip" title={KIND_MEANING[kind] ?? `This step is a ${kind} step.`} style={{ background: kindColor(kind) }}>{kind}</span>;
 }

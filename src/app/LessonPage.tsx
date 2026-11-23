@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { sectionOf } from "../curriculum";
 import { Icon, Kbd, KindChip, MetricCard } from "../design/ui";
@@ -6,6 +6,8 @@ import { usePlayer } from "../engine/usePlayer";
 import type { AnyLesson } from "../engine/types";
 import { useKeyboard } from "../hooks/useKeyboard";
 import { useMedia } from "../hooks/useMedia";
+import { useTip } from "../hooks/useTip";
+import { useStoredFlag } from "../hooks/useStoredFlag";
 import { usePageFocus, usePageTitle } from "../hooks/usePage";
 import type { Progress } from "../hooks/useProgress";
 import { CameraContext, ZoomContext, type Shot, type Zoom } from "../iso/IsoScene";
@@ -35,7 +37,6 @@ interface Props {
 /** Below 0.85 px per scene unit the smallest scene labels drop under about 9px; read at 1:1 instead. */
 const LENS = { floor: 0.85, read: 1 };
 const WHOLE_KEY = "tracepoint-whole";
-const storedWhole = () => { try { return localStorage.getItem(WHOLE_KEY) === "1"; } catch { return false; } };
 
 const reduced = () => !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
@@ -86,16 +87,24 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
   const setIdx = useCallback((i: number) => navigate(`/${lesson.id}/${i + 1}${query}`, { replace: true }), [navigate, lesson.id, query]);
   const player = usePlayer(last, idx, setIdx, view === "trace");
   /* The camera reads big drawings up close; the viewer can ask for the whole drawing instead. */
-  const [whole, setWhole] = useState(storedWhole);
+  const [whole, setWhole] = useStoredFlag(WHOLE_KEY, false);
   const [cropped, setCropped] = useState(false);
-  const toggleWhole = useCallback(() => setWhole((w) => {
-    try { localStorage.setItem(WHOLE_KEY, w ? "0" : "1"); } catch { /* private mode: keep it for this visit */ }
-    return !w;
-  }), []);
+  /* A run from the form keeps the form open, even when a shared link had forced it open and nothing is stored. */
+  const [ranIn, setRanIn] = useState("");
+  const toggleWhole = useCallback(() => setWhole(!whole), [whole, setWhole]);
+  /* Show all disables itself when it turns the whole view off and nothing is cropped; focus moves on so it is not lost. */
+  const speedRef = useRef<HTMLButtonElement>(null);
+  const onWhole = () => { toggleWhole(); if (whole && !cropped) speedRef.current?.focus(); };
+  /* The key legend teaches the keys once: it stays for this visit after a key press (no jump in the layout) and is gone on the next load. */
+  const [keysSeen, setKeysSeen] = useStoredFlag("tracepoint-keys-seen", false);
+  const [showKeys] = useState(!keysSeen);
+  /* The first-visit tip under the timeline goes once dismissed, or once the viewer reaches step 3 on their own. */
+  const { showTip, dismissTip } = useTip(idx);
   const zoom = useMemo<Zoom>(() => ({ lens: LENS, whole, onCrop: setCropped }), [whole]);
   useKeyboard({
     prev: player.back, next: () => player.jump(idx + 1), first: () => player.jump(0), last: () => player.jump(last),
-    toggle: player.toggle, reset: player.reset, whole: () => { if (cropped) toggleWhole(); }
+    toggle: player.toggle, reset: player.reset, whole: () => { if (cropped || whole) toggleWhole(); },
+    onStep: () => { if (!keysSeen) setKeysSeen(true); }
   }, view === "trace");
   const theory = view === "theory";
 
@@ -129,11 +138,14 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
     for (const [op, c] of n) if (c >= steps.length * 0.4) return op;
     return null;
   }, [steps]);
+  /* The Next pulse only invites the first press; it stops once the learner moves or plays. */
+  const cue = idx === 0 && !player.playing;
   const railName = (i: number) => steps[i].short ?? (steps[i].op && steps[i].op === runOp ? steps[i].kind : label(i));
   const stepTitle = useCallback((i: number) => steps[i].title, [steps]);
 
   const run = (raw: string) => {
     player.stop();
+    setRanIn(lesson.id);
     navigate(`/${lesson.id}/1${raw === lesson.defaultText ? "" : `?in=${encodeURIComponent(raw)}`}`);
     /* On one column the input sits below the drawing, so bring the new run into view. */
     if (narrow) requestAnimationFrame(() => document.getElementById("stage")?.scrollIntoView({ block: "start", behavior: reduced() ? "auto" : "smooth" }));
@@ -185,13 +197,11 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
             {lesson.metrics(step).map((m: { label: string; value: string | number }) => <MetricCard key={m.label} {...m} />)}
           </div>
           <div className="stage-ctl">
-            {cropped && (
-              <button className="btn sm zoom" type="button" onClick={toggleWhole} aria-pressed={whole} title="Fit the whole drawing on the stage, or read it up close (F)">
-                <Icon name={whole ? "focus" : "expand"} size={12} />Show all
-              </button>
-            )}
+            <button className="btn sm zoom" type="button" onClick={onWhole} disabled={!cropped && !whole} aria-pressed={whole} title="Fit the whole drawing on the stage, or read it up close (F)">
+              <Icon name={whole ? "focus" : "expand"} size={12} />Show all
+            </button>
             <button className="btn sm" type="button" onClick={player.reset} disabled={idx === 0}>Reset</button>
-            <button className="btn sm speed" type="button" onClick={player.cycleSpeed} aria-label={`Playback speed ${player.speed}×`}>{player.speed}×</button>
+            <button className="btn sm speed" ref={speedRef} type="button" onClick={player.cycleSpeed} aria-label={`Playback speed ${player.speed}×`}>Speed {player.speed}×</button>
             <button className="btn play" type="button" onClick={player.toggle}>
               <Icon name={player.playing ? "pause" : idx === last ? "replay" : "play"} size={12} />
               {playLabel}
@@ -233,10 +243,23 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
     </section>
   );
 
-  const rail = <Scrubber key="rail" steps={steps} idx={idx} reached={reached} name={railName} title={stepTitle} onJump={player.jump} />;
+  const rail = (
+    <Fragment key="rail">
+      <Scrubber steps={steps} idx={idx} reached={reached} name={railName} title={stepTitle} onJump={player.jump} />
+      {showTip && (
+        <div className="tip">
+          <p>
+            <span className="tip-fine">Step with <Kbd>←</Kbd> and <Kbd>→</Kbd>, drag the timeline, or open "Try your own input" below.</span>
+            <span className="tip-coarse">Tap Next, or drag the timeline.</span>
+          </p>
+          <button className="icon-btn" type="button" aria-label="Dismiss tip" onClick={dismissTip}><Icon name="close" size={12} /></button>
+        </div>
+      )}
+    </Fragment>
+  );
 
   /* Keyed on the run, so Back and Forward give the form a fresh draft that follows the URL. */
-  const form = <RunForm key={`run:${text}\n${linkError}`} lesson={lesson} text={text} linkError={linkError} asked={asked} step={idx} onRun={run} />;
+  const form = <RunForm key={`run:${text}\n${linkError}`} lesson={lesson} text={text} linkError={linkError} asked={asked} step={idx} custom={!isDefault} open={ranIn === lesson.id} onRun={run} />;
 
   const memory = <MemoryStrip key="mem" lesson={lesson} step={step} />;
 
@@ -245,14 +268,16 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
       <div className="pane-title" aria-hidden="true">TRACE</div>
       <div className="head"><span className="stephead"><b>#{nn(idx)}</b>{" "}{label(idx)}</span><KindChip kind={step.kind} /></div>
       <h2>{step.title}</h2>
-      <p>{step.text}</p>
+      <p className="say">{step.text}</p>
       <p className="sr" aria-live="polite" aria-atomic="true">{said}</p>
       <div className="idea"><small>watch</small><div>{step.idea}</div></div>
-      <div className="nav">
+      <div className="nav" id="step-controls">
         <button className="btn" type="button" onClick={player.back} disabled={idx === 0}><Icon name="left" />Back</button>
-        <button className="btn primary cue" type="button" onClick={player.next}><span>{idx >= last ? "Start over" : `Next: ${label(idx + 1)}`}</span><Icon name={idx >= last ? "replay" : "right"} /></button>
+        <button className={`btn primary${cue ? " cue" : ""}`} type="button" onClick={player.next}><span>{idx >= last ? "Start over" : `Next: ${railName(idx + 1)}`}</span><Icon name={idx >= last ? "replay" : "right"} /></button>
       </div>
-      <p className="keys"><Kbd>←</Kbd><Kbd>→</Kbd> step · <Kbd>Home</Kbd><Kbd>End</Kbd> ends · <Kbd>Space</Kbd> play · <Kbd>R</Kbd> reset · <Kbd>F</Kbd> show all</p>
+      {showKeys
+        ? <p className="keys"><span className="kp"><Kbd>←</Kbd><Kbd>→</Kbd> step</span><span className="kp"><Kbd>Home</Kbd><Kbd>End</Kbd> ends</span><span className="kp"><Kbd>Space</Kbd> play</span><span className="kp"><Kbd>R</Kbd> reset</span><span className="kp"><Kbd>F</Kbd> show all</span></p>
+        : <p className="keys-hint">Keys: see ? (How to use) in the top bar.</p>}
     </section>
   );
 
@@ -295,12 +320,12 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
           {[head, stage, explain, rail, code, form, memory, learn]}
         </main>
         {/* Back and Next stay under the thumb while the page scrolls. */}
-        <nav className="stepbar" aria-label="Step controls">
+        <nav className="stepbar" aria-label="Step controls" data-step-controls="">
           {/* The view switch scrolls away on a phone; the way back to theory stays under the thumb. */}
           <Link className="btn to-theory" to={`/${lesson.id}/learn${query}`} aria-label="Theory" title="Theory"><Icon name="file" /></Link>
           <button className="btn" type="button" onClick={player.back} disabled={idx === 0} aria-label="Back"><Icon name="left" /></button>
-          <span className="stepbar-at">Step {idx + 1}/{steps.length} · <b>{label(idx)}</b></span>
-          <button className="btn primary cue" type="button" onClick={player.next}><span>{idx >= last ? "Start over" : "Next"}</span><Icon name={idx >= last ? "replay" : "right"} /></button>
+          <span className="stepbar-at">Step {idx + 1}/{steps.length} · <b>{railName(idx)}</b></span>
+          <button className={`btn primary${cue ? " cue" : ""}`} type="button" onClick={player.next}><span>{idx >= last ? "Start over" : "Next"}</span><Icon name={idx >= last ? "replay" : "right"} /></button>
         </nav>
       </div>
     );

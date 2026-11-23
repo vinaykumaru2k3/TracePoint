@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type MouseEvent } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { DEFAULT_EXPLORER, useExplorer, type ExplorerKind, type ExplorerPrefs } from "../hooks/useExplorer";
 import { useProgress, type Progress } from "../hooks/useProgress";
@@ -16,6 +16,20 @@ interface RoutesProps {
 }
 
 const noop = () => {};
+
+/** Trace pages only: the step controls exist there and nowhere else. */
+export function SkipLink() {
+  const { pathname } = useLocation();
+  const parts = pathname.split("/").filter(Boolean);
+  if (!parts.length || parts[0] === "guide" || parts[1] === "learn") return null;
+  const go = (e: MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    /* The desktop Back/Next is hidden on a phone, where the step bar stands in. */
+    const bars = [...document.querySelectorAll<HTMLElement>("#step-controls, [data-step-controls]")];
+    bars.find((el) => el.getClientRects().length > 0)?.querySelector<HTMLButtonElement>("button:not(:disabled)")?.focus();
+  };
+  return <a className="skip" href="#step-controls" onClick={go}>Skip to step controls</a>;
+}
 
 /** The page routes, split out so a test can mount them in a MemoryRouter. */
 export function AppRoutes({ progress, onVisit, courseOpen, onCloseCourse, explorer = DEFAULT_EXPLORER, onExplorer = noop }: RoutesProps) {
@@ -63,6 +77,7 @@ export default function App() {
 
   return (
     <div className="app">
+      <SkipLink />
       <TopNav dark={dark} onTheme={toggleTheme} onSearch={() => setSearching(true)} courseOpen={courseOpen} onCourse={() => setCourseOpen(true)} />
       <AppRoutes progress={progress} onVisit={visit} courseOpen={courseOpen} onCloseCourse={closeCourse} explorer={explorer} onExplorer={setExplorer} />
       <SearchDialog open={searching} onClose={() => setSearching(false)} />

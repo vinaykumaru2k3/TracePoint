@@ -1,4 +1,4 @@
-import { memo, useLayoutEffect, useRef, type ComponentType } from "react";
+import { memo, useLayoutEffect, useRef, useState, type ComponentType } from "react";
 import { MeasureContext, type Box, type Shot } from "./IsoScene";
 
 interface Props<S> {
@@ -35,8 +35,16 @@ function focusOf(svg: SVGSVGElement, pad: number): Box | undefined {
   return x1 > x0 ? { x: x0 - pad, y: y0 - pad, w: x1 - x0 + 2 * pad, h: y1 - y0 + 2 * pad } : undefined;
 }
 
+/** The scenes to draw: all of them until the fit pass has measured, none after. */
+export function fitScenes<S>(steps: S[], measured: boolean): S[] {
+  return measured ? [] : steps;
+}
+
 function SceneFit<S>({ steps, Scene, onFit, pad = 18 }: Props<S>) {
   const ref = useRef<HTMLDivElement>(null);
+  /* Measured for one (steps, Scene) pair; a new pair draws again, with no stale flag in between. */
+  const [done, setDone] = useState<{ steps: S[]; Scene: unknown } | null>(null);
+  const measured = done !== null && done.steps === steps && done.Scene === Scene;
 
   useLayoutEffect(() => {
     const measure = () => {
@@ -56,16 +64,18 @@ function SceneFit<S>({ steps, Scene, onFit, pad = 18 }: Props<S>) {
       onFit(raw.map((b) => (prev = b ?? prev)));
     };
     measure();
-    /* Labels change size once the web font arrives. */
+    /* Labels change size once the web font arrives; after that the scenes are let go. */
     let live = true;
-    document.fonts?.ready.then(() => { if (live) measure(); });
+    const finish = () => setDone({ steps, Scene });
+    if (document.fonts?.ready) document.fonts.ready.then(() => { if (live) { measure(); finish(); } });
+    else finish();
     return () => { live = false; };
   }, [steps, Scene, onFit, pad]);
 
   return (
     <div className="scene-fit" ref={ref} aria-hidden="true" {...({ inert: "" } as object)}>
       <MeasureContext.Provider value={true}>
-        {steps.map((s, i) => <Scene key={i} step={s} />)}
+        {fitScenes(steps, measured).map((s, i) => <Scene key={i} step={s} />)}
       </MeasureContext.Provider>
     </div>
   );

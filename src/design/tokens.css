@@ -35,6 +35,13 @@
   --font: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
   --mono: var(--font);
 
+  /* type scale: title and content lead, chrome frames, micro only for indices, kbd caps and tags */
+  --fs-title: 20px;
+  --fs-content: 15px;
+  --fs-chrome: 12px;
+  --fs-micro: 11px;
+  --lh-content: 1.6;
+
   --bg: #f3efe9;          /* page */
   --surface: #faf8f4;     /* panes */
   --surface-2: #efe9e0;   /* wells, hovers */

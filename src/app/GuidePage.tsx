@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { usePageFocus, usePageTitle } from "../hooks/usePage";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { folderName, sectionOf } from "../curriculum";
@@ -20,6 +20,8 @@ import { defaultRun } from "./Walkthrough";
 import CourseDrawer, { NARROW } from "./CourseDrawer";
 import CourseSidebar from "./CourseSidebar";
 import ErrorBoundary from "./ErrorBoundary";
+import Intro, { INTRO_KEY } from "./Intro";
+import { readFlag } from "../hooks/useStoredFlag";
 import SideCol from "./SideCol";
 import type { ExplorerKind, ExplorerPrefs } from "../hooks/useExplorer";
 
@@ -187,6 +189,7 @@ export default function GuidePage({ progress, courseOpen, onCloseCourse, section
   /* A new guide starts at the top of the page on narrow screens, where the page scrolls. */
   useEffect(() => { if (narrow) window.scrollTo({ top: 0 }); }, [sectionId]); // eslint-disable-line react-hooks/exhaustive-deps
   const h1Ref = useRef<HTMLHeadingElement>(null);
+  const [introHidden, setIntroHidden] = useState(false);
   usePageTitle(`${sectionOf(sectionId)?.name ?? "Guide"} · guide · Tracepoint`);
   usePageFocus(h1Ref, `guide/${sectionId}`);
   const kind = resolveGuide(sectionId);
@@ -204,6 +207,10 @@ export default function GuidePage({ progress, courseOpen, onCloseCourse, section
     : { to: `/${next.id}/1`, label: `Continue ${next.name}` });
 
   const sidebar = <CourseSidebar currentId="" currentIdx={0} progress={progress} guideId={sectionId} />;
+  const home = fixed !== undefined;
+  /* While the intro offers "Start the course", the hero button steps back so a first visitor sees one primary way in. */
+  const introShown = home && !introHidden && Object.keys(progress).length === 0 && !readFlag(INTRO_KEY, false);
+  const intro = home ? <Intro progress={progress} onHide={() => setIntroHidden(true)} key="intro" /> : null;
   const head = (
     <header className="lesson-head guide-head" key="head" style={{ "--sec": sec.color } as React.CSSProperties}>
       <div className="ghero">
@@ -216,7 +223,7 @@ export default function GuidePage({ progress, courseOpen, onCloseCourse, section
           {guide && <p className="sub"><Rich text={guide.tagline} /></p>}
           {guide && live.length > 0 && (
             <div className="ghero-meta">
-              {cta && <Link to={cta.to} className="btn primary">{cta.label} <Icon name="right" size={13} /></Link>}
+              {cta && <Link to={cta.to} className={introShown ? "btn" : "btn primary"}>{cta.label} <Icon name="right" size={13} /></Link>}
               <span className="ghero-stat"><strong>{live.length}</strong> {live.length === 1 ? "lesson" : "lessons"}</span>
               <span className="ghero-stat"><strong>{doneCount}</strong> complete</span>
             </div>
@@ -245,7 +252,7 @@ export default function GuidePage({ progress, courseOpen, onCloseCourse, section
       <div className="page flow">
         <CourseDrawer open={courseOpen} onClose={onCloseCourse}>{sidebar}</CourseDrawer>
         <main className="flow-main guide" aria-label="Guide">
-          {head}
+          {intro}{head}
           <div className="gbody card">{body}</div>
           {side}
         </main>
@@ -256,7 +263,7 @@ export default function GuidePage({ progress, courseOpen, onCloseCourse, section
     <div className={`page${explorer.read ? "" : " side-shut"}`}>
       <SideCol open={explorer.read} onToggle={() => onExplorer("read", !explorer.read)}>{sidebar}</SideCol>
       <div className="center">
-        <main className="lesson card guide" aria-label="Guide">{head}<div className="gbody">{body}</div></main>
+        <main className="lesson card guide" aria-label="Guide">{intro}{head}<div className="gbody">{body}</div></main>
       </div>
       <aside className="right" aria-label="On this page and lessons">{side}</aside>
     </div>
