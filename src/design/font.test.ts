@@ -30,4 +30,14 @@ describe("self-hosted font", () => {
   it("body sets font-size-adjust from-font", () => {
     expect(readFileSync("src/app.css", "utf8")).toMatch(/body\s*\{[^}]*font-size-adjust:\s*from-font/);
   });
+
+  it("greek and latin-ext subsets ship as files and faces, and only latin is preloaded", () => {
+    for (const n of ["greek", "latin-ext"]) {
+      const b: Uint8Array = readFileSync(`public/fonts/jetbrains-mono-${n}-wght.woff2`);
+      expect(String.fromCharCode(...b.slice(0, 4))).toBe("wOF2");
+      expect(tokens).toContain(`url("/fonts/jetbrains-mono-${n}-wght.woff2")`);
+    }
+    expect(tokens.match(/@font-face\s*\{/g)?.length).toBe(3);
+    expect(html.match(/rel="preload"/g)?.length).toBe(1);
+  });
 });
