@@ -147,15 +147,15 @@
 **Interfaces:**
 - Produces: the CSS custom properties `--fs-title`, `--fs-content`, `--fs-chrome`, `--fs-micro` and `--lh-content`. Tasks 2–5 use them for any new text.
 
-- [ ] **Step 1: Write the failing test.** `scale.test.ts` reads `tokens.css` and `app.css` as text and asserts:
+- [x] **Step 1: Write the failing test.** `scale.test.ts` reads `tokens.css` and `app.css` as text and asserts:
   - `tokens.css` defines `--fs-title: 20px`, `--fs-content: 15px`, `--fs-chrome: 12px`, `--fs-micro: 11px` and `--lh-content: 1.6`.
   - The `.explain h2` rule uses `var(--fs-title)`, and the `.explain p` rule uses `var(--fs-content)`.
   - The `.idea` rule uses `var(--fs-content)`.
   - The `.metric small` rule uses `var(--fs-chrome)`.
   - The `.result` rule has no `border` and no `background` (detector `nested-cards`).
   - The `dl.terms dd` rule has `text-wrap: pretty` and a `max-inline-size` of `62ch`.
-- [ ] **Step 2:** Run `npx vitest run src/design/scale.test.ts`. Expected: FAIL.
-- [ ] **Step 3: Implement.**
+- [x] **Step 2:** Run `npx vitest run src/design/scale.test.ts`. Expected: FAIL.
+- [x] **Step 3: Implement.**
   - Add the tokens.
   - Explanation card:
     - `h2` uses `--fs-title` with weight 600.
@@ -167,12 +167,12 @@
   - The code-card variables (`pq = …  dist = …`) move from the tab row to their own row under the tabs. That row is one line at chrome tier and may wrap, and it never squeezes the tabs.
   - Guide `dd`: ink colour, `max-inline-size: 62ch`, `text-wrap: pretty`.
   - **Phone block (≤560px):** pin the explanation body at 14px and its title at 17px with explicit rules, so the Batch 1 budget holds.
-- [ ] **Step 4:** Run `npx vitest run`. Expected: all pass, including the existing phone and font tests.
-- [ ] **Step 5: Check in the browser** at 1440×900 on `#/dijkstra/5`. Expected:
+- [x] **Step 4:** Run `npx vitest run`. Expected: all pass, including the existing phone and font tests.
+- [x] **Step 5: Check in the browser** at 1440×900 on `#/dijkstra/5`. Expected:
   - the computed `.explain p` font-size is 15px and `.explain h2` is 20px
   - the code card shows ≥10 lines
   - no horizontal overflow
-- [ ] **Step 6: Commit.** `feat(ui): three-tier type scale; the explanation leads the trace page`
+- [x] **Step 6: Commit.** `feat(ui): three-tier type scale; the explanation leads the trace page`
 
 ### Task 2: Folds that remember (run form, memory strip, key legend)
 
@@ -193,7 +193,7 @@
 - Produces: the new `RunForm` props `open?: boolean` (forced open) and `custom?: boolean`.
 - Consumes: the `.run` form markup as it is today. Its inside does not change.
 
-- [ ] **Step 1: Write the failing tests.**
+- [x] **Step 1: Write the failing tests.**
   - **Hook:**
     - It returns the fallback when the key is missing.
     - It returns the fallback when `localStorage.getItem` throws.
@@ -208,19 +208,19 @@
     - With a stored `"1"`, it renders `open`.
     - Folded, it still contains every `.cell` (the content stays in the DOM).
   - **Key legend:** with `tracepoint-keys-seen = "1"`, the `.keys` paragraph is absent.
-- [ ] **Step 2:** Run the new test files. Expected: FAIL.
-- [ ] **Step 3: Implement.**
+- [x] **Step 2:** Run the new test files. Expected: FAIL.
+- [x] **Step 3: Implement.**
   - The run form is open when any of these is true: `stored || custom || !!linkError`.
   - Toggling the fold stores the choice only when neither `custom` nor `linkError` forced it open.
   - `useKeyboard` gains `onStep?()`. It is called for the prev, next, first and last keys, and `LessonPage` passes a setter that stores `tracepoint-keys-seen`.
   - The `.keys` paragraph also gets `@media (hover: none) { display: none }`.
   - The summary of each fold is ≥44px tall on coarse pointers and uses the chrome tier.
-- [ ] **Step 4:** Run `npx vitest run`. Expected: all pass.
-- [ ] **Step 5: Check in the browser.**
+- [x] **Step 4:** Run `npx vitest run`. Expected: all pass.
+- [x] **Step 5: Check in the browser.**
   - Cleared storage on `#/stack/3`: the form and memory are folded and the legend shows.
   - Press →: the legend is gone after a reload.
   - Open `#/stack/1?in=bogus%25%25`: the form is open with its error.
-- [ ] **Step 6: Commit.** `feat(ui): run form, memory strip and key legend fold and remember`
+- [x] **Step 6: Commit.** `feat(ui): run form, memory strip and key legend fold and remember`
 
 ### Task 3: Controls that say what they do
 
@@ -231,23 +231,23 @@
 **Interfaces:**
 - Consumes: `railName(i)` (LessonPage.tsx:132) and `player.speed`.
 
-- [ ] **Step 1: Write the failing tests** (SSR of the trace page at `/stack/1` and at `/dijkstra/5`):
+- [x] **Step 1: Write the failing tests** (SSR of the trace page at `/stack/1` and at `/dijkstra/5`):
   - The speed button's visible text is `Speed 1×`.
   - The Show all button is rendered on every step. When nothing is cropped it has `disabled`, and it keeps `aria-pressed`.
   - The Next button reads `Next: ${railName(idx + 1)}`. On Dijkstra step 5 it no longer reads `Next: dijkstra(A)`. The test asserts that the button text equals `Next: ` plus the scrubber's stop name for step 6, taken from the rendered scrubber markup.
   - The `cue` class is present on step 1 and absent on step 2.
   - `app.css` has no `max-width: 1119px` or `max-height: 679px`.
   - The `.tab small` rule is not set to `display: none` inside the ≤1120px block.
-- [ ] **Step 2:** Run the tests. Expected: FAIL.
-- [ ] **Step 3: Implement.**
+- [x] **Step 2:** Run the tests. Expected: FAIL.
+- [x] **Step 3: Implement.**
   - Speed label: `Speed {n}×`, keeping the aria-label.
   - Show all is always rendered: `disabled={!cropped && !whole}`, with the title unchanged. The toolbar no longer reflows.
   - Next uses `railName`, on desktop only; the phone step bar keeps "Next".
   - `cue` is applied only while `idx === 0 && !player.playing`, so the pulse stops once the learner moves.
   - The breakpoint `1119/679` becomes `1120/680` (the walk-fig sticky rule).
   - The "soon" tags stay at ≤1120px; at ≤560px the Practice/Quiz tabs are hidden instead.
-- [ ] **Step 4:** Run `npx vitest run`. Expected: pass.
-- [ ] **Step 5: Commit.** `fix(ui): label speed, keep Show all in place, name the next step, calm the Next pulse`
+- [x] **Step 4:** Run `npx vitest run`. Expected: pass.
+- [x] **Step 5: Commit.** `fix(ui): label speed, keep Show all in place, name the next step, calm the Next pulse`
 
 ### Task 4: Skip link; the fit pass lets go of its scenes
 
@@ -258,20 +258,20 @@
 **Interfaces:**
 - Produces: the `SceneFit` behaviour. Once it has measured after `document.fonts.ready` (or immediately when `fonts` is absent), it renders nothing until `steps` or `Scene` change.
 
-- [ ] **Step 1: Write the failing tests.**
+- [x] **Step 1: Write the failing tests.**
   - On a lesson route, the first focusable element in the app markup is `<a class="skip" href="#step-controls">Skip to step controls</a>`. The link is absent on guide routes.
   - The trace page markup contains exactly one `id="step-controls"`.
   - `SceneFit`'s first render (SSR) contains one `svg.iso` per step, so the fit pass still measures. The decision to drop them is pinned through an exported pure helper, `fitScenes<S>(steps: S[], measured: boolean): S[]`. It returns `steps` when `measured` is false and `[]` when it is true. Test both branches.
-- [ ] **Step 2:** Run the tests. Expected: FAIL.
-- [ ] **Step 3: Implement.**
+- [x] **Step 2:** Run the tests. Expected: FAIL.
+- [x] **Step 3: Implement.**
   - The skip link is visually hidden until it is focused (the existing `.sr` pattern plus `:focus-visible` styles). With HashRouter, focusing must not change the route, so `onClick` calls `preventDefault`, then `document.getElementById("step-controls")?.querySelector("button")?.focus()`.
   - `SceneFit` keeps a `measured` flag. The `steps` and `Scene` identity reset it to false.
-- [ ] **Step 4:** Run `npx vitest run`. Expected: pass.
-- [ ] **Step 5: Check in the browser.**
+- [x] **Step 4:** Run `npx vitest run`. Expected: pass.
+- [x] **Step 5: Check in the browser.**
   - Tab once on `#/stack/3`: the skip link shows, and Enter focuses Back/Next.
   - On `#/lcs/10`, `.scene-fit svg` count is 0 a second after load.
   - The camera still follows the steps.
-- [ ] **Step 6: Commit.** `feat(a11y): skip to step controls; perf: drop off-screen fit scenes once measured`
+- [x] **Step 6: Commit.** `feat(a11y): skip to step controls; perf: drop off-screen fit scenes once measured`
 
 ### Task 5: On-ramp: intro on `/` and the first-visit trace tip
 
@@ -292,14 +292,14 @@
 - **Trace tip (coarse pointer):** `Tap Next, or drag the timeline.`
 - **Tip dismiss:** a button with `aria-label="Dismiss tip"`.
 
-- [ ] **Step 1: Write the failing tests.**
+- [x] **Step 1: Write the failing tests.**
   - `Intro` with `progress = {}` and empty storage contains the heading text, `href="#/big-o-by-counting/1"` and `Step 1 of 3`.
   - With `progress = { stack: 2 }` it renders `""`.
   - With `tracepoint-intro-hidden = "1"` it renders `""`.
   - The home route `/` renders the intro before the guide's `h1`, and `/guide/foundations` does not render it.
   - The trace page with empty storage shows the tip on step 1. It does not show with `tracepoint-tip-seen = "1"`, and it does not show at step index ≥2.
-- [ ] **Step 2:** Run the tests. Expected: FAIL.
-- [ ] **Step 3: Implement.**
+- [x] **Step 2:** Run the tests. Expected: FAIL.
+- [x] **Step 3: Implement.**
   - **Mini-trace:**
     - It loads `stack` through `LazyLesson`.
     - It uses default-run steps 1–3 (`push 4`, `push 9`, `push 2`).
@@ -308,12 +308,12 @@
     - Its local live region is quiet on mount and announces only on a step change.
   - **Intro block layout:** it is a single card at the top of the centre column, with the mini-trace to the right of the copy on ≥1120px and stacked below it on narrow screens.
   - **Trace tip:** it sits under the scrubber as one line at chrome tier. It is stored as seen on dismiss or when `idx >= 2`.
-- [ ] **Step 4:** Run `npx vitest run`. Expected: pass.
-- [ ] **Step 5: Check in the browser.**
+- [x] **Step 4:** Run `npx vitest run`. Expected: pass.
+- [x] **Step 5: Check in the browser.**
   - With cleared storage on `#/`, the intro shows; stepping the mini-trace works with a keyboard; Hide removes it for good.
   - Opening any lesson to step 2 and returning to `#/` shows no intro.
   - At 375×812 there is no overflow.
-- [ ] **Step 6: Commit.** `feat(onboard): intro on the home page and a first-visit trace tip`
+- [x] **Step 6: Commit.** `feat(onboard): intro on the home page and a first-visit trace tip`
 
 ### Task 6: Verify, document, re-score
 
