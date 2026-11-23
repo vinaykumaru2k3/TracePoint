@@ -37,8 +37,8 @@ a { color: inherit; text-decoration: none; }
 /* Live values read as a row of figures split by hairlines, not as cards inside the lesson card. */
 .metric { min-width: 0; padding: 2px 14px 2px 0; }
 .metric + .metric { padding-left: 14px; border-left: 1px solid var(--line); }
-.metric small { display: block; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
-.metric b { font-family: var(--mono); display: block; font-size: 15px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.metric small { display: block; font-size: var(--fs-chrome); font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
+.metric b { font-family: var(--mono); display: block; font-size: calc(var(--fs-chrome) + 2px); color: var(--ink); line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .pane-title, .pane-title-label { font-family: var(--mono); font-size: 11px; font-weight: 500; line-height: 1.4; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
 .pane-title { padding: 7px 14px; border-bottom: 1px solid var(--line); }
 .lbl { font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }
@@ -179,12 +179,12 @@ a { color: inherit; text-decoration: none; }
 .legend { list-style: none; margin: 0; padding: 0; display: flex; gap: 6px 14px; flex-wrap: wrap; font-size: 11px; color: var(--muted); }
 .legend li { display: inline-flex; align-items: center; gap: 6px; }
 .swatch { width: 10px; height: 10px; flex: none; border: 1px solid var(--stroke); border-radius: 50%; background: var(--top); }
-.result { margin-left: auto; padding: 5px 12px; background: var(--surface-2); border: 1px solid var(--line-strong); border-radius: var(--radius); font-size: 11px; max-width: 240px; }
-.result small { display: block; color: var(--muted); font-size: 11px; }
-.result b { font-family: var(--mono); font-size: 16px; }
+.result { margin-left: auto; padding: 2px 0; font-size: var(--fs-chrome); max-width: 240px; }
+.result small { display: block; color: var(--muted); font-size: var(--fs-chrome); }
+.result b { font-family: var(--mono); font-size: calc(var(--fs-chrome) + 2px); }
 .result b.void { color: var(--muted); }
 .result b.throws { color: var(--danger); }
-.result em { display: block; font-style: normal; font-size: 11px; color: var(--muted); }
+.result em { display: block; font-style: normal; font-size: var(--fs-chrome); color: var(--muted); }
 /* every step drawn once, off-screen, to measure the run's frame */
 .scene-fit { position: absolute; left: 0; top: 0; width: 600px; height: 400px; overflow: hidden; visibility: hidden; pointer-events: none; clip-path: inset(50%); }
 .scene-fit * { animation: none !important; transition: none !important; }
@@ -216,13 +216,13 @@ a { color: inherit; text-decoration: none; }
 .scrub-scale { display: flex; justify-content: space-between; margin-top: 2px; font-family: var(--mono); font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
 
 .run { display: grid; gap: 6px; }
-.run label { font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }
+.run label { font-weight: 600; font-size: var(--fs-chrome); text-transform: uppercase; letter-spacing: 0.06em; }
 .run-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
 .run input[type="text"] { flex: 1 1 260px; min-width: 0; font: inherit; font-family: var(--mono); padding: 6px 10px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--bg); color: var(--ink); }
 .run select { font: inherit; padding: 5px 8px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface); color: var(--ink); }
 .run input[type="text"][aria-invalid="true"] { border-color: var(--danger); }
 .run .err { color: var(--danger); font-weight: 600; font-size: 12px; }
-.run .hint, .run .check { color: var(--muted); font-size: 12px; }
+.run .hint, .run .check { color: var(--muted); font-size: var(--fs-chrome); }
 .run .check:not(.ok) { color: var(--ink); }
 .run .check:not(.ok)::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 6px; border-radius: 50%; background: var(--danger); vertical-align: 1px; }
 .copy-state { font-size: 11px; color: var(--muted); min-width: 6ch; }
@@ -231,7 +231,7 @@ a { color: inherit; text-decoration: none; }
 .lesson > .run > p { grid-column: 1 / -1; }
 .lesson > .run .hint.quiet { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-.memhead { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: baseline; }
+.memhead { font-size: var(--fs-chrome); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: baseline; }
 .memhead .lbl { color: var(--ink); }
 .mem > summary { list-style: none; cursor: pointer; border-radius: 4px; }
 .mem > summary::-webkit-details-marker { display: none; }
@@ -271,13 +271,13 @@ a { color: inherit; text-decoration: none; }
 .right > * { flex: none; }
 .explain { padding: 0 0 14px; display: grid; gap: 10px; }
 .explain > :not(.pane-title) { margin-inline: 16px; }
-.explain .head { display: flex; align-items: center; justify-content: space-between; font-family: var(--mono); font-size: 11px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
-.explain h2 { font-size: 17px; line-height: 1.3; font-weight: 600; }
-.explain p { color: var(--ink); }
+.explain .head { display: flex; align-items: center; justify-content: space-between; font-family: var(--mono); font-size: var(--fs-chrome); font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.explain h2 { font-size: var(--fs-title); line-height: 1.3; font-weight: 600; }
+.explain p { font-size: var(--fs-content); line-height: var(--lh-content); color: var(--ink); }
 /* key idea: a watch block, a mono label and a 2px left rule */
-.idea { padding-left: 12px; border-left: 2px solid var(--line-strong); font-size: 12px; }
-.idea small { display: block; margin-bottom: 2px; font-family: var(--mono); font-size: 11px; font-weight: 500; color: var(--muted); letter-spacing: 0.04em; }
-.explain .stephead { font-size: 12px; text-transform: none; letter-spacing: 0; color: var(--ink); }
+.idea { padding-left: 12px; border-left: 2px solid var(--line-strong); font-size: var(--fs-content); line-height: var(--lh-content); color: var(--muted); }
+.idea small { display: block; margin-bottom: 2px; font-family: var(--mono); font-size: var(--fs-chrome); font-weight: 500; color: var(--muted); letter-spacing: 0.04em; }
+.explain .stephead { font-size: var(--fs-chrome); text-transform: none; letter-spacing: 0; color: var(--ink); }
 .explain .stephead b { margin-right: 10px; font-weight: 600; color: var(--muted); }
 .nav { display: flex; gap: 8px; align-items: center; margin-top: 4px; }
 .nav .btn.primary { flex: 1; min-width: 0; }
@@ -294,7 +294,8 @@ a { color: inherit; text-decoration: none; }
 .codetabs button:hover { color: var(--ink); }
 /* selected: inverted fill and weight, not colour alone */
 .codetabs button[aria-selected="true"] { border-color: var(--inv-bg); background: var(--inv-bg); color: var(--inv-fg); font-weight: 600; }
-.vars { margin-left: auto; font-size: 11px; color: var(--muted); text-align: right; overflow-wrap: anywhere; }
+.vars { padding: 4px 14px; border-bottom: 1px solid var(--line); font-size: var(--fs-chrome); color: var(--muted); overflow-wrap: anywhere; }
+.vars:empty { display: none; }
 .code { margin: 0; font-family: var(--mono); overflow: auto; padding: 8px 0; font-size: 12px; line-height: 1.65; }
 .code:focus-visible { outline-offset: -2px; }
 .ln { font-family: var(--mono); display: flex; padding: 0 12px 0 0; border-left: 3px solid transparent; transition: background 0.2s; }
@@ -468,8 +469,12 @@ a { color: inherit; text-decoration: none; }
   .metrics { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); width: 100%; }
   .metrics .metric { min-width: 0; padding-right: 6px; }
   .metrics .metric + .metric { padding-left: 8px; }
-  .metric small { font-size: 10px; letter-spacing: 0.03em; overflow: hidden; text-overflow: ellipsis; }
+  .metric small { font-size: var(--fs-micro); letter-spacing: 0.03em; overflow: hidden; text-overflow: ellipsis; }
   .metric b { font-size: 14px; }
+  /* the explanation is pinned so the sentence still starts above the step bar */
+  .explain h2 { font-size: 17px; }
+  .explain p { font-size: 14px; line-height: 1.55; }
+  .idea { font-size: 14px; line-height: 1.55; }
   .stage-ctl { margin-left: 0; }
   .flow-main .explain .pane-title, .flow-main .explain .nav, .flow-main .explain .keys, .flow-main .explain > .head { display: none; }
   /* The step bar already reads "Step N/M · op" and the timeline counts the steps, so the head drops its meta line. */
@@ -483,7 +488,7 @@ a { color: inherit; text-decoration: none; }
   .legend-fold[open] summary::after { content: "−"; }
   .legend-dots { display: inline-flex; gap: 4px; }
   .legend-fold .legend { padding: 6px 0 2px; }
-  .result { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 8px; margin-left: 0; max-width: none; padding: 3px 10px; }
+  .result { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 8px; margin-left: 0; max-width: none; padding: 3px 0; }
   .result small, .result em { display: inline; }
   .result b { font-size: 14px; }
   .topnav { gap: 6px; padding: 0 10px; }
@@ -638,7 +643,7 @@ a { color: inherit; text-decoration: none; }
 .terms { margin: 0; display: grid; gap: 0 28px; }
 .terms > div { padding: 8px 0; border-bottom: 1px solid var(--line); }
 .terms dt { font-weight: 600; font-family: var(--mono); }
-.terms dd { margin: 2px 0 0; color: var(--muted); }
+.gbody dl.terms dd { margin: 2px 0 0; color: var(--ink); max-inline-size: 62ch; text-wrap: pretty; }
 @container (min-width: 640px) { .terms { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .pairs li { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 4px 12px; align-items: start; padding: 10px 0; border-bottom: 1px solid var(--line); }
 .pairs li:first-child { padding-top: 2px; }

@@ -99,8 +99,8 @@ export default function CodeCard({ lesson, step, idx, idle = "Step forward to se
             <button key={id} id={`tab-${id}`} type="button" role="tab" aria-selected={lang === id} tabIndex={lang === id ? 0 : -1} onClick={() => setLang(id)}>{label}</button>
           ))}
         </div>
-        <span className="vars">{lesson.vars(step)}</span>
       </div>
+      <div className="vars">{lesson.vars(step)}</div>
       <pre className="code" ref={codeRef} role="tabpanel" aria-labelledby={`tab-${lang}`} tabIndex={0}>
         {parsed.lines.map((line, k) => {
           const indent = line.length - line.trimStart().length;
