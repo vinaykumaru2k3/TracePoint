@@ -14,6 +14,8 @@ export const SEARCH_ITEMS: { name: string; section: string; to: string }[] = [
 const SOON = CURRICULUM.flatMap((s) => s.lessons.filter((l) => !META_BY_ID[l.id]).map((l) => ({ name: l.name, section: s.name })));
 const ALL = [...SEARCH_ITEMS.map((i) => ({ ...i, live: true })), ...SOON.map((i) => ({ ...i, to: "", live: false }))];
 
+const countText = (n: number) => (n === 0 ? "No results" : `${n} results`);
+
 /** Ctrl/Cmd+K lesson search on a native <dialog>. */
 export default function SearchDialog({ open, onClose }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
@@ -34,6 +36,16 @@ export default function SearchDialog({ open, onClose }: Props) {
     if (!open && d.open) d.close();
   }, [open]);
 
+  const [status, setStatus] = useState(() => countText(results.length));
+  useEffect(() => {
+    const t = setTimeout(() => setStatus(countText(results.length)), 350);
+    return () => clearTimeout(t);
+  }, [results.length]);
+
+  useEffect(() => {
+    if (open) document.getElementById("search-opt-" + sel)?.scrollIntoView({ block: "nearest" });
+  }, [sel, open]);
+
   const choose = (i: number) => {
     const r = results[i];
     if (!r || !r.live) return;
@@ -51,16 +63,18 @@ export default function SearchDialog({ open, onClose }: Props) {
     <dialog ref={ref} className="search" onClose={onClose} aria-label="Search lessons"
       onClick={(e) => { if (e.target === ref.current) onClose(); }}>
       <input autoFocus value={q} onChange={(e) => { setQ(e.target.value); setSel(0); }} onKeyDown={onKey}
-        placeholder="Search lessonsâ€¦" aria-label="Search lessons" />
+        role="combobox" aria-expanded={results.length > 0} aria-controls="search-list" aria-autocomplete="list"
+        aria-activedescendant={results.length > 0 ? "search-opt-" + sel : undefined}
+        placeholder="Search lessons…" aria-label="Search lessons" />
+      <p role="status" className="sr">{status}</p>
       {results.length === 0
         ? <p className="empty">Nothing matches "{q}".</p>
         : (
-          <ul>
+          <ul id="search-list" role="listbox" aria-label="Results">
             {results.map((r, i) => (
-              <li key={r.to || r.name}>
-                <button aria-selected={i === sel} disabled={!r.live} onClick={() => choose(i)} onMouseMove={() => setSel(i)}>
-                  {r.name}<small>{r.section}{r.live ? "" : " Â· soon"}</small>
-                </button>
+              <li key={r.to || r.name} id={"search-opt-" + i} role="option" aria-selected={i === sel}
+                aria-disabled={!r.live || undefined} onClick={() => choose(i)} onMouseMove={() => setSel(i)}>
+                {r.name}<small>{r.section}{r.live ? "" : " · soon"}</small>
               </li>
             ))}
           </ul>
