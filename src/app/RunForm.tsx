@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "../design/ui";
 import type { AnyLesson } from "../engine/types";
+import { MAX_INPUT } from "./useLessonRun";
 
 interface Props {
   lesson: AnyLesson; text: string; linkError: string; onRun(raw: string): void;
@@ -12,12 +13,13 @@ interface Props {
 
 /** The input, Run, the live check and the share link. The page keys it on the run, so Back and Forward reset the box. */
 export default function RunForm({ lesson, text, linkError, onRun, asked = null, step = 0 }: Props) {
-  const [draft, setDraft] = useState(asked ?? text);
+  const [draft, setDraft] = useState(asked !== null && asked.length <= MAX_INPUT ? asked : text);
   const [fail, setFail] = useState<{ msg: string; step: number } | null>(null);
   const [typed, setTyped] = useState(false);
   const error = fail && fail.step === step ? fail.msg : typed ? "" : linkError;
 
   const run = (raw: string) => {
+    if (raw.length > MAX_INPUT) { setFail({ msg: `That input is too long to run. Keep it under ${MAX_INPUT} characters.`, step }); return; }
     const r = lesson.parse(raw);
     if (!r.ok) { setFail({ msg: r.error, step }); return; }
     setFail(null);
@@ -25,7 +27,7 @@ export default function RunForm({ lesson, text, linkError, onRun, asked = null, 
     onRun(raw);
   };
   /* Checked as you type, shown quietly; the alert is kept for a failed Run. */
-  const check = useMemo(() => (draft === text ? null : lesson.parse(draft)), [draft, text, lesson]);
+  const check = useMemo(() => (draft === text || draft.length > MAX_INPUT ? null : lesson.parse(draft)), [draft, text, lesson]);
 
   const [copyState, setCopyState] = useState("");
   const timer = useRef<ReturnType<typeof setTimeout>>();

@@ -2,6 +2,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { MemoryRouter } from "react-router-dom";
 import { AppRoutes } from "./App";
+import { peekLesson } from "../lessons/load";
 
 const at = (path: string) => renderToStaticMarkup(
   <MemoryRouter initialEntries={[path]}><AppRoutes progress={{}} onVisit={() => {}} courseOpen={false} onCloseCourse={() => {}} /></MemoryRouter>);
@@ -44,5 +45,24 @@ describe("bad shared link", () => {
     expect(at("/stack/2?in=bogus")).toContain("could not run");
     expect(at(`/stack/2?in=${"x".repeat(1200)}`)).toContain("too long to run");
     expect(at("/stack/2")).not.toContain("could not run");
+  });
+});
+
+describe("over-long shared link", () => {
+  beforeAll(() => {
+    const mq = { matches: false, addEventListener() {}, removeEventListener() {} };
+    vi.stubGlobal("window", { innerHeight: 900, innerWidth: 1440, matchMedia: () => mq });
+  });
+  afterAll(() => { vi.unstubAllGlobals(); });
+  it("never parses or prints the huge input", () => {
+    const lesson = peekLesson("stack")!;
+    const huge = "x".repeat(400_000);
+    const spy = vi.spyOn(lesson, "parse");
+    try {
+      const html = at(`/stack/2?in=${huge}`);
+      expect(spy.mock.calls.some(([t]) => t === huge)).toBe(false);
+      expect(html).not.toContain(huge);
+      expect(html).toContain("too long to run");
+    } finally { spy.mockRestore(); }
   });
 });

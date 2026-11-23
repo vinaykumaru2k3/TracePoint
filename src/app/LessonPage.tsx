@@ -85,7 +85,7 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
   useEffect(() => {
     /* The theory tab never counts toward progress. */
     if (theory) return;
-    if (isDefault) onVisit(lesson.id, idx);
+    if (isDefault) { onVisit(lesson.id, idx); setCustom((m) => (m.max ? { text: m.text, max: 0 } : m)); }
     else setCustom((m) => runMax(m, text, idx));
   }, [theory, isDefault, text, lesson.id, idx, onVisit]);
 
