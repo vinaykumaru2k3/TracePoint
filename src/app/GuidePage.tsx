@@ -20,6 +20,7 @@ import { defaultRun } from "./Walkthrough";
 import CourseDrawer, { NARROW } from "./CourseDrawer";
 import CourseSidebar from "./CourseSidebar";
 import ErrorBoundary from "./ErrorBoundary";
+import Intro from "./Intro";
 import SideCol from "./SideCol";
 import type { ExplorerKind, ExplorerPrefs } from "../hooks/useExplorer";
 
@@ -204,6 +205,8 @@ export default function GuidePage({ progress, courseOpen, onCloseCourse, section
     : { to: `/${next.id}/1`, label: `Continue ${next.name}` });
 
   const sidebar = <CourseSidebar currentId="" currentIdx={0} progress={progress} guideId={sectionId} />;
+  const home = fixed !== undefined;
+  const intro = home ? <Intro progress={progress} key="intro" /> : null;
   const head = (
     <header className="lesson-head guide-head" key="head" style={{ "--sec": sec.color } as React.CSSProperties}>
       <div className="ghero">
@@ -245,7 +248,7 @@ export default function GuidePage({ progress, courseOpen, onCloseCourse, section
       <div className="page flow">
         <CourseDrawer open={courseOpen} onClose={onCloseCourse}>{sidebar}</CourseDrawer>
         <main className="flow-main guide" aria-label="Guide">
-          {head}
+          {intro}{head}
           <div className="gbody card">{body}</div>
           {side}
         </main>
@@ -256,7 +259,7 @@ export default function GuidePage({ progress, courseOpen, onCloseCourse, section
     <div className={`page${explorer.read ? "" : " side-shut"}`}>
       <SideCol open={explorer.read} onToggle={() => onExplorer("read", !explorer.read)}>{sidebar}</SideCol>
       <div className="center">
-        <main className="lesson card guide" aria-label="Guide">{head}<div className="gbody">{body}</div></main>
+        <main className="lesson card guide" aria-label="Guide">{intro}{head}<div className="gbody">{body}</div></main>
       </div>
       <aside className="right" aria-label="On this page and lessons">{side}</aside>
     </div>

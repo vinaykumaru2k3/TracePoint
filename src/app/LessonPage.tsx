@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { sectionOf } from "../curriculum";
 import { Icon, Kbd, KindChip, MetricCard } from "../design/ui";
@@ -92,6 +92,10 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
   /* The key legend teaches the keys once: it stays for this visit after a key press (no jump in the layout) and is gone on the next load. */
   const [keysSeen, setKeysSeen] = useStoredFlag("tracepoint-keys-seen", false);
   const [showKeys] = useState(!keysSeen);
+  /* The first-visit tip under the timeline goes once dismissed, or once the viewer reaches step 3 on their own. */
+  const [tipSeen, setTipSeen] = useStoredFlag("tracepoint-tip-seen", false);
+  useEffect(() => { if (idx >= 2 && !tipSeen) setTipSeen(true); }, [idx, tipSeen, setTipSeen]);
+  const showTip = !tipSeen && idx < 2;
   const zoom = useMemo<Zoom>(() => ({ lens: LENS, whole, onCrop: setCropped }), [whole]);
   useKeyboard({
     prev: player.back, next: () => player.jump(idx + 1), first: () => player.jump(0), last: () => player.jump(last),
@@ -234,7 +238,20 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
     </section>
   );
 
-  const rail = <Scrubber key="rail" steps={steps} idx={idx} reached={reached} name={railName} title={stepTitle} onJump={player.jump} />;
+  const rail = (
+    <Fragment key="rail">
+      <Scrubber steps={steps} idx={idx} reached={reached} name={railName} title={stepTitle} onJump={player.jump} />
+      {showTip && (
+        <div className="tip">
+          <p>
+            <span className="tip-fine">Step with <Kbd>←</Kbd> and <Kbd>→</Kbd>, drag the timeline, or open "Try your own input" below.</span>
+            <span className="tip-coarse">Tap Next, or drag the timeline.</span>
+          </p>
+          <button className="icon-btn" type="button" aria-label="Dismiss tip" onClick={() => setTipSeen(true)}><Icon name="close" size={12} /></button>
+        </div>
+      )}
+    </Fragment>
+  );
 
   /* Keyed on the run, so Back and Forward give the form a fresh draft that follows the URL. */
   const form = <RunForm key={`run:${text}\n${linkError}`} lesson={lesson} text={text} linkError={linkError} asked={asked} step={idx} custom={!isDefault} onRun={run} />;
