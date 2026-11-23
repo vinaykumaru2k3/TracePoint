@@ -1,7 +1,7 @@
 *, *::before, *::after { box-sizing: border-box; }
 html, body, #root { height: 100%; }
 html { accent-color: var(--ink); scrollbar-color: var(--line-strong) transparent; }
-body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 13px; line-height: 1.6; font-variant-ligatures: none; -webkit-font-smoothing: antialiased; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 13px; line-height: 1.6; font-variant-ligatures: none; font-size-adjust: from-font; -webkit-font-smoothing: antialiased; }
 h1, h2, h3, p, dl, dd { margin: 0; }
 h1, h2, h3 { text-wrap: balance; }
 p { text-wrap: pretty; }
@@ -139,6 +139,8 @@ a { color: inherit; text-decoration: none; }
 /* ---------- centre ---------- */
 .center { padding: 14px 6px 14px; display: flex; flex-direction: column; }
 .lesson { flex: 1; min-height: 0; padding: 14px 18px 14px; display: flex; flex-direction: column; gap: 12px; }
+/* Holds the page open while a lesson chunk loads: as tall as the stage can be at least, so nothing jumps. */
+.lesson-loading { flex: 1; min-height: clamp(320px, 56vh, 540px); }
 .lesson > * { flex: none; }
 .lesson > .stagecard { flex: 1 1 auto; min-height: 0; display: flex; }
 .lesson-head { display: grid; gap: 4px; }
@@ -327,9 +329,9 @@ a { color: inherit; text-decoration: none; }
 .search::backdrop { background: var(--scrim); }
 .search input { width: 100%; font: inherit; font-size: 15px; padding: 14px 16px; border: 0; border-bottom: 1px solid var(--line); background: transparent; color: var(--ink); outline: none; }
 .search ul { list-style: none; margin: 0; padding: 6px; max-height: 50vh; overflow: auto; }
-.search li button { width: 100%; display: flex; gap: 10px; align-items: center; text-align: left; padding: 7px 10px; border: 1px solid transparent; border-radius: var(--radius); background: none; cursor: pointer; }
-.search li button[aria-selected="true"] { border-color: var(--line-strong); background: var(--surface-2); }
-.search li button:disabled { cursor: default; color: var(--muted); }
+.search li[role="option"] { width: 100%; box-sizing: border-box; display: flex; gap: 10px; align-items: center; text-align: left; padding: 7px 10px; border: 1px solid transparent; border-radius: var(--radius); background: none; cursor: pointer; }
+.search li[role="option"][aria-selected="true"] { border-color: var(--line-strong); background: var(--surface-2); }
+.search li[role="option"][aria-disabled="true"] { cursor: default; color: var(--muted); }
 .search li small { margin-left: auto; font-size: 11px; color: var(--muted); }
 .search .empty { padding: 14px 16px; color: var(--muted); }
 
@@ -749,3 +751,20 @@ a { color: inherit; text-decoration: none; }
 
 /* Headings take focus on a page change so screen readers start there; the ring would only confuse sighted users. */
 .lesson-head h1:focus { outline: none; }
+
+/* touch screens: every control is at least 44px in both directions (the search button keeps its own wider minimum inline size) */
+@media (pointer: coarse) {
+  .icon-btn, .btn, .btn.sm, .lesson-tabs .tab { min-inline-size: 44px; min-block-size: 44px; }
+  .search-btn { min-block-size: 44px; }
+}
+
+/* the icon-only search button is 32 or 40px wide below 1120px; on touch it gets the full 44px (above 1120px its 240px minimum stands) */
+@media (pointer: coarse) and (max-width: 1120px) {
+  .search-btn { min-inline-size: 44px; }
+}
+
+/* four 44px targets no longer fit a 375px bar at the usual gaps, so tighten the gaps, not the targets */
+@media (pointer: coarse) and (max-width: 560px) {
+  .topnav { gap: 2px; padding-inline: 6px; }
+  .brand { margin-right: 0; }
+}

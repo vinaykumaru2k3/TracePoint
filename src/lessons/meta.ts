@@ -1,0 +1,58 @@
+/** Light facts about every lesson, kept apart from the lesson modules so the shell never loads one to list it.
+ *  Written as literal data; `meta.test.ts` checks it against the real lessons. Same order as the course. */
+export interface LessonMeta { id: string; title: string; section: string; /** Length of the default run. */ steps: number }
+
+export const LESSON_META: LessonMeta[] = [
+  { id: "big-o-by-counting", title: "Big-O by counting", section: "foundations", steps: 14 },
+  { id: "arrays", title: "Arrays", section: "foundations", steps: 13 },
+  { id: "strings", title: "Strings", section: "foundations", steps: 10 },
+  { id: "two-pointers", title: "Two pointers", section: "foundations", steps: 7 },
+  { id: "sliding-window", title: "Sliding window", section: "foundations", steps: 9 },
+  { id: "prefix-sums", title: "Prefix sums", section: "foundations", steps: 11 },
+  { id: "stack", title: "Stack", section: "linear", steps: 12 },
+  { id: "queue", title: "Queue", section: "linear", steps: 14 },
+  { id: "deque", title: "Deque", section: "linear", steps: 11 },
+  { id: "singly-linked-list", title: "Singly linked list", section: "linear", steps: 25 },
+  { id: "doubly-linked-list", title: "Doubly linked list", section: "linear", steps: 22 },
+  { id: "fast-and-slow-pointers", title: "Fast and slow pointers", section: "linear", steps: 11 },
+  { id: "hash-table-chaining", title: "Hash table: chaining", section: "hashing", steps: 28 },
+  { id: "open-addressing", title: "Open addressing", section: "hashing", steps: 31 },
+  { id: "frequency-map-and-two-sum", title: "Frequency map and two-sum", section: "hashing", steps: 20 },
+  { id: "call-stack", title: "Call stack", section: "recursion", steps: 14 },
+  { id: "backtracking", title: "Backtracking", section: "recursion", steps: 31 },
+  { id: "n-queens", title: "N-Queens", section: "recursion", steps: 33 },
+  { id: "linear-search", title: "Linear search", section: "sorting", steps: 6 },
+  { id: "binary-search", title: "Binary search", section: "sorting", steps: 6 },
+  { id: "bubble-sort", title: "Bubble sort", section: "sorting", steps: 22 },
+  { id: "selection-sort", title: "Selection sort", section: "sorting", steps: 24 },
+  { id: "insertion-sort", title: "Insertion sort", section: "sorting", steps: 22 },
+  { id: "merge-sort", title: "Merge sort", section: "sorting", steps: 40 },
+  { id: "quick-sort", title: "Quick sort", section: "sorting", steps: 22 },
+  { id: "counting-sort", title: "Counting sort", section: "sorting", steps: 14 },
+  { id: "tree-traversals", title: "Tree traversals", section: "trees", steps: 38 },
+  { id: "bst", title: "Binary search tree", section: "trees", steps: 33 },
+  { id: "avl-rotations", title: "AVL rotations", section: "trees", steps: 32 },
+  { id: "binary-heap", title: "Binary heap", section: "trees", steps: 25 },
+  { id: "heap-sort", title: "Heap sort", section: "trees", steps: 18 },
+  { id: "trie", title: "Trie", section: "tries", steps: 30 },
+  { id: "autocomplete", title: "Autocomplete", section: "tries", steps: 15 },
+  { id: "representations", title: "Representations", section: "graphs", steps: 15 },
+  { id: "bfs", title: "BFS", section: "graphs", steps: 24 },
+  { id: "dfs", title: "DFS", section: "graphs", steps: 24 },
+  { id: "topological-sort", title: "Topological sort", section: "graphs", steps: 17 },
+  { id: "dijkstra", title: "Dijkstra", section: "graphs", steps: 25 },
+  { id: "union-find", title: "Union-find", section: "graphs", steps: 23 },
+  { id: "kruskal-and-prim", title: "Kruskal and Prim", section: "graphs", steps: 16 },
+  { id: "fibonacci", title: "Fibonacci", section: "dp", steps: 29 },
+  { id: "climbing-stairs", title: "Climbing stairs", section: "dp", steps: 13 },
+  { id: "coin-change", title: "Coin change", section: "dp", steps: 18 },
+  { id: "knapsack", title: "0/1 knapsack", section: "dp", steps: 25 },
+  { id: "lcs", title: "Longest common subsequence", section: "dp", steps: 23 },
+  { id: "edit-distance", title: "Edit distance", section: "dp", steps: 23 },
+  { id: "bit-manipulation", title: "Bit manipulation", section: "advanced", steps: 12 },
+  { id: "greedy-intervals", title: "Greedy intervals", section: "advanced", steps: 11 },
+  { id: "segment-tree", title: "Segment tree", section: "advanced", steps: 32 }
+];
+
+export const META_BY_ID: Record<string, LessonMeta> = Object.fromEntries(LESSON_META.map((m) => [m.id, m]));
+export const DEFAULT_LESSON: string = LESSON_META[0].id;

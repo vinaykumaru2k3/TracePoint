@@ -7,7 +7,8 @@ import { CURRICULUM } from "../curriculum";
 import { GUIDES } from "../theory";
 import { AppRoutes } from "./App";
 import CourseSidebar from "./CourseSidebar";
-import { GuideView, resolveGuide } from "./GuidePage";
+import { GuideView, Thumb, resolveGuide } from "./GuidePage";
+import ErrorBoundary from "./ErrorBoundary";
 import { SEARCH_ITEMS } from "./SearchDialog";
 
 const at = (path: string) => renderToStaticMarkup(
@@ -19,6 +20,15 @@ function withUnbuiltSection<T>(fn: () => T): T {
   CURRICULUM.push({ id: NO_SECTION, n: "99", name: "Not a section", color: "var(--sec-01)", lessons: [{ id: "not-a-lesson", name: "Fibonacci" }] });
   try { return fn(); } finally { CURRICULUM.pop(); }
 }
+
+describe("Thumb", () => {
+  it("sits in its own boundary, whose fallback is the same aria-hidden placeholder", () => {
+    const el = Thumb({ id: "stack", className: "ghero-scene" }) as React.ReactElement<{ fallback(e: Error): React.ReactNode; resetKey: string }>;
+    expect(el.type).toBe(ErrorBoundary);
+    expect(el.props.resetKey).toBe("stack");
+    expect(renderToStaticMarkup(<>{el.props.fallback(new Error("chunk"))}</>)).toBe('<span class="ghero-scene" aria-hidden="true"></span>');
+  });
+});
 
 describe("GuideView", () => {
   const html = renderToStaticMarkup(<MemoryRouter><GuideView guide={GUIDES.foundations} /></MemoryRouter>);

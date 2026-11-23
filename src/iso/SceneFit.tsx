@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, type ComponentType } from "react";
+import { memo, useLayoutEffect, useRef, type ComponentType } from "react";
 import { MeasureContext, type Box, type Shot } from "./IsoScene";
 
 interface Props<S> {
@@ -35,7 +35,7 @@ function focusOf(svg: SVGSVGElement, pad: number): Box | undefined {
   return x1 > x0 ? { x: x0 - pad, y: y0 - pad, w: x1 - x0 + 2 * pad, h: y1 - y0 + 2 * pad } : undefined;
 }
 
-export default function SceneFit<S>({ steps, Scene, onFit, pad = 18 }: Props<S>) {
+function SceneFit<S>({ steps, Scene, onFit, pad = 18 }: Props<S>) {
   const ref = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
@@ -70,3 +70,6 @@ export default function SceneFit<S>({ steps, Scene, onFit, pad = 18 }: Props<S>)
     </div>
   );
 }
+
+/* Props are stable (steps, Scene, setBoxes), so a step change or a hover does not redraw every step off-screen. */
+export default memo(SceneFit) as typeof SceneFit;

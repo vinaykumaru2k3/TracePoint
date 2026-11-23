@@ -1,7 +1,7 @@
 import { Fragment } from "react";
 import { Link } from "react-router-dom";
 import { sectionOf } from "../curriculum";
-import { LESSON_BY_ID } from "../lessons";
+import { META_BY_ID } from "../lessons/meta";
 import type { Inline } from "./types";
 
 export type Token =
@@ -91,7 +91,7 @@ export function Rich({ text }: { text: Inline }) {
             const label = k.label || `${sectionOf(id)?.name ?? id} guide`;
             return <Link key={i} to={`/guide/${id}`}>{label}</Link>;
           }
-          const label = k.label || LESSON_BY_ID[k.target]?.title || k.target;
+          const label = k.label || META_BY_ID[k.target]?.title || k.target;
           return <Link key={i} to={`/${k.target}/learn`}>{label}</Link>;
         }
         return <Fragment key={i}>{k.v}</Fragment>;

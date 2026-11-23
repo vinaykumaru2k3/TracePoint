@@ -2,11 +2,13 @@ import { useEffect, useMemo, useRef } from "react";
 import { usePageFocus, usePageTitle } from "../hooks/usePage";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { folderName, sectionOf } from "../curriculum";
-import { DEFAULT_STEP_COUNT, LESSON_BY_ID } from "../lessons";
+import { LazyLesson } from "../lessons/load";
+import { META_BY_ID } from "../lessons/meta";
 import type { Progress } from "../hooks/useProgress";
 import { useMedia } from "../hooks/useMedia";
 import { GUIDES } from "../theory";
 import { Icon } from "../design/ui";
+import type { AnyLesson } from "../engine/types";
 import GrowthChart from "../theory/GrowthChart";
 import { useInk } from "../theory/useInk";
 import { growthRank } from "../theory/growth";
@@ -17,6 +19,7 @@ import { Analogy, MarkList } from "./TheoryView";
 import { defaultRun } from "./Walkthrough";
 import CourseDrawer, { NARROW } from "./CourseDrawer";
 import CourseSidebar from "./CourseSidebar";
+import ErrorBoundary from "./ErrorBoundary";
 import SideCol from "./SideCol";
 import type { ExplorerKind, ExplorerPrefs } from "../hooks/useExplorer";
 
@@ -45,8 +48,17 @@ export function Part({ id, title, children }: { id: string; title: string; child
 }
 
 /** A small still of a lesson's scene at the middle of its walkthrough. Decorative: the link names the lesson. */
-function Thumb({ id, className = "thumb" }: { id: string; className?: string }) {
-  const lesson = LESSON_BY_ID[id];
+export function Thumb({ id, className = "thumb" }: { id: string; className?: string }) {
+  /* The empty span keeps the thumbnail's size while the lesson loads, and again if its chunk fails: a missing still must not take the guide down. */
+  const blank = <span className={className} aria-hidden="true" />;
+  return (
+    <ErrorBoundary resetKey={id} fallback={() => blank}>
+      <LazyLesson id={id} fallback={blank}>{(lesson) => <ThumbScene lesson={lesson} className={className} />}</LazyLesson>
+    </ErrorBoundary>
+  );
+}
+
+function ThumbScene({ lesson, className }: { lesson: AnyLesson; className: string }) {
   const step = useMemo(() => {
     const shots = lesson.theory.shots;
     return defaultRun(lesson)[shots[Math.floor(shots.length / 2)] - 1];
@@ -61,7 +73,7 @@ function LessonRows({ guide, hooks, thumbs = false }: { guide: Guide; hooks: boo
   const sec = sectionOf(guide.section)!;
   return (
     <ul className={thumbs ? "glessons gallery" : "glessons"}>
-      {sec.lessons.map((l) => LESSON_BY_ID[l.id]
+      {sec.lessons.map((l) => META_BY_ID[l.id]
         ? (
           <li key={l.id}>
             {thumbs && <Thumb id={l.id} />}
@@ -183,8 +195,8 @@ export default function GuidePage({ progress, courseOpen, onCloseCourse, section
   const guide = GUIDES[sectionId];
 
   /* The way in: the first live lesson not yet complete, at its theory tab if never opened. */
-  const live = sec.lessons.filter((l) => LESSON_BY_ID[l.id]);
-  const isDone = (id: string) => (progress[id] ?? 0) >= Math.max(1, (DEFAULT_STEP_COUNT[id] ?? 1) - 1);
+  const live = sec.lessons.filter((l) => META_BY_ID[l.id]);
+  const isDone = (id: string) => (progress[id] ?? 0) >= Math.max(1, (META_BY_ID[id]?.steps ?? 1) - 1);
   const doneCount = live.filter((l) => isDone(l.id)).length;
   const next = live.find((l) => !isDone(l.id));
   const cta = next && (progress[next.id] === undefined
