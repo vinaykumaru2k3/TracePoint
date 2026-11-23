@@ -84,6 +84,16 @@ describe("stylesheet", () => {
     const end = block.indexOf("\n}\n");
     expect(block.slice(0, end)).not.toMatch(/\.tab small\s*\{\s*display:\s*none/);
   });
+  it("keeps stage toolbar labels on one line in the 561-1120px band", () => {
+    const from = css.indexOf("@media (min-width: 561px) and (max-width: 1120px) {");
+    expect(from).toBeGreaterThan(-1);
+    const block = css.slice(from, css.indexOf("\n}\n", from));
+    expect(block).toMatch(/\.stage-top\s*\{[^}]*flex-wrap:\s*wrap/);
+    expect(block).toMatch(/\.stage-ctl\s*\{[^}]*flex:\s*none/);
+    expect(block).toMatch(/\.stage-ctl \.btn\s*\{[^}]*white-space:\s*nowrap/);
+    expect(block).not.toContain("!important");
+    expect(css).toMatch(/\.stage-ctl \.btn\.speed\s*\{[^}]*min-inline-size:\s*96px/);
+  });
   it("hides the soon tabs at 560px and below", () => {
     const from = css.indexOf("@media (max-width: 560px) {");
     expect(from).toBeGreaterThan(-1);
