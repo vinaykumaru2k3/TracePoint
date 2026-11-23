@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
-import IsoScene from "./IsoScene";
+import IsoScene, { sceneScale } from "./IsoScene";
 import SceneFit, { fitScenes } from "./SceneFit";
 
 describe("SceneFit", () => {
@@ -17,5 +17,10 @@ describe("SceneFit", () => {
   it("IsoScene exposes --px on its svg, 1 on the server", () => {
     const html = renderToStaticMarkup(<IsoScene viewBox="0 0 100 100" label="x">{null}</IsoScene>);
     expect(html).toMatch(/<svg[^>]*style="[^"]*--px:1/);
+  });
+  it("sceneScale follows the tighter axis and guards zero sizes", () => {
+    expect(sceneScale({ x: 0, y: 0, w: 643, h: 526 }, 959, 345)).toBeCloseTo(1.525, 2);
+    expect(sceneScale({ x: 0, y: 0, w: 643, h: 100 }, 959, 345)).toBeCloseTo(0.67, 2);
+    expect(sceneScale({ x: 0, y: 0, w: 643, h: 526 }, 0, 345)).toBe(1);
   });
 });

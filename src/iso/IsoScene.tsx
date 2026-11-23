@@ -55,6 +55,12 @@ interface Props {
   children: ReactNode;
 }
 
+/** Scene units per screen pixel when `box` is fitted into a w x h element (preserveAspectRatio meet: the tighter axis rules). */
+export function sceneScale(box: Box, w: number, h: number): number {
+  if (!(w > 0) || !(h > 0) || !(box.w > 0) || !(box.h > 0)) return 1;
+  return Math.max(box.w / w, box.h / h);
+}
+
 /** The drawing surface: an SVG with a camera over an endless isometric floor. */
 export default function IsoScene({ viewBox, label, children }: Props) {
   const measuring = useContext(MeasureContext);
@@ -65,6 +71,7 @@ export default function IsoScene({ viewBox, label, children }: Props) {
   const floorRef = useRef<SVGRectElement>(null);
   const shown = useRef<Box | null>(null);
   const aimed = useRef<Box | null>(null);
+  const [px, setPx] = useState(1);
   const [size, setSize] = useState({ w: 0, h: 0 });
   const id = useId().replace(/:/g, "");
 
@@ -83,6 +90,7 @@ export default function IsoScene({ viewBox, label, children }: Props) {
     const shot = target ?? parseBox(viewBox);
     const to = measuring ? parseBox(viewBox) : follow(aimed.current, shot, size.w, size.h, MAX_SCALE, whole ? undefined : lens);
     aimed.current = to;
+    setPx(measuring ? 1 : sceneScale(to, size.w, size.h));
     if (!measuring) {
       const c = size.w > 0 && crops(to, shot);
       setCut(c ? edges(to, shot) : null);
@@ -91,7 +99,6 @@ export default function IsoScene({ viewBox, label, children }: Props) {
     const apply = (b: Box) => {
       shown.current = b;
       svg.setAttribute("viewBox", boxString(b));
-      svg.style.setProperty("--px", String(size.w > 0 ? b.w / size.w : 1));
       const f = floorRef.current;
       if (f) { f.setAttribute("x", String(b.x)); f.setAttribute("y", String(b.y)); f.setAttribute("width", String(b.w)); f.setAttribute("height", String(b.h)); }
     };
@@ -109,7 +116,7 @@ export default function IsoScene({ viewBox, label, children }: Props) {
   }, [target, viewBox, size.w, size.h, measuring, lens, whole, onCrop]);
 
   return (
-    <svg className="iso" ref={svgRef} style={{ "--px": 1 } as CSSProperties} preserveAspectRatio="xMidYMid meet" role="img" aria-label={label}>
+    <svg className="iso" ref={svgRef} style={{ "--px": px } as CSSProperties} preserveAspectRatio="xMidYMid meet" role="img" aria-label={label}>
       {!measuring && (
         <g className="floor" aria-hidden="true">
           <defs>
