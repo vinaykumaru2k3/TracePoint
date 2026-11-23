@@ -46,6 +46,16 @@ describe("bad shared link", () => {
     expect(at(`/stack/2?in=${"x".repeat(1200)}`)).toContain("too long to run");
     expect(at("/stack/2")).not.toContain("could not run");
   });
+  it("keeps the notice, the bad input and the link on later steps and tabs", () => {
+    const html = at("/stack/2?in=bogus");
+    expect(html).toContain("Step 2 of");
+    expect(html).toContain('value="bogus"');
+    expect(html).toContain('href="/stack/learn?in=bogus"');
+    expect(html).toContain('href="/stack/1?in=bogus"');
+    expect(at("/stack/learn?in=bogus")).toContain('href="/stack/1?in=bogus"');
+    expect(at(`/stack/2?in=${"x".repeat(1200)}`)).not.toContain("?in=xxxx");
+    expect(at("/stack/2")).not.toContain("?in=");
+  });
 });
 
 describe("over-long shared link", () => {

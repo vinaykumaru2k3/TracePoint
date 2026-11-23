@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { MemoryRouter } from "react-router-dom";
 import { AppRoutes } from "../app/App";
 import { LESSONS } from ".";
+import { LESSON_META } from "./meta";
 import { clearLessons, loadLesson, peekLesson, primeLessons, setLoadersForTest } from "./load";
 
 const renderAt = (path: string, onVisit: (id: string, idx: number) => void) => renderToStaticMarkup(
@@ -21,6 +22,25 @@ describe("lesson loader", () => {
     expect(l.id).toBe("stack");
     expect(peekLesson("stack")).toBe(l);
     primeLessons(LESSONS);
+  });
+
+  it("has a loader for every lesson in the registry, keyed by its folder", async () => {
+    clearLessons();
+    try {
+      for (const m of LESSON_META) await expect(loadLesson(m.id)).resolves.toMatchObject({ id: m.id });
+    } finally { primeLessons(LESSONS); }
+  });
+
+  it("keeps the page frame while a lesson's chunk is still loading", () => {
+    clearLessons();
+    setLoadersForTest({ stack: () => new Promise(() => {}) });
+    try {
+      const html = renderAt("/stack/1", () => {});
+      expect(html).toContain('aria-busy="true"');
+      expect(html).toContain("DSA");
+      expect(html).toContain('aria-label="Course"');
+      expect(html).toContain('class="page');
+    } finally { setLoadersForTest(); primeLessons(LESSONS); }
   });
 
   it("rejects an unknown id", async () => {

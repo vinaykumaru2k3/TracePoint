@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { AnyLesson } from "../engine/types";
 
 /* One lazy import per lesson folder, so each lesson is its own chunk. The folder name is the lesson id. */
@@ -40,9 +40,12 @@ export function clearLessons(): void { cache.clear(); pending.clear(); }
 export function useLesson(id: string): AnyLesson | null {
   const [, tick] = useState(0);
   const [failed, setFailed] = useState<{ id: string; error: Error } | null>(null);
+  /* Whether the render that scheduled the effect already had the lesson, so a cached mount does not render twice. */
+  const hadLesson = useRef(false);
+  hadLesson.current = cache.has(id);
   useEffect(() => {
     /* Another consumer may have filled the cache after this render returned null: re-render to pick it up. */
-    if (cache.has(id)) { tick((n) => n + 1); return; }
+    if (cache.has(id)) { if (!hadLesson.current) tick((n) => n + 1); return; }
     let live = true;
     loadLesson(id).then(
       () => { if (live) tick((n) => n + 1); },

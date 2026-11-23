@@ -19,7 +19,7 @@ export default function RunForm({ lesson, text, linkError, onRun, asked = null, 
   const error = fail && fail.step === step ? fail.msg : typed ? "" : linkError;
 
   const run = (raw: string) => {
-    if (raw.length > MAX_INPUT) { setFail({ msg: `That input is too long to run. Keep it under ${MAX_INPUT} characters.`, step }); return; }
+    if (raw.length > MAX_INPUT) { setFail({ msg: `That input is too long to run. Keep it to ${MAX_INPUT} characters or fewer.`, step }); return; }
     const r = lesson.parse(raw);
     if (!r.ok) { setFail({ msg: r.error, step }); return; }
     setFail(null);

@@ -19,6 +19,7 @@ import { Analogy, MarkList } from "./TheoryView";
 import { defaultRun } from "./Walkthrough";
 import CourseDrawer, { NARROW } from "./CourseDrawer";
 import CourseSidebar from "./CourseSidebar";
+import ErrorBoundary from "./ErrorBoundary";
 import SideCol from "./SideCol";
 import type { ExplorerKind, ExplorerPrefs } from "../hooks/useExplorer";
 
@@ -47,9 +48,14 @@ export function Part({ id, title, children }: { id: string; title: string; child
 }
 
 /** A small still of a lesson's scene at the middle of its walkthrough. Decorative: the link names the lesson. */
-function Thumb({ id, className = "thumb" }: { id: string; className?: string }) {
-  /* The empty span keeps the thumbnail's size while the lesson loads. */
-  return <LazyLesson id={id} fallback={<span className={className} aria-hidden="true" />}>{(lesson) => <ThumbScene lesson={lesson} className={className} />}</LazyLesson>;
+export function Thumb({ id, className = "thumb" }: { id: string; className?: string }) {
+  /* The empty span keeps the thumbnail's size while the lesson loads, and again if its chunk fails: a missing still must not take the guide down. */
+  const blank = <span className={className} aria-hidden="true" />;
+  return (
+    <ErrorBoundary resetKey={id} fallback={() => blank}>
+      <LazyLesson id={id} fallback={blank}>{(lesson) => <ThumbScene lesson={lesson} className={className} />}</LazyLesson>
+    </ErrorBoundary>
+  );
 }
 
 function ThumbScene({ lesson, className }: { lesson: AnyLesson; className: string }) {

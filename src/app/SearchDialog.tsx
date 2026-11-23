@@ -4,7 +4,7 @@ import { CURRICULUM } from "../curriculum";
 import { META_BY_ID } from "../lessons/meta";
 import { GUIDES } from "../theory";
 
-interface Props { open: boolean; onClose(): void }
+interface Props { open: boolean; onClose(): void; /** Tests only: the text the box starts with. */ initialQuery?: string }
 
 /** What search can open: each guide (as "<Section> guide"), then every live lesson. */
 export const SEARCH_ITEMS: { name: string; section: string; to: string }[] = [
@@ -17,9 +17,9 @@ const ALL = [...SEARCH_ITEMS.map((i) => ({ ...i, live: true })), ...SOON.map((i)
 export const countText = (n: number) => (n === 0 ? "No results" : n === 1 ? "1 result" : `${n} results`);
 
 /** Ctrl/Cmd+K lesson search on a native <dialog>. */
-export default function SearchDialog({ open, onClose }: Props) {
+export default function SearchDialog({ open, onClose, initialQuery = "" }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
-  const [q, setQ] = useState("");
+  const [q, setQ] = useState(initialQuery);
   const [sel, setSel] = useState(0);
   const navigate = useNavigate();
 
@@ -63,7 +63,7 @@ export default function SearchDialog({ open, onClose }: Props) {
     <dialog ref={ref} className="search" onClose={onClose} aria-label="Search lessons"
       onClick={(e) => { if (e.target === ref.current) onClose(); }}>
       <input autoFocus value={q} onChange={(e) => { setQ(e.target.value); setSel(0); }} onKeyDown={onKey}
-        role="combobox" aria-expanded={results.length > 0} aria-controls="search-list" aria-autocomplete="list"
+        role="combobox" aria-expanded={results.length > 0} aria-controls={results.length > 0 ? "search-list" : undefined} aria-autocomplete="list"
         aria-activedescendant={results.length > 0 ? "search-opt-" + sel : undefined}
         placeholder="Search lessons…" aria-label="Search lessons" />
       <p role="status" className="sr">{status}</p>

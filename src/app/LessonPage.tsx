@@ -46,9 +46,28 @@ export default function LessonPage(props: Props) {
   if (!meta) return <Navigate to={`/${DEFAULT_LESSON}/1`} replace />;
   /* The lesson's chunk loads on demand. Until it arrives nothing below runs, so no progress is reported. */
   return (
-    <LazyLesson key={meta.id} id={meta.id} fallback={<main className="lesson-loading" aria-busy="true" aria-label={`Loading ${meta.title}`} />}>
+    <LazyLesson key={meta.id} id={meta.id} fallback={<LoadingFrame id={meta.id} title={meta.title} {...props} />}>
       {(lesson) => <LessonView lesson={lesson} stepParam={step} {...props} />}
     </LazyLesson>
+  );
+}
+
+/** The page frame while a lesson's chunk loads: the course tree stays, and the centre holds the stage's height, so nothing jumps when the lesson arrives. */
+function LoadingFrame({ id, title, view, progress, courseOpen, onCloseCourse, explorer, onExplorer }: Props & { id: string; title: string }) {
+  const narrow = useMedia(NARROW);
+  const sidebar = <CourseSidebar currentId={id} currentIdx={0} progress={progress} />;
+  const busy = <main className="lesson-loading card" aria-busy="true" aria-label={`Loading ${title}`} />;
+  if (narrow) {
+    return <div className="page flow"><CourseDrawer open={courseOpen} onClose={onCloseCourse}>{sidebar}</CourseDrawer>{busy}</div>;
+  }
+  const kind: ExplorerKind = view === "theory" ? "read" : "trace";
+  const open = explorer[kind];
+  return (
+    <div className={`page${open ? "" : " side-shut"}`}>
+      <SideCol open={open} onToggle={() => onExplorer(kind, !open)}>{sidebar}</SideCol>
+      <div className="center">{busy}</div>
+      <aside className="right" aria-label="Explanation and code" />
+    </div>
   );
 }
 

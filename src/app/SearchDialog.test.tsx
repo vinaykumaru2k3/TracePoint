@@ -24,6 +24,17 @@ describe("search combobox", () => {
   });
 });
 
+describe("search combobox with no results", () => {
+  const empty = renderToStaticMarkup(<MemoryRouter><SearchDialog open onClose={() => {}} initialQuery="zzzzqq" /></MemoryRouter>);
+  it("collapses and points at nothing", () => {
+    expect(empty).toContain('aria-expanded="false"');
+    expect(empty).not.toContain("aria-activedescendant");
+    expect(empty).not.toContain("aria-controls");
+    expect(empty).not.toContain('id="search-list"');
+    expect(empty).toContain("Nothing matches");
+  });
+});
+
 describe("encoding and copy", () => {
   it("keeps the placeholder and the soon label as real UTF-8", () => {
     expect(html).toContain("placeholder=\"Search lessons…\"");
