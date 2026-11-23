@@ -142,7 +142,7 @@ export function generateEdit({ a, b }: EditInput): Step<EditState>[] {
       idea = "To list the edits, walk back from the corner. When the letters match, keep the letter for free and move diagonally.";
       text = `Letter ${i} of the first word and letter ${j} of the second are both ${x}. Keep it, with no edit, and move up and left to ${to}.`;
     } else {
-      anchors.push("ed.tbrep"); notes["ed.tbrep"] = `dp = ${dp[i][j]}, diagonal + 1 = ${j > 0 && i > 0 ? (dp[i - 1][j - 1] as number) + 1 : "-"}`;
+      anchors.push("ed.tbrep"); notes["ed.tbrep"] = `the cell is not diagonal + 1`;
       if (mv.kind === "rep") {
         tag = `rep ${y}`; to = `(${i - 1}, ${j - 1})`;
         notes["ed.tbrep"] = `the cell is diagonal + 1: replace ${x} with ${y}, move to ${to}`;
@@ -150,7 +150,7 @@ export function generateEdit({ a, b }: EditInput): Step<EditState>[] {
         idea = "When the letters differ and the cell is the diagonal plus 1, the edit was a replace. Move diagonally.";
         text = `${x} and ${y} differ, and the cell is the diagonal plus 1. So ${x} was replaced with ${y}. Move up and left to ${to}.`;
       } else {
-        anchors.push("ed.tbdel"); notes["ed.tbdel"] = `dp = ${dp[i][j]}, above + 1 = ${i > 0 ? (dp[i - 1][j] as number) + 1 : "-"}`;
+        anchors.push("ed.tbdel"); notes["ed.tbdel"] = `the cell is not above + 1`;
         if (mv.kind === "del") {
           tag = `del ${x}`; to = `(${i - 1}, ${j})`;
           notes["ed.tbdel"] = `the cell is above + 1: delete ${x}, move to ${to}`;

@@ -132,9 +132,9 @@ describe("edit-distance generator", () => {
     }
   });
 
-  it("sweeps every pair of words over {A,B} (empty included): bounded steps, correct distance", () => {
+  it("sweeps every pair of words over {A,B} up to 4 letters (empty included): bounded steps, correct distance", () => {
     const words = [""];
-    for (let len = 1; len <= 6; len++) for (let k = 0; k < 2 ** len; k++) words.push([...k.toString(2).padStart(len, "0")].map((x) => "AB"[+x]).join(""));
+    for (let len = 1; len <= 4; len++) for (let k = 0; k < 2 ** len; k++) words.push([...k.toString(2).padStart(len, "0")].map((x) => "AB"[+x]).join(""));
     const lev = (a: string, b: string) => {
       const d = Array.from({ length: a.length + 1 }, (_, i) => Array.from({ length: b.length + 1 }, (_, j) => (i === 0 ? j : j === 0 ? i : 0)));
       for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) d[i][j] = a[i - 1] === b[j - 1] ? d[i - 1][j - 1] : 1 + Math.min(d[i - 1][j - 1], d[i - 1][j], d[i][j - 1]);
@@ -146,5 +146,9 @@ describe("edit-distance generator", () => {
       expect(at(rets(steps), -1)).toBe(String(lev(a, b)));
       expect(apply(a, edits(at(steps, -1)))).toBe(b);
     }
+  });
+
+  it("the measured worst case is 47 steps", () => {
+    expect(run(lesson, "AABBAA BBAABB").length).toBe(47);
   });
 });

@@ -6,12 +6,12 @@ const theory: LessonTheory = {
   analogy:
     "You fix a typo in a message with a keyboard. Each key press adds a letter, removes a letter, or overwrites one. The edit distance is the fewest key presses that turn the typo into the word you meant.",
   steps: [
-    "Say what a cell means. A prefix is the first few letters of a word. dp[i][j] is the fewest edits that turn the first i letters of one word into the first j letters of the other.",
+    "Say what a cell means. The first word has n letters and runs down the rows. The second has m letters and runs along the columns. dp[i][j] is the fewest edits that turn the first i letters of the first word into the first j letters of the second. Those first letters are a prefix.",
     "Set the edges. Column 0 holds 0 to n, because i letters become nothing with i deletes. Row 0 holds 0 to m, because j letters are built from nothing with j inserts.",
     "For a cell whose letters differ, read three neighbours: the diagonal (replace), the cell above (delete) and the cell to the left (insert). The cell is 1 plus the smallest of the three.",
     "For a cell whose letters match, no edit is needed. Copy the diagonal cell dp[i-1][j-1].",
     "List the edits by walking back from the last cell. A match keeps its letter and moves diagonally. Otherwise name the edit the cell came from. Replace moves diagonally, delete moves up, insert moves left.",
-    "Keep going until you reach the top-left cell. The strip then holds every edit in word order, ending with the replace of the first letter.",
+    "Keep going until you reach the top-left cell. The strip then holds every edit in word order, so the first letter's edit comes first.",
     "Return dp[n][m]. It is the edit distance between the two whole words."
   ],
   shots: [1, 2, 3, 7, 18, 22, 23],

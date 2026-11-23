@@ -26,7 +26,7 @@ const theory: LessonTheory = {
   ],
   avoidWhen: [
     "You need a shared run of letters with no gaps, called a substring. A subsequence may skip letters, so it answers a different question.",
-    "You need the number of edits between two words. Edit distance counts insertions, deletions and swaps, which this table does not."
+    "You need the number of edits between two words. Edit distance counts insertions, deletions and replacements, which this table does not."
   ],
   example: [
     "Take AGCAT and GAC. Row 0 and column 0 are 0. A and G differ, so dp[1][1] takes the larger of 0 and 0, which is 0.",
