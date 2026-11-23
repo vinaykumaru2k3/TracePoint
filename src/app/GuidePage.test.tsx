@@ -13,6 +13,13 @@ import { SEARCH_ITEMS } from "./SearchDialog";
 const at = (path: string) => renderToStaticMarkup(
   <MemoryRouter initialEntries={[path]}><AppRoutes progress={{}} onVisit={() => {}} courseOpen={false} onCloseCourse={() => {}} /></MemoryRouter>);
 
+/** Every real section is live now, so a section "that has no lessons yet" is a synthetic one added to the curriculum for the length of `fn`. */
+const NO_SECTION = "not-a-section";
+function withUnbuiltSection<T>(fn: () => T): T {
+  CURRICULUM.push({ id: NO_SECTION, n: "99", name: "Not a section", color: "var(--sec-01)", lessons: [{ id: "not-a-lesson", name: "Fibonacci" }] });
+  try { return fn(); } finally { CURRICULUM.pop(); }
+}
+
 describe("GuideView", () => {
   const html = renderToStaticMarkup(<MemoryRouter><GuideView guide={GUIDES.foundations} /></MemoryRouter>);
   it("sets a cheat-sheet row name as a row header with its qualifier on its own line, and tints cost cells", () => {
@@ -41,7 +48,7 @@ describe("GuideView", () => {
   it("links live lessons to their theory tab and marks soon lessons", () => {
     expect(html).toContain('href="/arrays/learn"');
     /* A section whose lessons are not built yet lists them as plain text with a soon tag. */
-    const soon = renderToStaticMarkup(<MemoryRouter><GuideView guide={{ ...GUIDES.foundations, section: "dp" }} /></MemoryRouter>);
+    const soon = withUnbuiltSection(() => renderToStaticMarkup(<MemoryRouter><GuideView guide={{ ...GUIDES.foundations, section: NO_SECTION }} /></MemoryRouter>));
     expect(soon).toContain('class="soon-tag">soon</small>');
     expect(soon).not.toContain("/learn\">Fibonacci");
   });
@@ -53,8 +60,10 @@ describe("guide routes", () => {
     expect(at("/guide/nope")).not.toContain("arrives with its lessons");
   });
   it("says a section without a guide arrives with its lessons", () => {
-    expect(resolveGuide("dp")).toBe("missing");
-    const html = at("/guide/dp");
+    const html = withUnbuiltSection(() => {
+      expect(resolveGuide(NO_SECTION)).toBe("missing");
+      return at(`/guide/${NO_SECTION}`);
+    });
     expect(html).toContain("arrives with its lessons");
     expect(html).toContain('href="/guide/foundations"');
   });
