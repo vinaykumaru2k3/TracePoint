@@ -319,12 +319,12 @@
 
 **Files:** `CLAUDE.md` (type tiers, fold rules, storage keys), `docs/plans/batch3-hierarchy-onramp.md` (tick the boxes), plus screenshots in the scratchpad.
 
-- [ ] **Step 1:** Run `npx tsc --noEmit && npx vitest run && npm run build`. Expected: all clean.
-- [ ] **Step 2:** Run `impeccable detect --json` on the changed files and on `#/dijkstra/5`, `#/stack/3`, `#/guide/foundations` and `#/`. Expected: no new findings; `nested-cards` and `straggler` are gone.
-- [ ] **Step 3:** Run `impeccable shot` at 1440×900, 1024×768 and 375×812 in light and dark for `#/`, `#/stack/3`, `#/dijkstra/5` and `#/lcs/10`.
-- [ ] **Step 4: Run the Batch 1 phone sweep script** (all 49 lessons, steps 1–3, at 375×812). Expected: every sentence top is ≤674px and nothing overflows. Then reset the viewport to desktop.
+- [x] **Step 1:** Run `npx tsc --noEmit && npx vitest run && npm run build`. Expected: all clean.
+- [x] **Step 2:** Run `impeccable detect --json` on the changed files and on `#/dijkstra/5`, `#/stack/3`, `#/guide/foundations` and `#/`. Expected: no new findings; `nested-cards` and `straggler` are gone.
+- [x] **Step 3:** Run `impeccable shot` at 1440×900, 1024×768 and 375×812 in light and dark for `#/`, `#/stack/3`, `#/dijkstra/5` and `#/lcs/10`.
+- [x] **Step 4: Run the Batch 1 phone sweep script** (all 49 lessons, steps 1–3, at 375×812). Expected: every sentence top is ≤674px and nothing overflows. Then reset the viewport to desktop.
 - [ ] **Step 5: Re-run the critique** on the trace page with the same rubric as the November review. Expected: H6 and H8 are each ≥4, and the total is ≥36/40. List anything under 4 as a follow-up.
-- [ ] **Step 6:** Update `CLAUDE.md`. Commit `docs: Batch 3 hierarchy rules`. Push and open the PR, then call `get_status` and bind it.
+- [x] **Step 6:** Update `CLAUDE.md`. Commit `docs: Batch 3 hierarchy rules`. Push and open the PR, then call `get_status` and bind it.
 
 ## Out of scope (parked, with where they go)
 
