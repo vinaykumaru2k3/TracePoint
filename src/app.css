@@ -170,7 +170,7 @@ a { color: inherit; text-decoration: none; }
 .metrics .metric { min-width: 86px; }
 .stage-ctl { margin-left: auto; display: flex; gap: 6px; align-items: center; }
 .stage-ctl .zoom[aria-pressed="true"] { border-color: var(--inv-bg); background: var(--inv-bg); color: var(--inv-fg); }
-.stage-ctl .speed { min-inline-size: 9ch; font-variant-numeric: tabular-nums; }
+.stage-ctl .btn.speed { min-inline-size: 90px; font-variant-numeric: tabular-nums; }
 /* Play is a strong secondary (edge outline); Next in the explanation is the one primary. */
 .stage-ctl .play { position: relative; overflow: hidden; padding: 4px 14px; gap: 8px; justify-content: center; min-width: 104px; border-color: var(--edge); font-size: 12px; }
 /* countdown to the next step while playing, along the play button's bottom edge */
@@ -485,7 +485,11 @@ a { color: inherit; text-decoration: none; }
   .explain h2 { font-size: 17px; }
   .explain p { font-size: 14px; line-height: 1.55; }
   .idea { font-size: 14px; line-height: 1.55; }
-  .stage-ctl { margin-left: 0; }
+  .stage-ctl { margin-left: 0; gap: 4px; }
+  /* the widest speed label (Speed 0.5×) is reserved, so the four controls share the row with slack */
+  .stage-ctl .btn.sm { padding-inline: 8px; }
+  .stage-ctl .play { min-width: 84px; padding-inline: 10px; }
+  .stage-ctl .zoom .icon { display: none; }
   .flow-main .explain .pane-title, .flow-main .explain .nav, .flow-main .explain .keys, .flow-main .explain > .head { display: none; }
   /* The step bar already reads "Step N/M · op" and the timeline counts the steps, so the head drops its meta line. */
   .lesson-head.trace-head .meta { display: none; }

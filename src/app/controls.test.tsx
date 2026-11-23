@@ -66,4 +66,13 @@ describe("stylesheet", () => {
     const end = block.indexOf("\n}\n");
     expect(block.slice(0, end)).not.toMatch(/\.tab small\s*\{\s*display:\s*none/);
   });
+  it("hides the soon tabs at 560px and below", () => {
+    const from = css.indexOf("@media (max-width: 560px) {");
+    expect(from).toBeGreaterThan(-1);
+    const end = css.indexOf("\n}\n", from);
+    expect(css.slice(from, end)).toMatch(/\.tabs \.soon\s*\{\s*display:\s*none/);
+  });
+  it("reserves the widest speed label so the toolbar does not reflow", () => {
+    expect(css).toMatch(/\.stage-ctl \.btn\.speed\s*\{[^}]*min-inline-size:\s*90px/);
+  });
 });
