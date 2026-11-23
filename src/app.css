@@ -37,11 +37,12 @@ a { color: inherit; text-decoration: none; }
 .chip { display: inline-block; font-family: var(--mono); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; padding: 0 8px; border: 1px solid var(--line-strong); border-radius: var(--radius); color: var(--on-c); }
 .explain .chip { font-size: var(--fs-chrome); }
 .kbd { font: inherit; font-family: var(--mono); font-size: 11px; padding: 0 5px; border: 1px solid var(--line-strong); border-bottom-width: 2px; border-radius: 4px; background: var(--surface); color: var(--muted); }
-/* Live values read as a row of figures split by hairlines, not as cards inside the lesson card. */
-.metric { min-width: 0; padding: 2px 14px 2px 0; }
-.metric + .metric { padding-left: 14px; border-left: 1px solid var(--line); }
-.metric small { display: block; font-size: var(--fs-chrome); font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
-.metric b { font-family: var(--mono); display: block; font-size: calc(var(--fs-chrome) + 2px); color: var(--ink); line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-variant-numeric: tabular-nums; }
+/* Live values are one muted line: `label value · label value`, the values in ink. */
+.metrics { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; min-width: 0; font-size: var(--fs-chrome); color: var(--muted); }
+.metric { min-width: 0; white-space: nowrap; }
+.metric small { font-size: var(--fs-chrome); font-weight: 400; color: var(--muted); }
+.metric b { font-family: var(--mono); font-size: var(--fs-chrome); font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+.metrics .sep { color: var(--muted); }
 .pane-title, .pane-title-label { font-family: var(--mono); font-size: 11px; font-weight: 500; line-height: 1.4; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
 .pane-title { padding: 7px 14px; border-bottom: 1px solid var(--line); }
 .lbl { font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }
@@ -168,8 +169,6 @@ a { color: inherit; text-decoration: none; }
 /* The floor: an isometric dot grid drawn in scene units, so it slides and scales with the camera. */
 .floor circle { fill: var(--grid-dot); stroke: none; }
 .stage-top { position: relative; display: flex; align-items: flex-start; gap: 10px; }
-.metrics { display: flex; gap: 6px 0; flex-wrap: wrap; }
-.metrics .metric { min-width: 86px; }
 .stage-ctl { margin-left: auto; display: flex; gap: 6px; align-items: center; }
 .stage-ctl .zoom[aria-pressed="true"] { border-color: var(--inv-bg); background: var(--inv-bg); color: var(--inv-fg); }
 .stage-ctl .btn.speed { min-inline-size: 96px; font-variant-numeric: tabular-nums; }
@@ -243,14 +242,14 @@ a { color: inherit; text-decoration: none; }
 .lesson > .run-fold > .run .hint.quiet { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 .memhead { font-size: var(--fs-chrome); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: baseline; }
-.memhead .lbl { color: var(--ink); font-size: var(--fs-chrome); }
+.memhead .memtitle { color: var(--ink); font-size: var(--fs-chrome); font-weight: 600; }
 .memhead .costs { font-size: var(--fs-chrome); }
 .mem > summary { list-style: none; cursor: pointer; border-radius: 4px; }
 .mem > summary::-webkit-details-marker { display: none; }
-.memhead .lbl { display: inline-flex; align-items: center; gap: 8px; }
-.memhead .lbl::before { content: ""; width: 6px; height: 6px; flex: none; border: solid var(--muted); border-width: 0 1.5px 1.5px 0; transform: rotate(-45deg); transition: transform 0.15s; }
-.mem[open] .memhead .lbl::before { transform: rotate(45deg); }
-.mem > summary:hover .lbl::before { border-color: var(--ink); }
+.memhead .memtitle { display: inline-flex; align-items: center; gap: 8px; }
+.memhead .memtitle::before { content: ""; width: 6px; height: 6px; flex: none; border: solid var(--muted); border-width: 0 1.5px 1.5px 0; transform: rotate(-45deg); transition: transform 0.15s; }
+.mem[open] .memhead .memtitle::before { transform: rotate(45deg); }
+.mem > summary:hover .memtitle::before { border-color: var(--ink); }
 .costs { display: flex; gap: 12px; flex-wrap: wrap; font-size: 11px; color: var(--muted); }
 .costs b { color: var(--ink); font-weight: 600; }
 .cells { display: grid; gap: 6px; margin-top: 6px; }
@@ -413,7 +412,7 @@ a { color: inherit; text-decoration: none; }
   .box, .ptr, .tree-tag, .bar i, .btn, .ln, .edge, .win, .icon-btn, .scrub-head, .scrub-base i, .scrub-ticks li::before, .page, .side-body, .side-col.shut .side-body { transition: none; }
   .enter, .crop-cues path, .ring.fresh .ring-arc, .ring.fresh .ring-check, .drawer[open] .drawer-sheet, .drawer[open]::backdrop { animation: none; }
   .tick { display: none; }
-  .run-fold > summary::before, .memhead .lbl::before { transition: none; }
+  .run-fold > summary::before, .memhead .memtitle::before { transition: none; }
   .leaving { display: none; }
 }
 
@@ -433,9 +432,7 @@ a { color: inherit; text-decoration: none; }
 @media (min-width: 1121px) and (max-width: 1360px) {
   .page { --side-open: 256px; grid-template-columns: var(--side-w) minmax(0, 1fr) 372px; }
   /* keep the live values on one line so the stage does not lose a row */
-  .stage-top .metrics { flex-wrap: nowrap; flex: 0 1 auto; min-width: 0; }
-  .stage-top .metric { min-width: 48px; padding-right: 10px; }
-  .stage-top .metric + .metric { padding-left: 10px; }
+  .stage-top .metrics { flex: 0 1 auto; min-width: 0; }
   .stage-ctl .play { min-width: 0; padding: 4px 10px; }
 }
 
@@ -490,11 +487,8 @@ a { color: inherit; text-decoration: none; }
      the live values sit on one line, the drawing gets 240px, and the explanation drops what the step bar repeats. */
   .stage { height: auto; grid-template-rows: auto 240px auto; }
   .stage-top { flex-direction: column; gap: 8px; }
-  .metrics { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); width: 100%; }
-  .metrics .metric { min-width: 0; padding-right: 6px; }
-  .metrics .metric + .metric { padding-left: 8px; }
-  .metric small { font-size: var(--fs-micro); letter-spacing: 0.03em; overflow: hidden; text-overflow: ellipsis; }
-  .metric b { font-size: 14px; }
+  .metrics { width: 100%; }
+  .metric small { font-size: var(--fs-micro); }
   /* the explanation is pinned so the sentence still starts above the step bar */
   .explain h2 { font-size: 17px; }
   .explain .say { font-size: 14px; line-height: 1.55; }

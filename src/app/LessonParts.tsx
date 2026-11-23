@@ -33,7 +33,7 @@ export function MemoryStrip({ lesson, step }: { lesson: AnyLesson; step: ReturnT
   return (
     <details className="mem" open={open} onToggle={onToggle}>
       <summary className="memhead">
-        <span className="lbl">{mem.title}</span>
+        <span className="memtitle">{mem.title}</span>
         <span className="costs">{lesson.costs.map(([n, c]: [string, string]) => <span key={n}><b>{c}</b> {n}</span>)}</span>
       </summary>
       {mem.layout === "table" ? (

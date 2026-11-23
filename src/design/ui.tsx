@@ -41,10 +41,9 @@ export function Kbd({ children }: { children: ReactNode }) {
 
 export function MetricCard({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="metric">
-      <small>{label}</small>
-      <b>{value}</b>
-    </div>
+    <span className="metric">
+      <small>{label}</small> <b>{value}</b>
+    </span>
   );
 }
 

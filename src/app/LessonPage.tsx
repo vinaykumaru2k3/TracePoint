@@ -189,7 +189,12 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
       <div className="stage">
         <div className="stage-top">
           <div className="metrics" aria-label="Live values">
-            {lesson.metrics(step).map((m: { label: string; value: string | number }) => <MetricCard key={m.label} {...m} />)}
+            {lesson.metrics(step).map((m: { label: string; value: string | number }, i: number) => (
+              <Fragment key={m.label}>
+                {i > 0 && <span className="sep" aria-hidden="true">·</span>}
+                <MetricCard {...m} />
+              </Fragment>
+            ))}
           </div>
           <div className="stage-ctl">
             <button className="btn sm zoom" type="button" onClick={onWhole} disabled={!cropped && !whole} aria-pressed={whole} title="Fit the whole drawing on the stage, or read it up close (F)">
