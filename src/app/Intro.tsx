@@ -12,8 +12,15 @@ import { defaultRun } from "./Walkthrough";
 export const INTRO_KEY = "tracepoint-intro-hidden";
 const SHOWN = 3;
 
+/** The lines with their shared leading whitespace removed, so relative indentation survives. */
+export function dedent(lines: string[]): string {
+  const margin = Math.min(...lines.filter((l) => l.trim()).map((l) => /^\s*/.exec(l)![0].length), Infinity);
+  const cut = margin === Infinity ? 0 : margin;
+  return lines.map((l) => l.slice(cut).trimEnd()).join("\n");
+}
+
 /** Three steps of the stack's default run, played by hand: the picture, the sentence and the line that ran. */
-function MiniTrace({ lesson }: { lesson: AnyLesson }) {
+export function MiniTrace({ lesson }: { lesson: AnyLesson }) {
   /* Step 0 is the problem statement; the demo starts at the first push. */
   const steps = useMemo(() => defaultRun(lesson).slice(1, 1 + SHOWN), [lesson]);
   const java = useMemo(() => parseAll(lesson.code).java, [lesson]);
@@ -27,11 +34,11 @@ function MiniTrace({ lesson }: { lesson: AnyLesson }) {
     setI(n);
     setSaid(`Step ${n + 1} of ${steps.length}. ${s.title}. ${s.text}`);
   };
-  const code = linesFor(java, step.anchors).map((n) => java.lines[n - 1].trim()).join("\n");
+  const code = dedent(linesFor(java, step.anchors).map((n) => java.lines[n - 1]));
   return (
     <div className="mini" role="group" aria-label="A three-step example">
       <div className="mini-scene" aria-hidden="true"><lesson.Scene step={step} /></div>
-      <h2 className="mini-title">{step.title}</h2>
+      <p className="mini-title">{step.title}</p>
       <p className="mini-text">{step.text}</p>
       <pre className="mini-code" aria-label="Line that ran"><code>{code}</code></pre>
       <div className="mini-nav">

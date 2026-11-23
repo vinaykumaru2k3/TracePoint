@@ -6,6 +6,7 @@ import { usePlayer } from "../engine/usePlayer";
 import type { AnyLesson } from "../engine/types";
 import { useKeyboard } from "../hooks/useKeyboard";
 import { useMedia } from "../hooks/useMedia";
+import { useTip } from "../hooks/useTip";
 import { useStoredFlag } from "../hooks/useStoredFlag";
 import { usePageFocus, usePageTitle } from "../hooks/usePage";
 import type { Progress } from "../hooks/useProgress";
@@ -93,9 +94,7 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
   const [keysSeen, setKeysSeen] = useStoredFlag("tracepoint-keys-seen", false);
   const [showKeys] = useState(!keysSeen);
   /* The first-visit tip under the timeline goes once dismissed, or once the viewer reaches step 3 on their own. */
-  const [tipSeen, setTipSeen] = useStoredFlag("tracepoint-tip-seen", false);
-  useEffect(() => { if (idx >= 2 && !tipSeen) setTipSeen(true); }, [idx, tipSeen, setTipSeen]);
-  const showTip = !tipSeen && idx < 2;
+  const { showTip, dismissTip } = useTip(idx);
   const zoom = useMemo<Zoom>(() => ({ lens: LENS, whole, onCrop: setCropped }), [whole]);
   useKeyboard({
     prev: player.back, next: () => player.jump(idx + 1), first: () => player.jump(0), last: () => player.jump(last),
@@ -247,7 +246,7 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
             <span className="tip-fine">Step with <Kbd>←</Kbd> and <Kbd>→</Kbd>, drag the timeline, or open "Try your own input" below.</span>
             <span className="tip-coarse">Tap Next, or drag the timeline.</span>
           </p>
-          <button className="icon-btn" type="button" aria-label="Dismiss tip" onClick={() => setTipSeen(true)}><Icon name="close" size={12} /></button>
+          <button className="icon-btn" type="button" aria-label="Dismiss tip" onClick={dismissTip}><Icon name="close" size={12} /></button>
         </div>
       )}
     </Fragment>
