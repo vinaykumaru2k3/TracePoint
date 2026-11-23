@@ -25,6 +25,18 @@ describe("skip link", () => {
     expect(html.match(FOCUSABLE)![0]).toBe('<a class="skip" href="#step-controls">');
     expect(html).toContain("Skip to step controls</a>");
   });
+  it("on step 1 the first enabled button in the controls is Next, not the disabled Back", () => {
+    const html = at("/stack/1");
+    const nav = html.match(/<div[^>]*id="step-controls"[^>]*>.*?<\/div>/)![0];
+    expect(nav.match(/<button[^>]*>/)![0]).toContain("disabled");
+    const enabled = [...nav.matchAll(/<button([^>]*)>/g)].filter((m) => !/disabled/.test(m[1]));
+    expect(enabled).toHaveLength(1);
+    expect(enabled[0][1]).toContain("primary");
+  });
+  it("focuses an enabled button, so it works when Back is disabled", () => {
+    const src: string = readFileSync("src/app/App.tsx", "utf8");
+    expect(src).toContain('querySelector<HTMLButtonElement>("button:not(:disabled)")');
+  });
   it("is absent on guide and theory routes", () => {
     expect(at("/")).not.toContain('class="skip"');
     expect(at("/guide/trees")).not.toContain('class="skip"');

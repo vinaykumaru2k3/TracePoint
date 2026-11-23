@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { peekLesson } from "../lessons/load";
 import { mount, text, walk } from "../test/hookHarness";
 
@@ -12,6 +12,7 @@ beforeEach(() => {
   data = {};
   vi.stubGlobal("localStorage", { getItem: (k: string) => data[k] ?? null, setItem: (k: string, v: string) => { data[k] = v; } });
 });
+afterEach(() => { vi.unstubAllGlobals(); });
 const button = (tree: unknown, label: string) => walk(tree).find((e) => e.type === "button" && (e.props["aria-label"] === label || text(e) === label))!;
 const click = (b: { props: Record<string, unknown> }) => (b.props.onClick as () => void)();
 

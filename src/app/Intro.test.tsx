@@ -66,3 +66,15 @@ describe("trace tip", () => {
     expect(at("/stack/3")).not.toContain('aria-label="Dismiss tip"');
   });
 });
+
+describe("one primary way in", () => {
+  const hero = (html: string) => html.match(/<a class="([^"]*)" href="\/big-o-by-counting\/learn"/)![1];
+  it("demotes the hero button while the intro shows", () => {
+    store({});
+    expect(hero(at("/"))).toBe("btn");
+  });
+  it("keeps the hero primary once the intro is hidden", () => {
+    store({ "tracepoint-intro-hidden": "1" });
+    expect(hero(at("/"))).toBe("btn primary");
+  });
+});

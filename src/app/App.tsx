@@ -26,7 +26,7 @@ export function SkipLink() {
     e.preventDefault();
     /* The desktop Back/Next is hidden on a phone, where the step bar stands in. */
     const bars = [...document.querySelectorAll<HTMLElement>("#step-controls, [data-step-controls]")];
-    bars.find((el) => el.getClientRects().length > 0)?.querySelector("button")?.focus();
+    bars.find((el) => el.getClientRects().length > 0)?.querySelector<HTMLButtonElement>("button:not(:disabled)")?.focus();
   };
   return <a className="skip" href="#step-controls" onClick={go}>Skip to step controls</a>;
 }

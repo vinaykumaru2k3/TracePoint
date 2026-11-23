@@ -50,6 +50,24 @@ describe("controls say what they do", () => {
       vi.stubGlobal("window", { innerHeight: 900, innerWidth: 1440, matchMedia: () => dq });
     }
   });
+  it("names the step in the phone step bar with the scrubber's rail name", () => {
+    const html = at("/dijkstra/5");
+    const rail = text(html.match(/<span class="scrub-head"[^>]*><b>(.*?)<\/b>/)![1]).replace(/^\d+/, "");
+    const mq = { matches: true, addEventListener() {}, removeEventListener() {} };
+    vi.stubGlobal("window", { innerHeight: 812, innerWidth: 375, matchMedia: () => mq });
+    try {
+      const bar = at("/dijkstra/5").match(/<nav class="stepbar".*?<\/nav>/)![0];
+      expect(bar).toContain(`<b>${rail}</b>`);
+      expect(bar).not.toContain("<b>dijkstra(A)</b>");
+    } finally {
+      const dq = { matches: false, addEventListener() {}, removeEventListener() {} };
+      vi.stubGlobal("window", { innerHeight: 900, innerWidth: 1440, matchMedia: () => dq });
+    }
+  });
+  it("gives every kind chip a title that says what the kind means", () => {
+    const html = at("/stack/3");
+    expect(html).toMatch(/<span class="chip"[^>]*title="[^"]{12,}"/);
+  });
   it("pulses the Next button on step 1 only", () => {
     expect(at("/stack/1")).toMatch(/class="btn primary cue"/);
     expect(at("/stack/2")).not.toMatch(/class="btn primary cue"/);

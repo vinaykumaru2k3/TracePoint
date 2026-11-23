@@ -24,8 +24,37 @@ describe("type scale", () => {
 
   it("the explanation leads: title and body use the title and content tiers", () => {
     expect(rule(".explain h2")).toContain("font-size: var(--fs-title)");
-    expect(rule(".explain p")).toContain("font-size: var(--fs-content)");
+    expect(rule(".explain .say")).toContain("font-size: var(--fs-content)");
     expect(rule(".idea")).toContain("font-size: var(--fs-content)");
+  });
+
+  it("no bare .explain p rule can override the key legend or the hint", () => {
+    expect(css).not.toMatch(/^\.explain p\s*[,{]/m);
+    const keys = rule(".keys");
+    expect(keys).toContain("font-size: var(--fs-chrome)");
+    expect(keys).toContain("color: var(--muted)");
+    expect(rule(".keys .kp")).toContain("white-space: nowrap");
+    expect(rule(".keys-hint")).toContain("font-size: var(--fs-chrome)");
+    expect(css).toMatch(/@media \(hover: none\) \{[^}]*\.keys-hint/);
+  });
+
+  it("the skip link is sized with logical properties", () => {
+    const both = rule(".skip") + rule(".skip:focus-visible");
+    expect(both).toContain("inline-size");
+    expect(both).toContain("block-size");
+    expect(both).toContain("padding-inline");
+    expect(both).not.toMatch(/(^|[\s;])(width|height|padding):/);
+  });
+
+  it("the intro goes two-column on its own width, not the viewport", () => {
+    expect(rule(".intro")).toContain("container-type: inline-size");
+    expect(css).toMatch(/@container[^{]*min-width:\s*720px/);
+    expect(css).not.toMatch(/@media \(min-width: 1120px\)/);
+  });
+
+  it("chevron transitions stop under reduced motion", () => {
+    const rm = css.slice(css.indexOf("@media (prefers-reduced-motion: reduce)"));
+    expect(rm).toMatch(/\.run-fold > summary::before[^{]*\{\s*transition: none/);
   });
 
   it("metric labels use the chrome tier", () => {
@@ -53,6 +82,6 @@ describe("type scale", () => {
   it("the phone block pins the explanation at 17px title and 14px body", () => {
     const phone = css.slice(css.indexOf("@media (max-width: 560px)"));
     expect(phone).toMatch(/\.explain h2\s*\{[^}]*font-size:\s*17px/);
-    expect(phone).toMatch(/\.explain p\s*\{[^}]*font-size:\s*14px/);
+    expect(phone).toMatch(/\.explain \.say\s*\{[^}]*font-size:\s*14px/);
   });
 });

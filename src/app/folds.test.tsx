@@ -76,8 +76,19 @@ describe("key legend", () => {
     store({});
     expect(at("/stack/3")).toContain('class="keys"');
   });
-  it("is gone once seen", () => {
+  it("is gone once seen, and a one-line hint to the How to use popover takes its place", () => {
     store({ "tracepoint-keys-seen": "1" });
-    expect(at("/stack/3")).not.toContain('class="keys"');
+    const html = at("/stack/3");
+    expect(html).not.toContain('class="keys"');
+    expect(html).toContain('class="keys-hint"');
+    expect(html).toMatch(/Keys: [^<]*\?/);
+  });
+  it("shows no hint while the legend shows", () => {
+    store({});
+    expect(at("/stack/3")).not.toContain('class="keys-hint"');
+  });
+  it("keeps each key and its label together as one pair", () => {
+    store({});
+    expect(at("/stack/3")).toMatch(/<span class="kp"><kbd class="kbd">←<\/kbd><kbd class="kbd">→<\/kbd> step<\/span>/);
   });
 });
