@@ -130,6 +130,8 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
     for (const [op, c] of n) if (c >= steps.length * 0.4) return op;
     return null;
   }, [steps]);
+  /* The Next pulse only invites the first press; it stops once the learner moves or plays. */
+  const cue = idx === 0 && !player.playing;
   const railName = (i: number) => steps[i].short ?? (steps[i].op && steps[i].op === runOp ? steps[i].kind : label(i));
   const stepTitle = useCallback((i: number) => steps[i].title, [steps]);
 
@@ -186,13 +188,11 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
             {lesson.metrics(step).map((m: { label: string; value: string | number }) => <MetricCard key={m.label} {...m} />)}
           </div>
           <div className="stage-ctl">
-            {cropped && (
-              <button className="btn sm zoom" type="button" onClick={toggleWhole} aria-pressed={whole} title="Fit the whole drawing on the stage, or read it up close (F)">
-                <Icon name={whole ? "focus" : "expand"} size={12} />Show all
-              </button>
-            )}
+            <button className="btn sm zoom" type="button" onClick={toggleWhole} disabled={!cropped && !whole} aria-pressed={whole} title="Fit the whole drawing on the stage, or read it up close (F)">
+              <Icon name={whole ? "focus" : "expand"} size={12} />Show all
+            </button>
             <button className="btn sm" type="button" onClick={player.reset} disabled={idx === 0}>Reset</button>
-            <button className="btn sm speed" type="button" onClick={player.cycleSpeed} aria-label={`Playback speed ${player.speed}×`}>{player.speed}×</button>
+            <button className="btn sm speed" type="button" onClick={player.cycleSpeed} aria-label={`Playback speed ${player.speed}×`}>Speed {player.speed}×</button>
             <button className="btn play" type="button" onClick={player.toggle}>
               <Icon name={player.playing ? "pause" : idx === last ? "replay" : "play"} size={12} />
               {playLabel}
@@ -251,7 +251,7 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
       <div className="idea"><small>watch</small><div>{step.idea}</div></div>
       <div className="nav">
         <button className="btn" type="button" onClick={player.back} disabled={idx === 0}><Icon name="left" />Back</button>
-        <button className="btn primary cue" type="button" onClick={player.next}><span>{idx >= last ? "Start over" : `Next: ${label(idx + 1)}`}</span><Icon name={idx >= last ? "replay" : "right"} /></button>
+        <button className={`btn primary${cue ? " cue" : ""}`} type="button" onClick={player.next}><span>{idx >= last ? "Start over" : `Next: ${railName(idx + 1)}`}</span><Icon name={idx >= last ? "replay" : "right"} /></button>
       </div>
       {showKeys && <p className="keys"><Kbd>←</Kbd><Kbd>→</Kbd> step · <Kbd>Home</Kbd><Kbd>End</Kbd> ends · <Kbd>Space</Kbd> play · <Kbd>R</Kbd> reset · <Kbd>F</Kbd> show all</p>}
     </section>
@@ -301,7 +301,7 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
           <Link className="btn to-theory" to={`/${lesson.id}/learn${query}`} aria-label="Theory" title="Theory"><Icon name="file" /></Link>
           <button className="btn" type="button" onClick={player.back} disabled={idx === 0} aria-label="Back"><Icon name="left" /></button>
           <span className="stepbar-at">Step {idx + 1}/{steps.length} · <b>{label(idx)}</b></span>
-          <button className="btn primary cue" type="button" onClick={player.next}><span>{idx >= last ? "Start over" : "Next"}</span><Icon name={idx >= last ? "replay" : "right"} /></button>
+          <button className={`btn primary${cue ? " cue" : ""}`} type="button" onClick={player.next}><span>{idx >= last ? "Start over" : "Next"}</span><Icon name={idx >= last ? "replay" : "right"} /></button>
         </nav>
       </div>
     );

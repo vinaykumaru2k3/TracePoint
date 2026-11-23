@@ -170,7 +170,7 @@ a { color: inherit; text-decoration: none; }
 .metrics .metric { min-width: 86px; }
 .stage-ctl { margin-left: auto; display: flex; gap: 6px; align-items: center; }
 .stage-ctl .zoom[aria-pressed="true"] { border-color: var(--inv-bg); background: var(--inv-bg); color: var(--inv-fg); }
-.stage-ctl .speed { min-width: 44px; font-variant-numeric: tabular-nums; }
+.stage-ctl .speed { min-inline-size: 9ch; font-variant-numeric: tabular-nums; }
 /* Play is a strong secondary (edge outline); Next in the explanation is the one primary. */
 .stage-ctl .play { position: relative; overflow: hidden; padding: 4px 14px; gap: 8px; justify-content: center; min-width: 104px; border-color: var(--edge); font-size: 12px; }
 /* countdown to the next step while playing, along the play button's bottom edge */
@@ -451,7 +451,6 @@ a { color: inherit; text-decoration: none; }
   .brand { margin-right: 4px; }
   .search-btn { min-width: 0; width: 32px; padding: 0; justify-content: center; }
   .search-btn span, .search-btn .kbd { display: none; }
-  .tab small { display: none; }
 
   /* LessonPage renders the parts in reading order here, each on its own panel */
   .page.flow { display: block; padding: 12px 12px 24px; }
@@ -650,7 +649,7 @@ a { color: inherit; text-decoration: none; }
   .walk { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); align-items: start; gap: 20px; }
   .walk-fig { order: 0; position: sticky; top: 8px; grid-template-rows: auto 300px auto; }
 }
-@media (max-width: 1119px), (max-height: 679px) {
+@media (max-width: 1120px), (max-height: 680px) {
   .walk-fig { position: sticky; top: 64px; z-index: 1; grid-template-rows: auto 180px auto; box-shadow: 0 0 0 6px var(--surface); }
 }
 

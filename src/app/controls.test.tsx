@@ -1,0 +1,69 @@
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { renderToStaticMarkup } from "react-dom/server";
+import { MemoryRouter } from "react-router-dom";
+import { AppRoutes } from "./App";
+// @ts-expect-error node:fs has no types in the app tsconfig
+import { readFileSync } from "node:fs";
+
+const css: string = readFileSync("src/app.css", "utf8");
+const at = (path: string) => renderToStaticMarkup(
+  <MemoryRouter initialEntries={[path]}><AppRoutes progress={{}} onVisit={() => {}} courseOpen={false} onCloseCourse={() => {}} /></MemoryRouter>);
+const btn = (html: string, cls: string) => {
+  const m = html.match(new RegExp(`<button[^>]*class="(?:[^"]* )?${cls}(?: [^"]*)?"[^>]*>.*?</button>`));
+  if (!m) throw new Error(`no .${cls} button`);
+  return m[0];
+};
+const text = (h: string) => h.replace(/<[^>]+>/g, "");
+
+beforeAll(() => {
+  const mq = { matches: false, addEventListener() {}, removeEventListener() {} };
+  vi.stubGlobal("window", { innerHeight: 900, innerWidth: 1440, matchMedia: () => mq });
+  vi.stubGlobal("localStorage", { getItem: () => null, setItem() {} });
+});
+afterAll(() => { vi.unstubAllGlobals(); });
+
+describe("controls say what they do", () => {
+  it("labels the speed button", () => {
+    expect(text(btn(at("/stack/1"), "speed"))).toBe("Speed 1×");
+  });
+  it("always renders Show all, disabled when nothing is cropped, with aria-pressed", () => {
+    const b = btn(at("/stack/1"), "zoom");
+    expect(b).toContain("disabled");
+    expect(b).toContain("aria-pressed");
+    expect(text(b)).toBe("Show all");
+  });
+  it("names the next step", () => {
+    const html = at("/dijkstra/5");
+    const next = text(btn(html, "primary"));
+    expect(next).not.toBe("Next: dijkstra(A)");
+    const stop = text(at("/dijkstra/6").match(/<span class="scrub-head"[^>]*><b>(.*?)<\/b>/)![1]).replace(/^\d+/, "");
+    expect(next).toBe(`Next: ${stop}`);
+  });
+  it("keeps the phone step bar on plain Next", () => {
+    const mq = { matches: true, addEventListener() {}, removeEventListener() {} };
+    vi.stubGlobal("window", { innerHeight: 812, innerWidth: 375, matchMedia: () => mq });
+    try {
+      const bar = at("/dijkstra/5").match(/<nav class="stepbar".*?<\/nav>/)![0];
+      expect(bar).toContain("<span>Next</span>");
+    } finally {
+      const dq = { matches: false, addEventListener() {}, removeEventListener() {} };
+      vi.stubGlobal("window", { innerHeight: 900, innerWidth: 1440, matchMedia: () => dq });
+    }
+  });
+  it("pulses the Next button on step 1 only", () => {
+    expect(at("/stack/1")).toMatch(/class="btn primary cue"/);
+    expect(at("/stack/2")).not.toMatch(/class="btn primary cue"/);
+  });
+});
+
+describe("stylesheet", () => {
+  it("uses the 1120 and 680 breakpoints for the walk figure", () => {
+    expect(css).not.toContain("max-width: 1119px");
+    expect(css).not.toContain("max-height: 679px");
+  });
+  it("keeps the soon tags at 1120px and below", () => {
+    const block = css.slice(css.indexOf("@media (max-width: 1120px), (max-height: 680px) {"));
+    const end = block.indexOf("\n}\n");
+    expect(block.slice(0, end)).not.toMatch(/\.tab small\s*\{\s*display:\s*none/);
+  });
+});
