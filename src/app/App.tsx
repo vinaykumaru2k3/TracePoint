@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { DEFAULT_EXPLORER, useExplorer, type ExplorerKind, type ExplorerPrefs } from "../hooks/useExplorer";
 import { useProgress, type Progress } from "../hooks/useProgress";
 import { useTheme } from "../hooks/useTheme";
+import ErrorBoundary, { PageError } from "./ErrorBoundary";
 import GuidePage from "./GuidePage";
 import LessonPage from "./LessonPage";
 import SearchDialog from "./SearchDialog";
@@ -21,7 +22,10 @@ export function AppRoutes({ progress, onVisit, courseOpen, onCloseCourse, explor
   const side = { explorer, onExplorer };
   const page = (view: "theory" | "trace") => <LessonPage view={view} progress={progress} onVisit={onVisit} courseOpen={courseOpen} onCloseCourse={onCloseCourse} {...side} />;
   const guide = (id?: string) => <GuidePage sectionId={id} progress={progress} courseOpen={courseOpen} onCloseCourse={onCloseCourse} {...side} />;
+  /* A render error shows a message in place of the page; moving to another page clears it. */
+  const { pathname } = useLocation();
   return (
+    <ErrorBoundary resetKey={pathname} fallback={() => <PageError />}>
     <Routes>
       <Route path="/" element={guide("foundations")} />
       <Route path="/guide/:sectionId" element={guide()} />
@@ -30,6 +34,7 @@ export function AppRoutes({ progress, onVisit, courseOpen, onCloseCourse, explor
       <Route path="/:lessonId/:step" element={page("trace")} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </ErrorBoundary>
   );
 }
 

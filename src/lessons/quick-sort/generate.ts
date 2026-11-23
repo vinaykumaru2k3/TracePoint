@@ -45,13 +45,19 @@ export function generateQuick({ nums }: NumsInput): Step<SortState>[] {
       const less = a[j] < pivot;
       if (less) i++;
       const moves = less && i !== j;
+      /* The code swaps on every smaller value. When i equals j that swap trades a value with itself:
+         it still runs and still counts, so the trace lights it rather than hiding it. */
+      const self = less && !moves;
+      if (self) t.s.swaps++;
       t.push({
-        kind: "check", op: "a[j] < pivot?", short: `cmp ${j}`, anchors: ["qs.cmp"],
-        notes: { "qs.cmp": `${a[j]} < ${pivot}? ${less ? "yes" : "no"}` },
+        kind: "check", op: "a[j] < pivot?", short: `cmp ${j}`, anchors: self ? ["qs.cmp", "qs.swap"] : ["qs.cmp"],
+        notes: self
+          ? { "qs.cmp": `${a[j]} < ${pivot}? yes`, "qs.swap": `i = j = ${j}: a[${j}] swaps with itself` }
+          : { "qs.cmp": `${a[j]} < ${pivot}? ${less ? "yes" : "no"}` },
         title: less ? `${a[j]} < ${pivot}: it belongs on the left` : `${a[j]} >= ${pivot}: leave it`,
         idea: less ? "The left part grows by one cell to make room." : "Values not smaller than the pivot stay where they are for now.",
         text: less
-          ? moves ? `a[${j}] = ${a[j]} is smaller than ${pivot}. i moves to ${i}, and a[${i}] swaps with a[${j}].` : `a[${j}] = ${a[j]} is smaller than ${pivot}, and it is already at the end of the left part (i = ${i}).`
+          ? moves ? `a[${j}] = ${a[j]} is smaller than ${pivot}. i moves to ${i}, and a[${i}] swaps with a[${j}].` : `a[${j}] = ${a[j]} is smaller than ${pivot}, and it is already at the end of the left part (i = ${i}). The swap still runs, trading a[${i}] with itself, so nothing moves.`
           : `a[${j}] = ${a[j]} is not smaller than ${pivot}. It stays put.`
       }, view(lo, hi, less ? i - 1 : i, j));
       if (moves) {
@@ -68,10 +74,9 @@ export function generateQuick({ nums }: NumsInput): Step<SortState>[] {
     }
 
     const p = i + 1;
-    if (p !== hi) {
-      [a[p], a[hi]] = [a[hi], a[p]];
-      t.s.swaps++;
-    }
+    /* The placing swap always runs; when p equals hi it trades the pivot with itself. */
+    [a[p], a[hi]] = [a[hi], a[p]];
+    t.s.swaps++;
     t.settle(p);
     const singles = [p - 1 === lo ? lo : -1, p + 1 === hi ? hi : -1].filter((k) => k >= 0);
     t.settle(...singles);
@@ -82,7 +87,7 @@ export function generateQuick({ nums }: NumsInput): Step<SortState>[] {
         : { "qs.place": `swap a[${p}] and a[${hi}]` },
       title: `${pivot} lands at index ${p}`,
       idea: "Everything left of the pivot is smaller and nothing right of it is, so the pivot never moves again.",
-      text: `${p === hi ? `Nothing is bigger, so ${pivot} stays at index ${hi}.` : `${pivot} swaps into index ${p}, right after the smaller values.`} Left side: ${fmt(a.slice(lo, p))}. Right side: ${fmt(a.slice(p + 1, hi + 1))}.`
+      text: `${p === hi ? `Nothing is bigger, so ${pivot} swaps with itself and stays at index ${hi}.` : `${pivot} swaps into index ${p}, right after the smaller values.`} Left side: ${fmt(a.slice(lo, p))}. Right side: ${fmt(a.slice(p + 1, hi + 1))}.`
     }, { marks: { [p]: "found" }, ptrs: [{ at: p, label: "p" }] });
 
     quick(lo, p - 1);

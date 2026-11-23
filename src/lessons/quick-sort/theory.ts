@@ -33,7 +33,7 @@ const theory: LessonTheory = {
     "3 swaps into index 2 and is final. The left side is [1, 2], and the right side is [5, 8, 4].",
     "The left side partitions around 2, which stays at index 1.",
     "The right side partitions around 4, which lands at index 3. Then [8, 5] partitions around 5, which lands at index 4.",
-    "That took 9 comparisons and 5 swaps. Sorted input of 6 values would take 15 comparisons, the worst case."
+    "That took 9 comparisons and 7 swaps. Two of the swaps trade a value with itself, because the code swaps even when `i` equals `j`. Sorted input of 6 values would take 15 comparisons, the worst case."
   ],
   pitfalls: [
     "Always taking the last value as the pivot on sorted input. Pick a random value, or the middle of three, to avoid the O(n²) case.",

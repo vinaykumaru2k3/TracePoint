@@ -459,12 +459,31 @@ a { color: inherit; text-decoration: none; }
 @media (max-width: 560px) {
   .tabs .soon { display: none; }
   .lesson-head h1 { font-size: 22px; }
-  .stage { height: auto; grid-template-rows: auto 280px auto; }
-  .stage-top { flex-direction: column; }
-  .metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; }
-  .metrics .metric { min-width: 0; }
-  .metrics .metric:nth-child(odd) { padding-left: 0; border-left: 0; }
+  /* A phone must show the drawing and the sentence that explains it in one screen above the step bar:
+     the live values sit on one line, the drawing gets 240px, and the explanation drops what the step bar repeats. */
+  .stage { height: auto; grid-template-rows: auto 240px auto; }
+  .stage-top { flex-direction: column; gap: 8px; }
+  .metrics { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); width: 100%; }
+  .metrics .metric { min-width: 0; padding-right: 6px; }
+  .metrics .metric + .metric { padding-left: 8px; }
+  .metric small { font-size: 10px; letter-spacing: 0.03em; overflow: hidden; text-overflow: ellipsis; }
+  .metric b { font-size: 14px; }
   .stage-ctl { margin-left: 0; }
+  .flow-main .explain .pane-title, .flow-main .explain .nav, .flow-main .explain .keys, .flow-main .explain > .head { display: none; }
+  /* The step bar already reads "Step N/M · op" and the timeline counts the steps, so the head drops its meta line. */
+  .lesson-head.trace-head .meta { display: none; }
+  .flow-main .explain { padding-top: 12px; }
+  .stage-foot { gap: 6px 10px; align-items: center; }
+  .legend-fold { flex: 1 1 100%; font-size: 11px; color: var(--muted); }
+  .legend-fold summary { display: flex; align-items: center; gap: 8px; min-height: 28px; cursor: pointer; list-style: none; }
+  .legend-fold summary::-webkit-details-marker { display: none; }
+  .legend-fold summary::after { content: "+"; margin-left: 2px; }
+  .legend-fold[open] summary::after { content: "−"; }
+  .legend-dots { display: inline-flex; gap: 4px; }
+  .legend-fold .legend { padding: 6px 0 2px; }
+  .result { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 8px; margin-left: 0; max-width: none; padding: 3px 10px; }
+  .result small, .result em { display: inline; }
+  .result b { font-size: 14px; }
   .topnav { gap: 6px; padding: 0 10px; }
   .brand { font-size: 14px; gap: 6px; }
   .flow-main > .lesson-head, .flow-main > .rail-wrap, .flow-main > .run, .flow-main > .mem { padding: 12px 14px; }
@@ -719,3 +738,14 @@ a { color: inherit; text-decoration: none; }
 }
 .prose s.wrong code { background: none; padding: 0; }
 
+
+/* ── Error fallbacks: a page or a diagram that failed to draw ── */
+.page-error { max-width: 60ch; margin: 48px auto; padding: 28px 32px; }
+.page-error h1 { font-size: 18px; margin: 0 0 10px; }
+.page-error p { margin: 0 0 12px; color: var(--muted); line-height: 1.6; }
+.page-error p.page-error-acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.scene-error { display: grid; place-content: center; gap: 6px; min-height: 240px; padding: 24px; text-align: center; border: 1px dashed var(--line-strong); border-radius: var(--radius); }
+.scene-error p { margin: 0; }
+
+/* Headings take focus on a page change so screen readers start there; the ring would only confuse sighted users. */
+.lesson-head h1:focus { outline: none; }

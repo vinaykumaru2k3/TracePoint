@@ -6,13 +6,18 @@ import { usePlayer } from "../engine/usePlayer";
 import type { AnyLesson, MemoryCell } from "../engine/types";
 import { useKeyboard } from "../hooks/useKeyboard";
 import { useMedia } from "../hooks/useMedia";
+import { usePageFocus, usePageTitle } from "../hooks/usePage";
 import type { Progress } from "../hooks/useProgress";
 import { CameraContext, ZoomContext, type Shot, type Zoom } from "../iso/IsoScene";
 import SceneFit from "../iso/SceneFit";
 import { DEFAULT_LESSON, LESSON_BY_ID } from "../lessons";
 import CodeCard from "./CodeCard";
 import CourseDrawer, { NARROW } from "./CourseDrawer";
+
+/* Matches the phone block in app.css, where the colour key folds. */
+const PHONE = "(max-width: 560px)";
 import CourseSidebar from "./CourseSidebar";
+import ErrorBoundary, { SceneError } from "./ErrorBoundary";
 import SideCol from "./SideCol";
 import type { ExplorerKind, ExplorerPrefs } from "../hooks/useExplorer";
 import TheoryView, { LessonTabs } from "./TheoryView";
@@ -40,6 +45,7 @@ export default function LessonPage(props: Props) {
 function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, onCloseCourse, explorer, onExplorer }: Props & { lesson: AnyLesson; stepParam?: string }) {
   const navigate = useNavigate();
   const narrow = useMedia(NARROW);
+  const phone = useMedia(PHONE);
   const [params] = useSearchParams();
   /* The input lives in the URL, so a custom run can be shared and survives a reload. */
   const asked = params.get("in");
@@ -174,8 +180,17 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
   const sideOpen = explorer[sideKind];
   const sideCol = <SideCol open={sideOpen} onToggle={() => onExplorer(sideKind, !sideOpen)}>{sidebar}</SideCol>;
   const pageCls = `page${sideOpen ? "" : " side-shut"}`;
-  const playLabel = player.playing ? "Pause" : idx === last ? "Replay" : idx === 0 ? "Play all" : "Play";
   const stepOf = `Step ${idx + 1} of ${steps.length}`;
+  /* The tab names the lesson and step; a new lesson or tab moves focus to its heading. */
+  usePageTitle(theory ? `${lesson.title} · theory · Tracepoint` : `${lesson.title} · step ${idx + 1} of ${steps.length} · Tracepoint`);
+  const h1Ref = useRef<HTMLHeadingElement>(null);
+  usePageFocus(h1Ref, `${lesson.id}/${view}`);
+  /* One announcement per step: its number, title and text. Quiet while playing, so it does not queue up;
+     pausing announces the step it landed on. */
+  const said = player.playing ? "" : `${stepOf}. ${step.title}. ${step.text}`;
+  const sceneState = describeMemory(lesson.memory(step));
+
+  const playLabel = player.playing ? "Pause" : idx === last ? "Replay" : idx === 0 ? "Play all" : "Play";
 
   const head = (
     <header className={`lesson-head${theory ? "" : " trace-head"}`} key="head">
@@ -184,15 +199,21 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
         {sec && <><span>{sec.id}</span><span className="sep" aria-hidden="true">/</span></>}
         <span className="cur" aria-current="page">{lesson.id}</span>
       </nav>
-      <h1>{lesson.title}</h1>
+      <h1 ref={h1Ref} tabIndex={-1}>{lesson.title}</h1>
       <p className="meta">{lesson.minutes} min · {lesson.level} · {steps.length} steps</p>
       <p className="sub">{lesson.subtitle}</p>
       <LessonTabs id={lesson.id} view={view} search={query} />
     </header>
   );
 
+  const legendList = (
+    <ul className="legend" aria-label="Colour key">
+      {lesson.legend.map((l: { cls: string; label: string }) => <li key={l.label}><i className={`swatch ${l.cls}`} aria-hidden="true" />{l.label}</li>)}
+    </ul>
+  );
   const stage = (
-    <section className="stagecard" id="stage" aria-label="Animated diagram" key="stage">
+    <section className="stagecard" id="stage" aria-label="Animated diagram" aria-describedby="scene-state" key="stage">
+      <p className="sr" id="scene-state">{sceneState}</p>
       <div className="stage">
         <div className="stage-top">
           <div className="metrics" aria-label="Live values">
@@ -215,13 +236,22 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
         </div>
         <ZoomContext.Provider value={zoom}>
           <CameraContext.Provider value={boxes?.[idx] ?? null}>
-            <lesson.Scene step={step} />
+            <ErrorBoundary resetKey={`${text}#${idx}`} fallback={() => <SceneError />}>
+              <lesson.Scene step={step} />
+            </ErrorBoundary>
           </CameraContext.Provider>
         </ZoomContext.Provider>
         <div className="stage-foot">
-          <ul className="legend" aria-label="Colour key">
-            {lesson.legend.map((l: { cls: string; label: string }) => <li key={l.label}><i className={`swatch ${l.cls}`} aria-hidden="true" />{l.label}</li>)}
-          </ul>
+          {/* On a phone the key folds to its swatches, so the explanation stays on the first screen. */}
+          {phone ? (
+            <details className="legend-fold">
+              <summary>
+                <span className="legend-dots" aria-hidden="true">{lesson.legend.map((l: { cls: string; label: string }) => <i key={l.label} className={`swatch ${l.cls}`} />)}</span>
+                Colour key
+              </summary>
+              {legendList}
+            </details>
+          ) : legendList}
           {step.op && step.ret !== undefined && (
             <div className="result">
               <small>{step.op} returns</small>
@@ -230,7 +260,10 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
             </div>
           )}
         </div>
-        <SceneFit steps={steps} Scene={lesson.Scene} onFit={setBoxes} />
+        {/* The off-screen fit pass draws every step; if one fails, the camera just stays wide. */}
+        <ErrorBoundary resetKey={text} fallback={() => null}>
+          <SceneFit steps={steps} Scene={lesson.Scene} onFit={setBoxes} />
+        </ErrorBoundary>
       </div>
     </section>
   );
@@ -295,7 +328,8 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
       <div className="pane-title" aria-hidden="true">TRACE</div>
       <div className="head"><span className="stephead"><b>#{nn(idx)}</b>{" "}{label(idx)}</span><KindChip kind={step.kind} /></div>
       <h2>{step.title}</h2>
-      <p aria-live="polite">{step.text}</p>
+      <p>{step.text}</p>
+      <p className="sr" aria-live="polite" aria-atomic="true">{said}</p>
       <div className="idea"><small>watch</small><div>{step.idea}</div></div>
       <div className="nav">
         <button className="btn" type="button" onClick={player.back} disabled={idx === 0}><Icon name="left" />Back</button>
@@ -364,6 +398,13 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
       <aside className="right" aria-label="Explanation and code">{[explain, code, learn]}</aside>
     </div>
   );
+}
+
+/** The diagram's state in words, read from the memory strip: "Stack: [0] 4, [1] 9. top is 9". Big grids keep only the note. */
+function describeMemory(mem: { title: string; cells: MemoryCell[]; note: string }) {
+  if (mem.cells.length > 16) return `${mem.title}. ${mem.note}`;
+  const cells = mem.cells.map((c, i) => `${c.tag ?? `[${i}]`} ${c.v === null ? "empty" : c.v}${c.marks.length ? ` (${c.marks.join(", ")})` : ""}`);
+  return `${mem.title}: ${cells.join(", ")}. ${mem.note}`;
 }
 
 /** Open only on tall screens (1000px and up); folded on short ones so the code box keeps its height. The summary still shows progress. */

@@ -22,7 +22,7 @@ const theory: LessonTheory = {
   ],
   useWhen: [
     "You need a guaranteed O(n log n) sort that uses no extra memory.",
-    "You want a fallback for another sort. C++ `std::sort` switches to heap sort when quick sort recurses too deep."
+    "You want a fallback for another sort. C++ `std::sort` is usually introsort, which switches to heap sort when quick sort recurses too deep."
   ],
   avoidWhen: [
     "Equal items must keep their order. Use a stable sort such as [[merge-sort]].",

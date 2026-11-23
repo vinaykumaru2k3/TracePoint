@@ -11,6 +11,12 @@ describe("quick-sort generator", () => {
     expect(at(rets(run(lesson, "3 1 3 2")), -1)).toBe("[1, 2, 3, 3]");
   });
 
+  it("counts every swap the code runs, self-swaps included (9 compares, 7 swaps on the default)", () => {
+    const end = at(run(lesson, "5 1 4 2 8 3"), -1).state;
+    expect(end.compares).toBe(9);
+    expect(end.swaps).toBe(7);
+  });
+
   it("hits the n(n-1)/2 worst case on sorted input", () => {
     expect(at(run(lesson, "1 2 3 4 5"), -1).state.compares).toBe(10);
   });

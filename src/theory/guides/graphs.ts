@@ -31,7 +31,7 @@ const graphs: Guide = {
       ["Visit everything, find pieces or cycles", "[[dfs]]", "O(n + e)"],
       ["Order tasks so each comes after what it needs", "[[topological-sort]]", "O(n + e)"],
       ["Cheapest route (weights not negative)", "[[dijkstra]]", "O(e log n)"],
-      ["Are these two in the same group?", "[[union-find]]", "O(α(n))"],
+      ["Are these two in the same group?", "[[union-find]]", "O(α(n)) amortized"],
       ["Join everything at least total cost", "[[kruskal-and-prim]]", "O(e log e)"]
     ]
   },
@@ -43,7 +43,8 @@ const graphs: Guide = {
   ],
   tips: [
     "Store most graphs as adjacency lists. A matrix needs n² cells, which is wasteful when each node has few neighbours.",
-    "Mark a node seen when you first add it to the queue or stack, not when you take it out. Otherwise it gets added many times.",
+    "In BFS, mark a node seen when you first add it to the queue, not when you take it out. Otherwise it gets added many times.",
+    "In a DFS with your own stack, mark a node when you pop it. Marking on push still visits every node, but not in true depth-first order.",
     "A graph in pieces needs one walk per piece. Loop over every node and start a new walk from each one still unseen.",
     "Before using a distance, check for ∞. A node the start cannot reach keeps its starting value.",
     "Use BFS when every edge costs the same. Dijkstra gives the same answer, only slower."
