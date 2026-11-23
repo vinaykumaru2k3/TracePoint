@@ -15,7 +15,7 @@ const theory: LessonTheory = {
   ],
   shots: [2, 4, 8, 10, 16, 19],
   ops: [
-    ["find, union, connected", "O(α(n))", "With both tricks, each costs about constant time. α grows so slowly it stays under 5 for any real input."],
+    ["find, union, connected", "O(α(n)) amortized", "With both tricks, each costs about constant time averaged over many calls. One find can still climb O(log n) links. α grows so slowly it stays under 5 for any real input."],
     ["without the two tricks", "O(n)", "Unions can build one long chain, and a find climbs all of it."],
     ["parent and size", "O(n)", "Two arrays with one entry per item."]
   ],
@@ -28,7 +28,7 @@ const theory: LessonTheory = {
     "You need to list every member of a group often. It knows each item's root, not each root's members."
   ],
   example: [
-    "Union A B and union C D build two trees of size 2, rooted at A and C.",
+    "Union A B, union C D and union E F build three trees of size 2, rooted at A, C and E.",
     "Union B D climbs from B to A and from D to C, then hangs C under A.",
     "Find D climbs D, C, A. Compression then points D straight at A.",
     "Connected A D finds root A twice and says true. Connected A F finds roots A and E and says false."

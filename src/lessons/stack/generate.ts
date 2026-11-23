@@ -86,7 +86,7 @@ export function generateStack(ops: Op[]): Step<StackState>[] {
           kind: "empty", op: "pop()", ret: "throws", retNote: "stack is empty",
           anchors: ["pop.sig", "pop.check"], notes: { "pop.check": "top is -1, the stack is empty, so it throws" },
           title: "Nothing to remove", idea: "Check for empty first, or be ready to catch the exception.",
-          text: "pop() on an empty stack has nothing to return. This code throws an exception, like the standard libraries do."
+          text: "pop() on an empty stack has nothing to return. This code throws an exception, as Java and Python do. C++ `std::stack` does not check, so popping an empty one is undefined behaviour."
         }));
         continue;
       }

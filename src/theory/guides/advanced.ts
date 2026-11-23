@@ -67,7 +67,7 @@ const advanced: Guide = {
       title: "Live leaderboard totals",
       setting: "A game shows the combined score of any range of players, while scores change after every match.",
       idea: "Store the players in a segment tree. A change fixes one path, and a range total reads a few stored sums.",
-      why: "Both operations touch about one node per level, so each is O(log n). A prefix-sum array would need O(n) work to refresh after a change."
+      why: "Both operations touch a few nodes per level, so each is O(log n). A prefix-sum array would need O(n) work to refresh after a change."
     }
   ],
   hooks: {
