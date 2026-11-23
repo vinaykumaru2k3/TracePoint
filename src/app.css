@@ -719,3 +719,11 @@ a { color: inherit; text-decoration: none; }
 }
 .prose s.wrong code { background: none; padding: 0; }
 
+
+/* ── Error fallbacks: a page or a diagram that failed to draw ── */
+.page-error { max-width: 60ch; margin: 48px auto; padding: 28px 32px; }
+.page-error h1 { font-size: 18px; margin: 0 0 10px; }
+.page-error p { margin: 0 0 12px; color: var(--muted); line-height: 1.6; }
+.page-error p.page-error-acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.scene-error { display: grid; place-content: center; gap: 6px; min-height: 240px; padding: 24px; text-align: center; border: 1px dashed var(--line-strong); border-radius: var(--radius); }
+.scene-error p { margin: 0; }

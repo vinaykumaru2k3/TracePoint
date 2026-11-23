@@ -13,6 +13,7 @@ import { DEFAULT_LESSON, LESSON_BY_ID } from "../lessons";
 import CodeCard from "./CodeCard";
 import CourseDrawer, { NARROW } from "./CourseDrawer";
 import CourseSidebar from "./CourseSidebar";
+import ErrorBoundary, { SceneError } from "./ErrorBoundary";
 import SideCol from "./SideCol";
 import type { ExplorerKind, ExplorerPrefs } from "../hooks/useExplorer";
 import TheoryView, { LessonTabs } from "./TheoryView";
@@ -215,7 +216,9 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
         </div>
         <ZoomContext.Provider value={zoom}>
           <CameraContext.Provider value={boxes?.[idx] ?? null}>
-            <lesson.Scene step={step} />
+            <ErrorBoundary resetKey={`${text}#${idx}`} fallback={() => <SceneError />}>
+              <lesson.Scene step={step} />
+            </ErrorBoundary>
           </CameraContext.Provider>
         </ZoomContext.Provider>
         <div className="stage-foot">
@@ -230,7 +233,10 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
             </div>
           )}
         </div>
-        <SceneFit steps={steps} Scene={lesson.Scene} onFit={setBoxes} />
+        {/* The off-screen fit pass draws every step; if one fails, the camera just stays wide. */}
+        <ErrorBoundary resetKey={text} fallback={() => null}>
+          <SceneFit steps={steps} Scene={lesson.Scene} onFit={setBoxes} />
+        </ErrorBoundary>
       </div>
     </section>
   );
