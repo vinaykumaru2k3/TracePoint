@@ -6,6 +6,7 @@ import { usePlayer } from "../engine/usePlayer";
 import type { AnyLesson } from "../engine/types";
 import { useKeyboard } from "../hooks/useKeyboard";
 import { useMedia } from "../hooks/useMedia";
+import { useStoredFlag } from "../hooks/useStoredFlag";
 import { usePageFocus, usePageTitle } from "../hooks/usePage";
 import type { Progress } from "../hooks/useProgress";
 import { CameraContext, ZoomContext, type Shot, type Zoom } from "../iso/IsoScene";
@@ -35,7 +36,6 @@ interface Props {
 /** Below 0.85 px per scene unit the smallest scene labels drop under about 9px; read at 1:1 instead. */
 const LENS = { floor: 0.85, read: 1 };
 const WHOLE_KEY = "tracepoint-whole";
-const storedWhole = () => { try { return localStorage.getItem(WHOLE_KEY) === "1"; } catch { return false; } };
 
 const reduced = () => !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
@@ -86,16 +86,17 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
   const setIdx = useCallback((i: number) => navigate(`/${lesson.id}/${i + 1}${query}`, { replace: true }), [navigate, lesson.id, query]);
   const player = usePlayer(last, idx, setIdx, view === "trace");
   /* The camera reads big drawings up close; the viewer can ask for the whole drawing instead. */
-  const [whole, setWhole] = useState(storedWhole);
+  const [whole, setWhole] = useStoredFlag(WHOLE_KEY, false);
   const [cropped, setCropped] = useState(false);
-  const toggleWhole = useCallback(() => setWhole((w) => {
-    try { localStorage.setItem(WHOLE_KEY, w ? "0" : "1"); } catch { /* private mode: keep it for this visit */ }
-    return !w;
-  }), []);
+  const toggleWhole = useCallback(() => setWhole(!whole), [whole, setWhole]);
+  /* The key legend teaches the keys once: it stays for this visit after a key press (no jump in the layout) and is gone on the next load. */
+  const [keysSeen, setKeysSeen] = useStoredFlag("tracepoint-keys-seen", false);
+  const [showKeys] = useState(!keysSeen);
   const zoom = useMemo<Zoom>(() => ({ lens: LENS, whole, onCrop: setCropped }), [whole]);
   useKeyboard({
     prev: player.back, next: () => player.jump(idx + 1), first: () => player.jump(0), last: () => player.jump(last),
-    toggle: player.toggle, reset: player.reset, whole: () => { if (cropped) toggleWhole(); }
+    toggle: player.toggle, reset: player.reset, whole: () => { if (cropped) toggleWhole(); },
+    onStep: () => { if (!keysSeen) setKeysSeen(true); }
   }, view === "trace");
   const theory = view === "theory";
 
@@ -236,7 +237,7 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
   const rail = <Scrubber key="rail" steps={steps} idx={idx} reached={reached} name={railName} title={stepTitle} onJump={player.jump} />;
 
   /* Keyed on the run, so Back and Forward give the form a fresh draft that follows the URL. */
-  const form = <RunForm key={`run:${text}\n${linkError}`} lesson={lesson} text={text} linkError={linkError} asked={asked} step={idx} onRun={run} />;
+  const form = <RunForm key={`run:${text}\n${linkError}`} lesson={lesson} text={text} linkError={linkError} asked={asked} step={idx} custom={!isDefault} onRun={run} />;
 
   const memory = <MemoryStrip key="mem" lesson={lesson} step={step} />;
 
@@ -252,7 +253,7 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
         <button className="btn" type="button" onClick={player.back} disabled={idx === 0}><Icon name="left" />Back</button>
         <button className="btn primary cue" type="button" onClick={player.next}><span>{idx >= last ? "Start over" : `Next: ${label(idx + 1)}`}</span><Icon name={idx >= last ? "replay" : "right"} /></button>
       </div>
-      <p className="keys"><Kbd>←</Kbd><Kbd>→</Kbd> step · <Kbd>Home</Kbd><Kbd>End</Kbd> ends · <Kbd>Space</Kbd> play · <Kbd>R</Kbd> reset · <Kbd>F</Kbd> show all</p>
+      {showKeys && <p className="keys"><Kbd>←</Kbd><Kbd>→</Kbd> step · <Kbd>Home</Kbd><Kbd>End</Kbd> ends · <Kbd>Space</Kbd> play · <Kbd>R</Kbd> reset · <Kbd>F</Kbd> show all</p>}
     </section>
   );
 

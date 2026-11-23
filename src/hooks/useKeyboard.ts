@@ -1,6 +1,8 @@
 import { useEffect, useRef } from "react";
 
-export interface Keys { prev(): void; next(): void; first(): void; last(): void; toggle(): void; reset(): void; whole?(): void }
+export interface Keys { prev(): void; next(): void; first(): void; last(): void; toggle(): void; reset(): void; whole?(): void;
+  /** Called when the learner steps with a key (prev, next, first, last). */
+  onStep?(): void }
 
 /**
  * Arrow keys step, Home and End jump, Space plays, R resets, F shows the whole drawing.
@@ -18,10 +20,10 @@ export function makeKeyHandler(k: Keys, enabled: boolean): (e: KeyboardEvent) =>
     /* Home and End keep scrolling the code box, and the page on narrow screens, unless focus is on the lesson controls. */
     if ((e.key === "Home" || e.key === "End") && (t?.closest(".code")
       || (window.matchMedia?.("(max-width: 1120px), (max-height: 680px)").matches && !t?.closest(".stagecard, .rail-wrap, .explain, .lesson-head")))) return;
-    if (e.key === "ArrowRight") { k.next(); e.preventDefault(); }
-    else if (e.key === "ArrowLeft") { k.prev(); e.preventDefault(); }
-    else if (e.key === "Home") { k.first(); e.preventDefault(); }
-    else if (e.key === "End") { k.last(); e.preventDefault(); }
+    if (e.key === "ArrowRight") { k.next(); k.onStep?.(); e.preventDefault(); }
+    else if (e.key === "ArrowLeft") { k.prev(); k.onStep?.(); e.preventDefault(); }
+    else if (e.key === "Home") { k.first(); k.onStep?.(); e.preventDefault(); }
+    else if (e.key === "End") { k.last(); k.onStep?.(); e.preventDefault(); }
     else if (e.key === "r" || e.key === "R") k.reset();
     else if (e.key === "f" || e.key === "F") k.whole?.();
     else if (e.key === " ") {

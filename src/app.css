@@ -216,6 +216,14 @@ a { color: inherit; text-decoration: none; }
 .scrub-head .n { font-weight: 500; color: color-mix(in oklab, var(--inv-fg) 60%, var(--inv-bg)); font-variant-numeric: tabular-nums; }
 .scrub-scale { display: flex; justify-content: space-between; margin-top: 2px; font-family: var(--mono); font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
 
+/* The run form folds under one line; the fold stays in the DOM, so find in page can open it. */
+.run-fold > summary { display: flex; align-items: center; gap: 0; min-block-size: 28px; list-style: none; cursor: pointer; border-radius: 4px; font-size: var(--fs-chrome); color: var(--ink); }
+.run-fold > summary::-webkit-details-marker { display: none; }
+.run-fold > summary::before { content: ""; inline-size: 6px; block-size: 6px; flex: none; margin-inline-end: 8px; border: solid var(--muted); border-width: 0 1.5px 1.5px 0; transform: rotate(-45deg); transition: transform 0.15s; }
+.run-fold[open] > summary::before { transform: rotate(45deg); }
+.run-fold > summary:hover::before { border-color: var(--ink); }
+.run-fold-label { color: var(--muted); white-space: pre; overflow: hidden; text-overflow: ellipsis; }
+.run-fold[open] > summary { margin-block-end: 6px; }
 .run { display: grid; gap: 6px; }
 .run label { font-weight: 600; font-size: var(--fs-chrome); text-transform: uppercase; letter-spacing: 0.06em; }
 .run-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
@@ -228,9 +236,9 @@ a { color: inherit; text-decoration: none; }
 .run .check:not(.ok)::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 6px; border-radius: 50%; background: var(--danger); vertical-align: 1px; }
 .copy-state { font-size: 11px; color: var(--muted); min-width: 6ch; }
 /* on the desktop stage page the input is one row; its hint shows only while the reader edits (it stays readable to screen readers) */
-.lesson > .run { grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: 12px; }
-.lesson > .run > p { grid-column: 1 / -1; }
-.lesson > .run .hint.quiet { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.lesson > .run-fold > .run { grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: 12px; }
+.lesson > .run-fold > .run > p { grid-column: 1 / -1; }
+.lesson > .run-fold > .run .hint.quiet { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 .memhead { font-size: var(--fs-chrome); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: baseline; }
 .memhead .lbl { color: var(--ink); font-size: var(--fs-chrome); }
@@ -285,6 +293,7 @@ a { color: inherit; text-decoration: none; }
 .nav .btn.primary { flex: 1; min-width: 0; }
 .nav .btn.primary span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .keys { font-size: 11px; color: var(--muted); display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+@media (hover: none) { .keys { display: none; } }
 
 .right > .codewrap { flex: 1 1 auto; min-height: 140px; display: flex; flex-direction: column; overflow: hidden; }
 .codewrap > * { flex: none; }
@@ -448,7 +457,7 @@ a { color: inherit; text-decoration: none; }
   .page.flow { display: block; padding: 12px 12px 24px; }
   .page > * { overflow: visible; }
   .flow-main { display: flex; flex-direction: column; gap: 12px; }
-  .flow-main > .lesson-head, .flow-main > .stagecard, .flow-main > .rail-wrap, .flow-main > .run, .flow-main > .mem { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; }
+  .flow-main > .lesson-head, .flow-main > .stagecard, .flow-main > .rail-wrap, .flow-main > .run-fold, .flow-main > .mem { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; }
   .flow-main > .stagecard { margin: 0; padding: 0; overflow: hidden; }
   .flow-main > .codewrap { display: flex; flex-direction: column; }
   .stage { height: clamp(320px, 56vh, 540px); padding: 10px 12px; }
@@ -499,7 +508,7 @@ a { color: inherit; text-decoration: none; }
   .result b { font-size: 14px; }
   .topnav { gap: 6px; padding: 0 10px; }
   .brand { font-size: 14px; gap: 6px; }
-  .flow-main > .lesson-head, .flow-main > .rail-wrap, .flow-main > .run, .flow-main > .mem { padding: 12px 14px; }
+  .flow-main > .lesson-head, .flow-main > .rail-wrap, .flow-main > .run-fold, .flow-main > .mem { padding: 12px 14px; }
   /* touch: bigger targets */
   .icon-btn { width: 40px; height: 40px; }
   .btn.sm, .btn { min-height: 40px; }
@@ -766,6 +775,8 @@ a { color: inherit; text-decoration: none; }
 /* touch screens: every control is at least 44px in both directions (the search button keeps its own wider minimum inline size) */
 @media (pointer: coarse) {
   .icon-btn, .btn, .btn.sm, .lesson-tabs .tab { min-inline-size: 44px; min-block-size: 44px; }
+  .run-fold > summary, .mem > summary { min-block-size: 44px; }
+  .mem > summary { display: flex; align-items: center; }
   .search-btn { min-block-size: 44px; }
 }
 

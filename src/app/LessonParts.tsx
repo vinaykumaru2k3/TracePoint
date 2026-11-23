@@ -1,5 +1,6 @@
 import { useState, type SyntheticEvent } from "react";
 import { Icon } from "../design/ui";
+import { useStoredFlag } from "../hooks/useStoredFlag";
 import type { AnyLesson, MemoryCell } from "../engine/types";
 
 /** The diagram's state in words, read from the memory strip: "Stack: [0] 4, [1] 9. top is 9". Big grids keep only the note. */
@@ -23,18 +24,12 @@ export function LearnList({ items }: { items: (readonly [string, boolean])[] }) 
   );
 }
 
-const MEM_KEY = "tracepoint-memory";
-const storedMemOpen = () => { try { return localStorage.getItem(MEM_KEY) !== "0"; } catch { return true; } };
-
 /** Folds to its header line when the reader wants the stage taller; the choice is remembered. */
 export function MemoryStrip({ lesson, step }: { lesson: AnyLesson; step: ReturnType<AnyLesson["generate"]>[number] }) {
   const mem = lesson.memory(step);
-  const [open, setOpen] = useState(storedMemOpen);
-  const onToggle = (e: SyntheticEvent<HTMLDetailsElement>) => {
-    const o = e.currentTarget.open;
-    setOpen(o);
-    try { localStorage.setItem(MEM_KEY, o ? "1" : "0"); } catch { /* private mode: keep it for this visit */ }
-  };
+  const [open, setOpen] = useStoredFlag("tracepoint-memory", false);
+  /* Driven by the toggle event, so a browser opening the fold itself (find in page) keeps state in step. */
+  const onToggle = (e: SyntheticEvent<HTMLDetailsElement>) => setOpen(e.currentTarget.open);
   return (
     <details className="mem" open={open} onToggle={onToggle}>
       <summary className="memhead">
