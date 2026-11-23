@@ -758,6 +758,11 @@ a { color: inherit; text-decoration: none; }
   .search-btn { min-block-size: 44px; }
 }
 
+/* the icon-only search button is 32 or 40px wide below 1120px; on touch it gets the full 44px (above 1120px its 240px minimum stands) */
+@media (pointer: coarse) and (max-width: 1120px) {
+  .search-btn { min-inline-size: 44px; }
+}
+
 /* four 44px targets no longer fit a 375px bar at the usual gaps, so tighten the gaps, not the targets */
 @media (pointer: coarse) and (max-width: 560px) {
   .topnav { gap: 2px; padding-inline: 6px; }
