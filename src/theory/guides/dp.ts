@@ -30,12 +30,12 @@ const dp: Guide = {
   cheat: {
     head: ["Question", "Use", "Time"],
     rows: [
-      ["Count ways with a repeating recursion, using a memo", "[[fibonacci]]", "O(n)"],
+      ["Count ways with a repeating recursion, using a memo (n is the input size)", "[[fibonacci]]", "O(n)"],
       ["Count ways, filling a table from the bottom", "[[climbing-stairs]]", "O(n)"],
-      ["Fewest pieces to make a total", "[[coin-change]]", "O(n × k)"],
-      ["Best value under one limit, items whole", "[[knapsack]]", "O(n × W)"],
-      ["Longest shared subsequence of two sequences", "[[lcs]]", "O(n × m)"],
-      ["Fewest edits between two words", "[[edit-distance]]", "O(n × m)"]
+      ["Fewest pieces to make a total (n is the amount, k the number of coin kinds)", "[[coin-change]]", "O(n × k)"],
+      ["Best value under one limit, items whole (n items, W is the capacity)", "[[knapsack]]", "O(n × W)"],
+      ["Longest shared subsequence of two sequences (lengths n and m)", "[[lcs]]", "O(n × m)"],
+      ["Fewest edits between two words (lengths n and m)", "[[edit-distance]]", "O(n × m)"]
     ]
   },
   patterns: [

@@ -19,7 +19,7 @@ const advanced: Guide = {
   terms: [
     ["bit", "A single 0 or 1. A number is stored as a row of bits, and a bit that is 1 is called set."],
     ["mask", "A number used to pick out or change certain bits, such as `1 << 3` for bit 3."],
-    ["two's complement", "The usual way computers store negative whole numbers. To negate a number, flip every bit and add 1. So -x keeps the lowest set bit of x, and `x & -x` isolates that bit."],
+    ["two's complement", "The usual way computers store negative whole numbers. To negate a number, flip every bit and add 1. So -x keeps the lowest set bit of x and every bit below it, flips the bits above, and `x & -x` isolates that bit."],
     ["greedy choice", "The locally best pick at the current step, such as the interval that ends first, made without revisiting it."],
     ["exchange argument", "A proof that swapping the first choice of any best answer for the greedy choice keeps the answer as good."],
     ["segment", "A range of positions written `l..r`. A segment tree stores one sum for each range that repeated halving produces."],
@@ -29,9 +29,10 @@ const advanced: Guide = {
   cheat: {
     head: ["Question", "Use", "Time"],
     rows: [
-      ["Count set bits, or test for a power of two", "[[bit-manipulation]]", "O(1)"],
-      ["Most non-overlapping intervals", "[[greedy-intervals]]", "O(n log n)"],
-      ["Range sum with changing values", "[[segment-tree]]", "O(log n)"],
+      ["Count set bits (k is how many are set)", "[[bit-manipulation]]", "O(k)"],
+      ["Test for a power of two", "[[bit-manipulation]]", "O(1)"],
+      ["Most non-overlapping intervals (n intervals)", "[[greedy-intervals]]", "O(n log n)"],
+      ["Range sum with changing values (n positions)", "[[segment-tree]]", "O(log n)"],
       ["Range sum when nothing changes", "[[prefix-sums]]", "O(1)"]
     ]
   },
