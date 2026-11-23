@@ -62,4 +62,14 @@ describe("coin change generator", () => {
       s.forEach((x, i) => { if (i) expect(x.op).not.toBe(s[i - 1].op); });
     }
   });
+
+  it("keeps every op within 14 characters for two-digit inputs, unique against neighbours", () => {
+    for (const t of ["coins 10 12, amount 12", "coins 10, amount 10", "coins 20 19 18 17, amount 12", "coins 1 12, amount 12"]) {
+      const s = run(lesson, t);
+      s.forEach((x, i) => {
+        expect(x.short !== undefined || (x.op ?? "").length <= 14).toBe(true);
+        if (i) expect(x.op).not.toBe(s[i - 1].op);
+      });
+    }
+  });
 });

@@ -115,7 +115,7 @@ export function generateCoinChange({ coins, amount }: CoinInput): Step<CoinState
         title: `Coin ${c} was used at ${a}`,
         idea: "To see which coins were used, step back from the answer. A coin was used when the cell it leaves plus one equals the cell you stand on.",
         text: `dp[${a}] = ${dp[a]}, and dp[${a - c}] + 1 = ${dp[a - c] + 1}. So coin ${c} was used, and we move to ${a - c}.`
-      }, { op: `pick ${c} from ${a}`, a, mark: { ...path }, strip: "picked", slots: total });
+      }, { op: `pick ${c}@${a}`, a, mark: { ...path }, strip: "picked", slots: total });
       a -= c;
     }
   }
