@@ -4,6 +4,7 @@ import { LANGS } from "../engine/types";
 import { CURRICULUM } from "../curriculum";
 import { COORD, runOpOf, stepName } from "../engine/stepName";
 import { LESSONS } from "./index";
+import { generateEdit } from "./edit-distance/generate";
 import { generateLcs } from "./lcs/generate";
 import { generateKnapsack } from "./knapsack/generate";
 import { generateCoinChange } from "./coin-change/generate";
@@ -86,5 +87,27 @@ describe("grid DP names", () => {
   });
   it("names coin-change cells by amount and coin", () => {
     expect(names(generateCoinChange({ coins: [1, 2], amount: 5 }))).toContain("amount 5, coin 2");
+  });
+  it("names every step of LCS on repeated letters readably", () => {
+    for (const [a, b] of [["A", "A"], ["AAA", "AA"]]) {
+      const steps = generateLcs({ a, b });
+      const op = runOpOf(steps);
+      steps.forEach((_, i) => {
+        const n = stepName(steps, i, op);
+        expect(n.length, `${a}/${b} ${i}`).toBeLessThanOrEqual(24);
+        expect(n, `${a}/${b} ${i}`).not.toMatch(COORD);
+      });
+    }
+  });
+  it("suffixes a name that repeats the previous one", () => {
+    const n = names(generateLcs({ a: "AA", b: "AA" }));
+    expect(n).toContain("A = A (col 2)");
+    expect(n.some((x, i) => i > 0 && x === n[i - 1])).toBe(false);
+  });
+  it("keeps edit-distance names distinct and readable on repeated letters", () => {
+    const steps = generateEdit({ a: "AA", b: "AA" });
+    const n = names(steps);
+    expect(n).toContain("A = A (col 2)");
+    n.forEach((x, i) => { expect(x).not.toMatch(COORD); if (i) expect(x).not.toBe(n[i - 1]); });
   });
 });
