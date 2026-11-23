@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef } from "react";
+import { usePageFocus, usePageTitle } from "../hooks/usePage";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { folderName, sectionOf } from "../curriculum";
 import { DEFAULT_STEP_COUNT, LESSON_BY_ID } from "../lessons";
@@ -173,6 +174,9 @@ export default function GuidePage({ progress, courseOpen, onCloseCourse, section
   const narrow = useMedia(NARROW);
   /* A new guide starts at the top of the page on narrow screens, where the page scrolls. */
   useEffect(() => { if (narrow) window.scrollTo({ top: 0 }); }, [sectionId]); // eslint-disable-line react-hooks/exhaustive-deps
+  const h1Ref = useRef<HTMLHeadingElement>(null);
+  usePageTitle(`${sectionOf(sectionId)?.name ?? "Guide"} · guide · Tracepoint`);
+  usePageFocus(h1Ref, `guide/${sectionId}`);
   const kind = resolveGuide(sectionId);
   if (kind === "redirect") return <Navigate to="/" replace />;
   const sec = sectionOf(sectionId)!;
@@ -196,7 +200,7 @@ export default function GuidePage({ progress, courseOpen, onCloseCourse, section
             <i className="sec-swatch" style={{ background: sec.color }} aria-hidden="true" />
             <span>dsa</span><span aria-hidden="true">/</span><span>{folderName(sec).replace(/\/$/, "")}</span><span aria-hidden="true">/</span><span className="cur">README.md</span>
           </div>
-          <h1>{sec.name}</h1>
+          <h1 ref={h1Ref} tabIndex={-1}>{sec.name}</h1>
           {guide && <p className="sub"><Rich text={guide.tagline} /></p>}
           {guide && live.length > 0 && (
             <div className="ghero-meta">
