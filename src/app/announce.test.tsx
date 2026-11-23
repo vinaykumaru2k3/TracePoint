@@ -33,3 +33,16 @@ describe("screen-reader step announcement", () => {
     expect(at("/guide/graphs")).toContain('<h1 tabindex="-1">');
   });
 });
+
+describe("bad shared link", () => {
+  beforeAll(() => {
+    const mq = { matches: false, addEventListener() {}, removeEventListener() {} };
+    vi.stubGlobal("window", { innerHeight: 900, innerWidth: 1440, matchMedia: () => mq });
+  });
+  afterAll(() => { vi.unstubAllGlobals(); });
+  it("shows the notice derived from the URL, and a too-long one", () => {
+    expect(at("/stack/2?in=bogus")).toContain("could not run");
+    expect(at(`/stack/2?in=${"x".repeat(1200)}`)).toContain("too long to run");
+    expect(at("/stack/2")).not.toContain("could not run");
+  });
+});
