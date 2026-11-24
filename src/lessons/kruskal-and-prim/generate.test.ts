@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import lesson from ".";
 import { rets, run } from "../testkit";
 import { runOpOf, stepName } from "../../engine/stepName";
+import { generateMst } from "./generate";
 
 describe("kruskal and prim generator", () => {
   it("both find the tree of cost 11", () => {
@@ -38,5 +39,29 @@ describe("kruskal and prim generator", () => {
     }
     const steps = run(lesson, lesson.defaultText);
     expect(steps.map((s) => s.short).filter((x) => x?.startsWith("add "))).toContain("add D (B-D 5)");
+  });
+  it("keeps names short and neighbours distinct with long names and parallel edges", () => {
+    const check = (steps: ReturnType<typeof generateMst>) => {
+      const names = steps.map((_, i) => stepName(steps, i, runOpOf(steps)));
+      for (const [i, nm] of names.entries()) {
+        expect(nm.length, nm).toBeLessThanOrEqual(24);
+        if (i > 0) expect(nm, `step ${i + 1}`).not.toBe(names[i - 1]);
+      }
+      return names;
+    };
+    /* Parallel A-B edges: two skips in a row for each algorithm. */
+    const par = check(generateMst({
+      nodes: ["A", "B", "C", "D"], start: "A", directed: false,
+      edges: [{ u: "A", v: "B", w: 1 }, { u: "A", v: "B", w: 2 }, { u: "A", v: "B", w: 3 }, { u: "B", v: "C", w: 8 }, { u: "C", v: "D", w: 9 }],
+    }));
+    expect(par.filter((x) => x.startsWith("skip A-B: loop"))).toHaveLength(2);
+    expect(par.filter((x) => x.startsWith("skip A-B: in tree"))).toHaveLength(2);
+    /* Long names: the weight goes first, then the name is cut. */
+    const long = check(generateMst({
+      nodes: ["Amsterdam", "Brussels", "Constantinople", "Dubrovnik"], start: "Amsterdam", directed: false,
+      edges: [{ u: "Amsterdam", v: "Brussels", w: 12 }, { u: "Brussels", v: "Constantinople", w: 3 }, { u: "Constantinople", v: "Dubrovnik", w: 4 }],
+    }));
+    expect(long).toContain("take Amsterdam-Brussels");
+    expect(long.some((x) => x.startsWith("take Brussels-Constanti") && x.length === 24)).toBe(true);
   });
 });
