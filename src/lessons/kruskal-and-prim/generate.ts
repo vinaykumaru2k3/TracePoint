@@ -64,7 +64,7 @@ export function generateMst(g: GraphInput): Step<MstState>[] {
     if (kept.length === n - 1) break;
     const ru = find(e.u), rv = find(e.v);
     const k = name(e);
-    const ptrs: TPointer[] = [{ node: idOf(e.u), label: "u" }, { node: idOf(e.v), label: "v" }];
+    const ptrs: TPointer[] = [{ node: idOf(e.u), label: "from" }, { node: idOf(e.v), label: "to" }];
     if (ru === rv) {
       fate[k] = "stale";
       strip = { name: "sorted", tiles: kTiles(k) };
@@ -125,13 +125,13 @@ export function generateMst(g: GraphInput): Step<MstState>[] {
   };
 
   add(g.start);
-  strip = { name: "heap", tiles: pTiles(), ptrs: heap.length ? [{ at: 0, label: "min" }] : [] };
+  strip = { name: "heap", tiles: pTiles(), ptrs: heap.length ? [{ at: 0, label: "smallest" }] : [] };
   snap({
     kind: "add", anchors: ["pr.sig", "pr.init"], notes: { "pr.init": `tree = {${g.start}}, heap = [${heap.map(label).join(", ")}]` },
     title: `Prim: grow a tree from ${g.start}`,
     idea: "Prim keeps one tree and grows it. The heap holds every edge that leaves the tree, cheapest first.",
     text: `The tree starts as ${g.start} alone. Each edge from ${g.start} goes into the heap. Prim will add the cheapest edge leaving the tree, again and again.`
-  }, { states: states({ [g.start]: "active" }), ptrs: [{ node: idOf(g.start), label: "s" }] });
+  }, { states: states({ [g.start]: "active" }), ptrs: [{ node: idOf(g.start), label: "start" }] });
 
   while (heap.length && inTree.size < n) {
     const e = heap.shift()!;
@@ -143,19 +143,19 @@ export function generateMst(g: GraphInput): Step<MstState>[] {
         title: `Skip ${e.u}-${e.v}: both ends are in the tree`,
         idea: "An edge can enter the heap and later stop leaving the tree. A lazy heap throws such an edge away when it comes out.",
         text: `${e.u}-${e.v} was pushed when only ${e.u} was in the tree. ${e.v} joined since, so this edge would close a loop. It is skipped.`
-      }, { states: states({ [e.u]: "swap", [e.v]: "swap" }), edges: { [k]: "dim" }, ptrs: [{ node: idOf(e.v), label: "v" }] });
+      }, { states: states({ [e.u]: "swap", [e.v]: "swap" }), edges: { [k]: "dim" }, ptrs: [{ node: idOf(e.v), label: "to" }] });
       continue;
     }
     kept.push(k);
     total += e.w;
     add(e.v);
-    strip = { name: "heap", tiles: pTiles(), ptrs: heap.length ? [{ at: 0, label: "min" }] : [] };
+    strip = { name: "heap", tiles: pTiles(), ptrs: heap.length ? [{ at: 0, label: "smallest" }] : [] };
     snap({
       kind: "add", anchors: ["pr.pop", "pr.take"], notes: { "pr.pop": label(e), "pr.take": `add ${e.v}, total ${total}` },
       title: `Add ${e.v} by ${e.u}-${e.v} for ${e.w}`,
       idea: "The cheapest edge leaving the tree is always safe. It reaches a new node for the least cost.",
       text: `${e.u}-${e.v} is the cheapest edge in the heap and ${e.v} is not in the tree yet. ${e.v} joins the tree and the total is ${total}. Edges from ${e.v} to nodes outside go into the heap.`
-    }, { states: states({ [e.v]: "active" }), edges: { [k]: "active" }, ptrs: [{ node: idOf(e.u), label: "u" }, { node: idOf(e.v), label: "v" }] });
+    }, { states: states({ [e.v]: "active" }), edges: { [k]: "active" }, ptrs: [{ node: idOf(e.u), label: "from" }, { node: idOf(e.v), label: "to" }] });
   }
 
   const missed = g.nodes.filter((x) => !inTree.has(x));

@@ -78,7 +78,7 @@ export function generateRepresentations(g: GraphInput): Step<RepState>[] {
         title: `List: ${x} is not ${v}`,
         idea: "A list has no cell for the pair. It walks the node's neighbours until it finds the one it wants or runs out.",
         text: `The walk reads entry ${k} of ${u}'s list. It is ${x}, not ${v}, so the walk goes on.`
-      }, { states: { [u]: "active", [v]: "compare", [x]: "visited" }, edges: { [ekey(u, x, false)]: "active" }, ptrs: [{ node: idOf(x), label: "x" }] });
+      }, { states: { [u]: "active", [v]: "compare", [x]: "visited" }, edges: { [ekey(u, x, false)]: "active" }, ptrs: [{ node: idOf(x), label: "next" }] });
     });
     snap({
       kind: "empty", op, ret: "false", anchors: [...(lists[u].length === 0 ? ["has.sig"] : []), "has.miss"], notes: { "has.miss": "list ended, return false" },
@@ -102,7 +102,7 @@ export function generateRepresentations(g: GraphInput): Step<RepState>[] {
       title: `${hub} touches ${x}`,
       idea: "Listing neighbours is what a list does best. Every entry it reads is a real neighbour.",
       text: `Entry ${k} of ${hub}'s list is ${x}, so ${x} goes into the answer.`
-    }, { states, edges: Object.fromEntries(got.map((y) => [ekey(hub, y, false), "tree" as const])), ptrs: [{ node: idOf(x), label: "x" }] });
+    }, { states, edges: Object.fromEntries(got.map((y) => [ekey(hub, y, false), "tree" as const])), ptrs: [{ node: idOf(x), label: "next" }] });
   });
   const hubStates: Partial<Record<string, BlockState>> = { [hub]: "active" };
   for (const y of got) hubStates[y] = "found";

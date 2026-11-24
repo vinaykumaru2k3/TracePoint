@@ -36,7 +36,7 @@ export function generateDfs(g: GraphInput): Step<DfsState>[] {
       ...st, op,
       state: {
         ...view, frame,
-        ptrs: [...(cur ? [{ node: idOf(cur), label: "u" }] : []), ...(v.ptrs ?? [])],
+        ptrs: [...(cur ? [{ node: idOf(cur), label: "here" }] : []), ...(v.ptrs ?? [])],
         strip: st.kind === "problem" ? undefined : {
           name: "stack", slots: g.nodes.length,
           tiles: stack.map((x, k) => ({ v: x, state: k === stack.length - 1 ? "active" : "visited" })),
@@ -76,7 +76,7 @@ export function generateDfs(g: GraphInput): Step<DfsState>[] {
           title: `${x} was already seen`,
           idea: "The seen mark is what stops a cycle from sending the search round and round.",
           text: `${u}'s neighbour ${x} was visited before, so the search does not go back into it.`
-        }, { look: x, ptrs: [{ node: idOf(x), label: "x" }] });
+        }, { look: x, ptrs: [{ node: idOf(x), label: "next" }] });
         continue;
       }
       visit(x, u);
