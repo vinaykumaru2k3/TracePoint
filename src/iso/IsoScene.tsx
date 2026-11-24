@@ -113,12 +113,15 @@ export default function IsoScene({ viewBox, label, children }: Props) {
     aimed.current = to;
     /* Only the lesson stage (a lens) keeps scene text at its screen size; walkthroughs and thumbnails
        are deliberate small overviews, so their text shrinks with the drawing. */
-    setPx(measuring || !lens ? 1 : sceneScale(to, size.w, size.h));
+    const px = measuring || !lens ? 1 : sceneScale(to, size.w, size.h);
+    setPx(px);
     if (!measuring) {
+      /* Crop checks use the same room-padded drawing the frame was fitted to. */
+      const drawn = lens ? roomFor(shot, px) : shot;
       hideOffstage(svg, size.w > 0 ? to : null);
-      const c = size.w > 0 && crops(to, shot);
-      setCut(c ? edges(to, shot) : null);
-      if (onCrop && lens) onCrop(size.w > 0 && crops(aim(shot, size.w, size.h, MAX_SCALE, lens), shot));
+      const c = size.w > 0 && crops(to, drawn);
+      setCut(c ? edges(to, drawn) : null);
+      if (onCrop && lens) onCrop(size.w > 0 && crops(aim(drawn, size.w, size.h, MAX_SCALE, lens), drawn));
     }
     const apply = (b: Box) => {
       shown.current = b;
