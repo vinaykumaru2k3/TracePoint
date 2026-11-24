@@ -16,7 +16,7 @@ import SceneFit from "../iso/SceneFit";
 import { LazyLesson } from "../lessons/load";
 import { DEFAULT_LESSON, META_BY_ID } from "../lessons/meta";
 import CodeCard from "./CodeCard";
-import { LearnList, MemoryStrip, describeMemory } from "./LessonParts";
+import { LearnList, MemoryStrip, describeMemory, resultLabel, shownMetrics } from "./LessonParts";
 import RunForm from "./RunForm";
 import Scrubber from "./Scrubber";
 import { runMax, useLessonRun } from "./useLessonRun";
@@ -191,7 +191,7 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
       <div className="stage">
         <div className="stage-top">
           <div className="metrics" aria-label="Live values">
-            {lesson.metrics(step).map((m: { label: string; value: string | number }, i: number) => (
+            {shownMetrics(lesson.metrics(step) as { label: string; value: string | number }[]).map((m, i) => (
               <Fragment key={m.label}>
                 {i > 0 && <span className="sep" aria-hidden="true">·</span>}
                 <MetricCard {...m} />
@@ -231,7 +231,7 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
           ) : legendList}
           {step.op && step.ret !== undefined && (
             <div className="result">
-              <small>{step.op} returns</small>
+              <small>{resultLabel(step.op)}</small>
               <b className={step.ret === "void" ? "void" : step.ret === "throws" ? "throws" : ""}>{step.ret}</b>
               {step.retNote && <em>{step.retNote}</em>}
             </div>

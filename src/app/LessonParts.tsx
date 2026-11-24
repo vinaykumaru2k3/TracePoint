@@ -63,3 +63,13 @@ export function MemoryStrip({ lesson, step }: { lesson: AnyLesson; step: ReturnT
     </details>
   );
 }
+
+/** The result box's label: `<op> returns`, or `answer` when the op is itself a `return`, so it never reads `return 2 returns`. */
+export function resultLabel(op: string): string {
+  return /^return\b/.test(op) ? "answer" : `${op} returns`;
+}
+
+/** The live values worth showing: a metric with no value yet (`-` or empty) is left out, on any step. */
+export function shownMetrics<M extends { value: string | number }>(metrics: M[]): M[] {
+  return metrics.filter((m) => m.value !== "-" && m.value !== "");
+}
