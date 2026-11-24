@@ -385,8 +385,16 @@ a { color: inherit; text-decoration: none; }
 .e-active .arrow-head { fill: var(--edge-active); }
 .e-tree .arrow-head { fill: var(--st-found-r); }
 .e-dim .arrow-head { opacity: 0.35; }
-/* Tags never draw under 11 CSS px: --px is scene units per screen pixel, set by IsoScene. */
-.tag-body, .grid-head { scale: max(1, var(--px, 1)); transform-box: fill-box; transform-origin: center; }
+/* Scene text never draws under 11 CSS px: --px is scene units per screen pixel, set by IsoScene.
+   11px text grows by --px; bigger text grows only once it would drop under 11px. Text inside a
+   .tag-body or .grid-head is scaled with its group, never twice. */
+.tag-body, .grid-head, .plate-index:not(.grid-head *, .tag-body *) { scale: max(1, var(--px, 1)); transform-box: fill-box; transform-origin: center; }
+.row-name, .null-tag { scale: max(1, calc(var(--px, 1) * 11 / 12)); transform-box: fill-box; transform-origin: center; }
+/* A row name is anchored at its end, beside the row: it grows away from the row, not over it. */
+.row-name { transform-origin: right center; }
+.box-label { scale: max(1, calc(var(--px, 1) * 11 / 15)); transform-box: fill-box; transform-origin: center; }
+/* A pointer's flag grows about the point it names, so its tip stays on that point. */
+.ptr-flag { scale: max(1, var(--px, 1)); transform-box: view-box; transform-origin: 0 0; }
 .edge-w rect { fill: var(--surface); stroke: var(--line-strong); stroke-width: 1; }
 .edge-w text { font-family: var(--mono); font-size: 11px; font-weight: 600; fill: var(--muted); }
 .edge-w.e-active rect { stroke: var(--edge-active); stroke-width: 1.6; }
