@@ -101,8 +101,8 @@ const clamp = (v: number, lo: number, hi: number) => (hi < lo ? (lo + hi) / 2 : 
 
 /**
  * The frame for one step. Fit the whole drawing when that keeps it readable; otherwise read at
- * `lens.read` (or as close to it as keeps the whole focus in view, or as far as fits a whole axis
- * of the drawing at a readable scale), centred on the focus
+ * `lens.read` (or as close to it as keeps the whole focus in view; or, once cropping, as far as
+ * shows the drawing above its strip or one whole axis at a readable scale), centred on the focus
  * and kept inside the drawing so no empty floor shows.
  */
 export function aim(shot: Shot, W: number, H: number, maxScale: number, lens?: Lens): Box {
@@ -115,14 +115,18 @@ export function aim(shot: Shot, W: number, H: number, maxScale: number, lens?: L
   /* A headed focus too tall for the floor keeps the floor scale and its top (see `Shot.headed`). */
   const top = !!shot.headed && fit < lens.floor;
   let s = Math.min(maxScale, Math.max(W / whole.w, top ? Math.min(lens.read, lens.floor) : fit));
-  /* When one whole axis of the drawing reads at or above the floor, read at that scale rather than
-     closer: a 1x crop of a drawing a little wider than the stage cuts one side while the clamp shows
-     stale rows or floor on the other. */
-  const axis = Math.max(W / shot.w, H / shot.h);
-  if (axis >= lens.floor && axis < s) s = axis;
-  const w = W / s, h = H / s;
   /* A close-up that barely beats the whole picture is not worth hiding the rest for. */
   if (s < (W / whole.w) * CROP_GAIN) return whole;
+  /* Once cropping, crop no more than still reads. The whole drawing above the strip, when it fits at
+     or above the floor and the focus is clear of the strip; else one whole axis of the drawing. A
+     1x crop of a drawing a little bigger than the stage cuts a side or a top plate while the clamp
+     shows stale rows or floor on the other. */
+  const st = shot.strip;
+  const body = st && f.y + f.h <= st.y ? Math.min(W / shot.w, H / (st.y - shot.y)) : 0;
+  const axis = Math.max(W / shot.w, H / shot.h);
+  if (body >= lens.floor && body < s) s = body;
+  else if (axis >= lens.floor && axis < s) s = axis;
+  const w = W / s, h = H / s;
   return clearStrip({
     x: clamp(f.x + f.w / 2 - w / 2, shot.x, shot.x + shot.w - w),
     y: clamp(top && f.h > h ? headedTop(f, shot.lit, h) : f.y + f.h / 2 - h / 2, shot.y, shot.y + shot.h - h),

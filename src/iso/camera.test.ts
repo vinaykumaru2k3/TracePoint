@@ -226,9 +226,26 @@ describe("readable camera", () => {
     expect(v.y).toBeGreaterThanOrEqual(shot.y - 1e-6); // no empty floor above
     const strip = shot.strip;
     expect(strip.y >= v.y + v.h || strip.y + strip.h <= v.y + v.h).toBe(true); // no sliver
-    /* A focus off to one side is centred, then clamped so no floor shows past the drawing. */
+    /* A focus off to one side is centred, then clamped so no floor shows past the drawing on one
+       side only: a view wider than the drawing centres on it. */
     const side = aim({ ...shot, headed: false, focus: { x: -460, y: 17, w: 100, h: 100 }, core: undefined, lit: undefined }, 946, 476.4, 1.35, lens);
-    expect(side.x).toBeGreaterThanOrEqual(shot.x - 1e-6);
+    expect(side.x + side.w / 2).toBeCloseTo(shot.x + shot.w / 2);
+  });
+
+  it("shows the whole drawing above the strip when that reads, rather than a 1x crop that cuts a top plate", () => {
+    /* LCS recap at 1440x900, measured: a 946x440 stage. At 1x on the traceback the top plate and its
+       header were cut, though the table without the strip reads at 0.87. */
+    const shot = {
+      x: -550.8, y: -32.4, w: 928.8, h: 581.9, flags: false,
+      focus: { x: -262.8, y: 17.2, w: 444.2, h: 530.3 }, core: { x: -262.8, y: 17.2, w: 444.2, h: 421.4 },
+      strip: { x: -231.4, y: 472.7, w: 238.8, h: 62.8 },
+    };
+    const v = aim(shot, 946, 439.7, 1.35, lens);
+    expect(439.7 / v.h).toBeGreaterThanOrEqual(lens.floor);
+    expect(v.y).toBeLessThanOrEqual(shot.y + 1e-6);
+    expect(v.y + v.h).toBeLessThanOrEqual(shot.strip.y + 1e-6);
+    expect(v.x).toBeLessThanOrEqual(shot.x + 1e-6);
+    expect(v.x + v.w).toBeGreaterThanOrEqual(shot.x + shot.w - 1e-6);
   });
 
   it("never reads past the cap", () => {
