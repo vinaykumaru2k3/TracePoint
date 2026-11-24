@@ -34,43 +34,50 @@ interface Edges { l: boolean; r: boolean; t: boolean; b: boolean }
 export const cropEdges = (v: Box, s: Box, slack = 4): Edges =>
   ({ l: s.x < v.x - slack, r: s.x + s.w > v.x + v.w + slack, t: s.y < v.y - slack, b: s.y + s.h > v.y + v.h + slack });
 
-/** One crop cue: its side and the tip of its chevron, in scene units. */
+/** One crop cue: its side, and where its pill meets the view's edge (the middle of its outer side), in scene units. */
 export interface CueSpot { key: "l" | "r" | "t" | "b"; x: number; y: number }
 
+/** A cue's pill in screen pixels: its length along the edge, its depth, and its gap from the edge. */
+const PILL_L = 28, PILL_S = 16, PILL_GAP = 4;
+
 /**
- * Where each crop cue sits: `inset` screen pixels in from its edge, and along the edge beside the
- * drawing `s` where the frame has room for it (so it marks floor, not a plate), else at the middle.
+ * Where each crop cue sits: at the middle of its cut edge, a small gap in from the very edge of the
+ * view `v`. The cue draws on its own pill, so it reads over plates as well as floor.
  */
-export function cueSpots(v: Box, s: Box, cut: Edges, px: number): CueSpot[] {
-  const a = 6 * px, inset = 10 * px, need = 2 * (1.4 * a + inset);
-  /* The middle of the widest gap between the frame and the drawing on one axis, if it fits a cue. */
-  const beside = (lo: number, len: number, dlo: number, dlen: number) => {
-    const before = dlo - lo, after = lo + len - (dlo + dlen);
-    if (Math.max(before, after) < need) return lo + len / 2;
-    return after >= before ? (dlo + dlen + lo + len) / 2 : (lo + dlo) / 2;
-  };
-  const cx = beside(v.x, v.w, s.x, s.w), cy = beside(v.y, v.h, s.y, s.h);
+export function cueSpots(v: Box, cut: Edges, px: number): CueSpot[] {
+  const g = PILL_GAP * px, cx = v.x + v.w / 2, cy = v.y + v.h / 2;
   const spots: CueSpot[] = [];
-  if (cut.l) spots.push({ key: "l", x: v.x + inset, y: cy });
-  if (cut.r) spots.push({ key: "r", x: v.x + v.w - inset, y: cy });
-  if (cut.t) spots.push({ key: "t", x: cx, y: v.y + inset });
-  if (cut.b) spots.push({ key: "b", x: cx, y: v.y + v.h - inset });
+  if (cut.l) spots.push({ key: "l", x: v.x + g, y: cy });
+  if (cut.r) spots.push({ key: "r", x: v.x + v.w - g, y: cy });
+  if (cut.t) spots.push({ key: "t", x: cx, y: v.y + g });
+  if (cut.b) spots.push({ key: "b", x: cx, y: v.y + v.h - g });
   return spots;
 }
 
 /**
- * A small chevron on each side where the drawing goes on past the frame, so a close-up never
- * passes for the whole picture. Drawn in scene units at the aimed frame; they fade in once the glide
- * has landed.
+ * A small chevron on a `--surface` pill on each side where the drawing goes on past the frame, so a
+ * close-up never passes for the whole picture. Drawn in scene units at the aimed frame, sized in
+ * screen pixels (`px`); they fade in once the glide has landed. A mark, not a control.
  */
-function CropCues({ view, drawn, cut, px }: { view: Box; drawn: Box; cut: Edges; px: number }) {
-  const a = 6 * px, k = a * 1.4; // in screen pixels, whatever the zoom
-  const d = ({ key, x, y }: CueSpot) =>
-    key === "l" ? `M ${x + a} ${y - k} L ${x} ${y} L ${x + a} ${y + k}`
-      : key === "r" ? `M ${x - a} ${y - k} L ${x} ${y} L ${x - a} ${y + k}`
-        : key === "t" ? `M ${x - k} ${y + a} L ${x} ${y} L ${x + k} ${y + a}`
-          : `M ${x - k} ${y - a} L ${x} ${y} L ${x + k} ${y - a}`;
-  return <g className="crop-cues" aria-hidden="true">{cueSpots(view, drawn, cut, px).map((c) => <path key={c.key} d={d(c)} />)}</g>;
+export function CropCues({ view, cut, px }: { view: Box; cut: Edges; px: number }) {
+  const L = PILL_L * px, S = PILL_S * px, a = 6 * px, k = 8 * px, inset = (S - a) / 2;
+  const cue = ({ key, x, y }: CueSpot) => {
+    const across = key === "t" || key === "b";
+    /* The pill grows inward from the edge point; the chevron's tip points at the edge. */
+    const rx = across ? x - L / 2 : key === "l" ? x : x - S;
+    const ry = across ? (key === "t" ? y : y - S) : y - L / 2;
+    const d = key === "l" ? `M ${x + inset + a} ${y - k} L ${x + inset} ${y} L ${x + inset + a} ${y + k}`
+      : key === "r" ? `M ${x - inset - a} ${y - k} L ${x - inset} ${y} L ${x - inset - a} ${y + k}`
+        : key === "t" ? `M ${x - k} ${y + inset + a} L ${x} ${y + inset} L ${x + k} ${y + inset + a}`
+          : `M ${x - k} ${y - inset - a} L ${x} ${y - inset} L ${x + k} ${y - inset - a}`;
+    return (
+      <g key={key} className="crop-cue">
+        <rect className="crop-pill" x={rx} y={ry} width={across ? L : S} height={across ? S : L} rx={S / 2} />
+        <path d={d} />
+      </g>
+    );
+  };
+  return <g className="crop-cues" aria-hidden="true">{cueSpots(view, cut, px).map(cue)}</g>;
 }
 
 interface Props {
@@ -195,7 +202,7 @@ export default function IsoScene({ viewBox, label, children }: Props) {
         </g>
       )}
       {children}
-      {cut && aimed.current && <CropCues key={boxString(aimed.current)} view={aimed.current} drawn={target ?? parseBox(viewBox)} cut={cut} px={aimed.current.w / size.w} />}
+      {cut && aimed.current && <CropCues key={boxString(aimed.current)} view={aimed.current} cut={cut} px={aimed.current.w / size.w} />}
     </svg>
   );
 }

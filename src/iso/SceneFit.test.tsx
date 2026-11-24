@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
-import IsoScene, { ZoomContext, cropEdges, cueSpots, hideOffstage, sceneScale } from "./IsoScene";
+import IsoScene, { CropCues, ZoomContext, cropEdges, cueSpots, hideOffstage, sceneScale } from "./IsoScene";
 import { roomFor } from "./camera";
 import SceneFit, { fitScenes, pickFocus } from "./SceneFit";
 
@@ -101,16 +101,25 @@ describe("crop cues", () => {
     expect(cropEdges(view, padded).t).toBe(true); // the old false cue
     expect(cropEdges(view, shot)).toEqual({ l: false, r: false, t: false, b: true });
   });
-  it("sit beside the drawing where the view has room, else at the middle of the edge", () => {
-    const shot = { x: 300, y: 40, w: 400, h: 420 };
-    const [b] = cueSpots(view, shot, { l: false, r: false, t: false, b: true }, 1);
-    expect(b.x > shot.x + shot.w || b.x < shot.x).toBe(true);
-    expect(b.y).toBeGreaterThan(380);
-    const full = { x: -50, y: 40, w: 1100, h: 420 };
-    const [l, m] = cueSpots(view, full, { l: true, r: false, t: false, b: true }, 1);
-    expect(m.x).toBe(500);
-    /* The left cue sits below or above the drawing when there is room there; here there is above. */
-    expect(l.y).toBeLessThan(40);
+  it("sit at the middle of each cut edge, at the very edge of the view", () => {
+    const spots = cueSpots(view, { l: true, r: true, t: true, b: true }, 2);
+    const at = Object.fromEntries(spots.map((c) => [c.key, c]));
+    expect(at.t.x).toBe(500);
+    expect(at.b.x).toBe(500);
+    expect(at.l.y).toBe(200);
+    expect(at.r.y).toBe(200);
+    /* The pill touches nothing past a small gap from its edge: 4 screen pixels, so 8 units at px 2. */
+    expect(at.t.y).toBe(view.y + 8);
+    expect(at.b.y).toBe(view.y + view.h - 8);
+    expect(at.l.x).toBe(view.x + 8);
+    expect(at.r.x).toBe(view.x + view.w - 8);
+    expect(cueSpots(view, { l: false, r: false, t: false, b: true }, 1).map((c) => c.key)).toEqual(["b"]);
+  });
+  it("draw each chevron on a surface pill, so it reads over plates as well as floor", () => {
+    const html = renderToStaticMarkup(<svg><CropCues view={view} cut={{ l: false, r: false, t: true, b: true }} px={1} /></svg>);
+    expect(html.match(/<g class="crop-cue"/g)).toHaveLength(2);
+    expect(html.match(/<rect class="crop-pill"/g)).toHaveLength(2);
+    expect(html).toContain('aria-hidden="true"');
   });
 });
 
