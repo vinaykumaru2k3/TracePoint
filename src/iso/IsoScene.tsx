@@ -90,7 +90,9 @@ export default function IsoScene({ viewBox, label, children }: Props) {
     const shot = target ?? parseBox(viewBox);
     const to = measuring ? parseBox(viewBox) : follow(aimed.current, shot, size.w, size.h, MAX_SCALE, whole ? undefined : lens);
     aimed.current = to;
-    setPx(measuring ? 1 : sceneScale(to, size.w, size.h));
+    /* Only the lesson stage (a lens) keeps scene text at its screen size; walkthroughs and thumbnails
+       are deliberate small overviews, so their text shrinks with the drawing. */
+    setPx(measuring || !lens ? 1 : sceneScale(to, size.w, size.h));
     if (!measuring) {
       const c = size.w > 0 && crops(to, shot);
       setCut(c ? edges(to, shot) : null);
@@ -116,7 +118,7 @@ export default function IsoScene({ viewBox, label, children }: Props) {
   }, [target, viewBox, size.w, size.h, measuring, lens, whole, onCrop]);
 
   return (
-    <svg className="iso" ref={svgRef} style={{ "--px": px } as CSSProperties} preserveAspectRatio="xMidYMid meet" role="img" aria-label={label}>
+    <svg className="iso" ref={svgRef} style={lens && !measuring ? ({ "--px": px } as CSSProperties) : undefined} preserveAspectRatio="xMidYMid meet" role="img" aria-label={label}>
       {!measuring && (
         <g className="floor" aria-hidden="true">
           <defs>
