@@ -210,6 +210,27 @@ describe("readable camera", () => {
     expect(out.y + out.h).toBeLessThanOrEqual(390 + 1e-6);
   });
 
+  it("reads at the scale that fits a whole axis rather than crop one side and show stale rows on the other", () => {
+    /* Knapsack step 5 at 1440x900, measured: a 946x476 stage. At 1x the row-4 head was cut at the
+       left while the frame clamped to the right edge, and the bottom half showed stale plates. */
+    const shot = {
+      x: -464.4, y: -32.4, w: 1015.2, h: 625.1, headed: true,
+      focus: { x: -185.4, y: 17.2, w: 539.6, h: 573.5 }, core: { x: -185.4, y: 17.2, w: 539.6, h: 248.6 },
+      lit: { x: -3.6, y: 17.2, w: 357.8, h: 248.6 }, strip: { x: -178.6, y: 515.9, w: 399.6, h: 62.8 },
+    };
+    const v = aim(shot, 946, 476.4, 1.35, lens);
+    expect(946 / v.w).toBeGreaterThanOrEqual(lens.floor);
+    expect(v.x).toBeLessThanOrEqual(shot.x + 1e-6); // nothing cut at the left
+    expect(v.x + v.w).toBeGreaterThanOrEqual(shot.x + shot.w - 1e-6); // nor at the right
+    expect(crops(v, shot)).toBe(true); // the far rows still crop
+    expect(v.y).toBeGreaterThanOrEqual(shot.y - 1e-6); // no empty floor above
+    const strip = shot.strip;
+    expect(strip.y >= v.y + v.h || strip.y + strip.h <= v.y + v.h).toBe(true); // no sliver
+    /* A focus off to one side is centred, then clamped so no floor shows past the drawing. */
+    const side = aim({ ...shot, headed: false, focus: { x: -460, y: 17, w: 100, h: 100 }, core: undefined, lit: undefined }, 946, 476.4, 1.35, lens);
+    expect(side.x).toBeGreaterThanOrEqual(shot.x - 1e-6);
+  });
+
   it("never reads past the cap", () => {
     expect(1000 / aim(wide, 1000, 500, 0.9, { floor: 0.85, read: 1.2 }).w).toBeCloseTo(0.9);
   });

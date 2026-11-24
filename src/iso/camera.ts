@@ -99,7 +99,8 @@ const clamp = (v: number, lo: number, hi: number) => (hi < lo ? (lo + hi) / 2 : 
 
 /**
  * The frame for one step. Fit the whole drawing when that keeps it readable; otherwise read at
- * `lens.read` (or as close to it as keeps the whole focus in view), centred on the focus
+ * `lens.read` (or as close to it as keeps the whole focus in view, or as far as fits a whole axis
+ * of the drawing at a readable scale), centred on the focus
  * and kept inside the drawing so no empty floor shows.
  */
 export function aim(shot: Shot, W: number, H: number, maxScale: number, lens?: Lens): Box {
@@ -111,7 +112,13 @@ export function aim(shot: Shot, W: number, H: number, maxScale: number, lens?: L
   const fit = Math.min(lens.read, W / f.w, H / f.h);
   /* A headed focus too tall for the floor keeps the floor scale and its top (see `Shot.headed`). */
   const top = !!shot.headed && fit < lens.floor;
-  const s = Math.min(maxScale, Math.max(W / whole.w, top ? Math.min(lens.read, lens.floor) : fit)), w = W / s, h = H / s;
+  let s = Math.min(maxScale, Math.max(W / whole.w, top ? Math.min(lens.read, lens.floor) : fit));
+  /* When one whole axis of the drawing reads at or above the floor, read at that scale rather than
+     closer: a 1x crop of a drawing a little wider than the stage cuts one side while the clamp shows
+     stale rows or floor on the other. */
+  const axis = Math.max(W / shot.w, H / shot.h);
+  if (axis >= lens.floor && axis < s) s = axis;
+  const w = W / s, h = H / s;
   /* A close-up that barely beats the whole picture is not worth hiding the rest for. */
   if (s < (W / whole.w) * CROP_GAIN) return whole;
   return clearStrip({
