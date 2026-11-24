@@ -33,6 +33,8 @@ export interface Shot extends Box {
   lit?: Box;
   /** The strip under the drawing, if any: a crop shows it whole or not at all (`clearStrip`). */
   strip?: Box;
+  /** The drawing without its strip (set with `strip`): once the strip is off, the floor past this is empty (`slide`). */
+  body?: Box;
   /** False when the step draws no pointer flags, so `roomFor` leaves no flag room above it. */
   flags?: boolean;
   /**
@@ -112,6 +114,29 @@ export function clearStrip(v: Box, shot: Shot, W: number, H: number, lens: Lens)
 }
 
 /**
+ * A crop that cuts one side while the other shows only empty floor past the drawing: slide it toward
+ * the cut, at the same scale, until the cut closes or the far edge meets the drawing. Once the strip
+ * is off, the floor under the drawing's body (`Shot.body`) counts as empty, and a slide down stops at
+ * the strip's top so it never shows a sliver.
+ */
+export function slide(v: Box, shot: Shot): Box {
+  const along = (lo: number, len: number, dlo: number, dhi: number, stop = Infinity) => {
+    const hi = lo + len;
+    const cutLo = lo - dlo, floorHi = hi - dhi; // cut before, floor after
+    if (cutLo > 1e-6 && floorHi > 1e-6) return -Math.min(cutLo, floorHi);
+    const cutHi = Math.min(dhi, stop) - hi, floorLo = dlo - lo;
+    if (cutHi > 1e-6 && floorLo > 1e-6) return Math.min(cutHi, floorLo);
+    return 0;
+  };
+  const dx = along(v.x, v.w, shot.x, shot.x + shot.w);
+  const st = shot.strip, bottom = v.y + v.h;
+  const off = !!st && bottom <= st.y + 1e-6;
+  const end = off ? (shot.body ? shot.body.y + shot.body.h : st!.y) : shot.y + shot.h;
+  const dy = along(v.y, v.h, shot.y, end, off ? st!.y : Infinity);
+  return dx || dy ? { ...v, x: v.x + dx, y: v.y + dy } : v;
+}
+
+/**
  * Where a headed view `h` tall starts: at the focus top, so the headers show, unless the lit cells
  * would then fall below it (plus `m`); then the view drops to keep them and the headers give way.
  */
@@ -159,22 +184,27 @@ export function aim(shot: Shot, W: number, H: number, maxScale: number, lens?: L
   const top = !!shot.headed && fit < lens.floor;
   let s = Math.min(maxScale, Math.max(W / whole.w, top ? Math.min(lens.read, lens.floor) : fit));
   /* A close-up that barely beats the whole picture is not worth hiding the rest for. */
-  if (s < (W / whole.w) * CROP_GAIN) return whole;
-  /* Once cropping, crop no more than still reads. The whole drawing above the strip, when it fits at
-     or above the floor and the focus is clear of the strip; else one whole axis of the drawing. A
-     1x crop of a drawing a little bigger than the stage cuts a side or a top plate while the clamp
-     shows stale rows or floor on the other. */
+  const gain = (W / whole.w) * CROP_GAIN;
+  if (s < gain) return whole;
+  /* Once cropping, crop no more than still reads. The whole drawing above the strip, when the focus
+     is clear of the strip and that reads at the floor, or nearly as well as the crop itself (one
+     that already reads under the floor); else one whole axis of the drawing. A 1x crop of a drawing
+     a little bigger than the stage cuts a side or a top plate while the clamp shows stale rows or
+     floor on the other. */
   const st = shot.strip;
-  const body = st && f.y + f.h <= st.y ? Math.min(W / shot.w, H / (st.y - shot.y)) : 0;
+  const bodyEnd = shot.body ? shot.body.y + shot.body.h : st?.y ?? 0;
+  const body = st && f.y + f.h <= st.y ? Math.min(W / shot.w, H / (Math.min(bodyEnd, st.y) - shot.y)) : 0;
   const axis = Math.max(W / shot.w, H / shot.h);
-  if (body >= lens.floor && body < s) s = body;
+  if (body >= Math.min(lens.floor, s / CROP_GAIN) && body < s) s = body;
   else if (axis >= lens.floor && axis < s) s = axis;
+  /* Reduced, the crop must still beat the whole picture by the same gain, or the whole is shown. */
+  if (s < gain) return whole;
   const w = W / s, h = H / s;
-  return clearStrip({
+  return slide(clearStrip({
     x: clamp(f.x + f.w / 2 - w / 2, shot.x, shot.x + shot.w - w),
     y: clamp(top && f.h > h ? headedTop(f, shot.lit, h) : f.y + f.h / 2 - h / 2, shot.y, shot.y + shot.h - h),
     w, h
-  }, shot, W, H, lens);
+  }, shot, W, H, lens), shot);
 }
 
 /** True when a frame leaves part of the drawing out. */
@@ -205,7 +235,7 @@ export function follow(prev: Box | null, shot: Shot, W: number, H: number, maxSc
   let x = prev.x + shift(prev.x, prev.w, need.x, need.w), y = prev.y + shift(prev.y, prev.h, need.y, need.h);
   if (cropped) { x = clamp(x, shot.x, shot.x + shot.w - prev.w); y = clamp(y, shot.y, shot.y + shot.h - prev.h); }
   const next = x !== prev.x || y !== prev.y ? { ...prev, x, y } : prev;
-  return lens && cropped ? clearStrip(next, shot, W, H, lens) : next;
+  return lens && cropped ? slide(clearStrip(next, shot, W, H, lens), shot) : next;
 }
 
 export const lerpBox = (a: Box, b: Box, t: number): Box =>

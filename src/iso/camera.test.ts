@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { FLAG_REACH, clearStrip, TAG_REACH, aim, crops, flagBox, follow, frame, lerpBox, roomFor } from "./camera";
+import { FLAG_REACH, clearStrip, TAG_REACH, aim, crops, flagBox, follow, frame, lerpBox, roomFor, slide } from "./camera";
 
 describe("camera frame", () => {
   it("zooms out to fit a box that is too big for the stage", () => {
@@ -239,34 +239,60 @@ describe("readable camera", () => {
       focus: { x: -185.4, y: 17.2, w: 539.6, h: 573.5 }, core: { x: -185.4, y: 17.2, w: 539.6, h: 248.6 },
       lit: { x: -3.6, y: 17.2, w: 357.8, h: 248.6 }, strip: { x: -178.6, y: 515.9, w: 399.6, h: 62.8 },
     };
+    /* The table without its strip reads at 0.87, only 1.14x the whole picture's 0.76: the whole shows. */
     const v = aim(shot, 946, 476.4, 1.35, lens);
-    expect(946 / v.w).toBeGreaterThanOrEqual(lens.floor);
-    expect(v.x).toBeLessThanOrEqual(shot.x + 1e-6); // nothing cut at the left
-    expect(v.x + v.w).toBeGreaterThanOrEqual(shot.x + shot.w - 1e-6); // nor at the right
-    expect(crops(v, shot)).toBe(true); // the far rows still crop
-    expect(v.y).toBeGreaterThanOrEqual(shot.y - 1e-6); // no empty floor above
-    const strip = shot.strip;
-    expect(strip.y >= v.y + v.h || strip.y + strip.h <= v.y + v.h).toBe(true); // no sliver
+    expect(v).toEqual(frame(shot, 946, 476.4, 1.35));
+    expect(crops(v, shot)).toBe(false);
+    /* Without the strip the table alone, a whole axis (0.93) gains 1.22x: it crops the far rows
+       only, with nothing cut at either side and no floor above. */
+    const bare = { ...shot, strip: undefined };
+    const c = aim(bare, 946, 476.4, 1.35, lens);
+    expect(946 / c.w).toBeGreaterThanOrEqual(lens.floor);
+    expect(c.x).toBeLessThanOrEqual(shot.x + 1e-6);
+    expect(c.x + c.w).toBeGreaterThanOrEqual(shot.x + shot.w - 1e-6);
+    expect(crops(c, shot)).toBe(true);
+    expect(c.y).toBeGreaterThanOrEqual(shot.y - 1e-6);
     /* A focus off to one side is centred, then clamped so no floor shows past the drawing on one
        side only: a view wider than the drawing centres on it. */
     const side = aim({ ...shot, headed: false, focus: { x: -460, y: 17, w: 100, h: 100 }, core: undefined, lit: undefined }, 946, 476.4, 1.35, lens);
     expect(side.x + side.w / 2).toBeCloseTo(shot.x + shot.w / 2);
   });
 
-  it("shows the whole drawing above the strip when that reads, rather than a 1x crop that cuts a top plate", () => {
-    /* LCS recap at 1440x900, measured: a 946x440 stage. At 1x on the traceback the top plate and its
-       header were cut, though the table without the strip reads at 0.87. */
+  it("an LCS recap crop shows the whole table above its strip, never a cut top plate", () => {
+    /* LCS recap, measured, with the table's own bottom (`body`) under the strip's top. */
     const shot = {
       x: -550.8, y: -32.4, w: 928.8, h: 581.9, flags: false,
       focus: { x: -262.8, y: 17.2, w: 444.2, h: 530.3 }, core: { x: -262.8, y: 17.2, w: 444.2, h: 421.4 },
-      strip: { x: -231.4, y: 472.7, w: 238.8, h: 62.8 },
+      strip: { x: -231.4, y: 472.7, w: 238.8, h: 62.8 }, body: { x: -550.8, y: -32.4, w: 928.8, h: 482.4 },
     };
-    const v = aim(shot, 946, 439.7, 1.35, lens);
-    expect(439.7 / v.h).toBeGreaterThanOrEqual(lens.floor);
-    expect(v.y).toBeLessThanOrEqual(shot.y + 1e-6);
-    expect(v.y + v.h).toBeLessThanOrEqual(shot.strip.y + 1e-6);
-    expect(v.x).toBeLessThanOrEqual(shot.x + 1e-6);
-    expect(v.x + v.w).toBeGreaterThanOrEqual(shot.x + shot.w - 1e-6);
+    /* 1440x900 (a 946x440 stage) and 1024x768 (959x224, where the focus fit at 0.53 cut the top plate). */
+    for (const [W, H] of [[946, 439.7], [959, 223.6]]) {
+      const v = aim(shot, W, H, 1.35, lens);
+      expect(v.y).toBeLessThanOrEqual(shot.y + 1e-6);
+      expect(v.y + v.h).toBeLessThanOrEqual(shot.strip.y + 1e-6);
+      expect(v.y + v.h).toBeGreaterThanOrEqual(shot.body.y + shot.body.h - 1e-6);
+      expect(v.x <= shot.x && v.x + v.w >= shot.x + shot.w).toBe(true);
+    }
+    /* A body that gains under 1.2x over the whole picture is not worth hiding the strip: the whole shows. */
+    const tall = { ...shot, body: { ...shot.body, h: 520 } };
+    expect(aim(tall, 959, 223.6, 1.35, lens)).toEqual(frame(tall, 959, 223.6, 1.35));
+  });
+
+  it("slides a crop toward its cut while the far side shows only empty floor, at the same scale", () => {
+    const shot = { x: 0, y: -40, w: 1000, h: 600, strip: { x: 300, y: 500, w: 200, h: 60 }, body: { x: 0, y: -40, w: 1000, h: 480 } };
+    /* Cut 30 at the top; below, the view (bottom 460) runs 20 past the body (440) with the strip off. */
+    const v = { x: 0, y: -10, w: 1000, h: 470 };
+    const out = slide(v, shot);
+    expect(out.w).toBe(v.w);
+    expect(out.h).toBe(v.h);
+    expect(out.y).toBeCloseTo(-30); // the far edge meets the body
+    /* With more floor below, it slides until the cut closes. */
+    expect(slide({ ...v, y: -10, h: 400 }, { ...shot, body: { ...shot.body, h: 300 } }).y).toBeCloseTo(-40);
+    /* The same on the x axis: cut at the right, floor past the left edge. */
+    expect(slide({ x: -50, y: -40, w: 900, h: 600 }, { x: 0, y: -40, w: 1000, h: 600 }).x).toBeCloseTo(0);
+    /* Nothing to slide: no cut, or no floor on the far side. */
+    expect(slide({ x: 0, y: -40, w: 1000, h: 470 }, shot)).toEqual({ x: 0, y: -40, w: 1000, h: 470 });
+    expect(slide({ x: 0, y: 0, w: 1000, h: 440 }, shot)).toEqual({ x: 0, y: 0, w: 1000, h: 440 });
   });
 
   it("never reads past the cap", () => {
