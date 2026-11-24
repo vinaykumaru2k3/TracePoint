@@ -37,7 +37,7 @@ export function generateBfs(g: GraphInput): Step<BfsState>[] {
     steps.push({
       ...st, op: st.kind === "problem" || st.kind === "recap" ? null : op,
       state: {
-        ...view, ptrs: [{ node: idOf(s), label: "s" }, ...(v.ptrs ?? [])], frame,
+        ...view, ptrs: [{ node: idOf(s), label: "start" }, ...(v.ptrs ?? [])], frame,
         strip: st.kind === "problem" ? undefined : {
           name: "queue", slots: g.nodes.length,
           tiles: queue.map((x, k) => ({ v: x, state: k === 0 ? "active" : "compare" })),
@@ -72,7 +72,7 @@ export function generateBfs(g: GraphInput): Step<BfsState>[] {
       title: `Take ${u} from the front`, short: `take ${u}`,
       idea: "The front of the queue is always the oldest node found, so nodes come out in order of distance.",
       text: `${u} leaves the front of the queue. It is ${dist[u]} edge${dist[u] === 1 ? "" : "s"} from ${s}. Now each of its neighbours is checked.`
-    }, { cur: u, ptrs: [{ node: idOf(u), label: "u" }] });
+    }, { cur: u, ptrs: [{ node: idOf(u), label: "here" }] });
     for (const { to: x } of adj[u]) {
       if (dist[x] !== -1) {
         snap({
@@ -80,7 +80,7 @@ export function generateBfs(g: GraphInput): Step<BfsState>[] {
           title: `${x} was already seen`, short: `${x} seen`,
           idea: "A node is seen once. The first time is along a shortest path, so a later route can never be shorter.",
           text: `${x} already has distance ${dist[x]}, so it is skipped. It is ${done.has(x) ? "done" : "still in the queue"}.`
-        }, { cur: u, look: x, ptrs: [{ node: idOf(u), label: "u" }, { node: idOf(x), label: "x" }] });
+        }, { cur: u, look: x, ptrs: [{ node: idOf(u), label: "here" }, { node: idOf(x), label: "next" }] });
         continue;
       }
       dist[x] = dist[u] + 1;
@@ -88,10 +88,10 @@ export function generateBfs(g: GraphInput): Step<BfsState>[] {
       tree[ekey(u, x, false)] = "tree";
       snap({
         kind: "add", anchors: ["bfs.new", "bfs.push"], notes: { "bfs.new": `dist[${x}] = ${dist[u]} + 1 = ${dist[x]}`, "bfs.push": `queue = [${queue.join(", ")}]` },
-        title: `${x} is new: distance ${dist[x]}`, short: `${x} = ${dist[x]}`,
+        title: `${x} is new: distance ${dist[x]}`, short: `dist ${x} = ${dist[x]}`,
         idea: "A new node is one edge further than the node that found it. It joins the back of the queue.",
         text: `${x} has not been seen, so its distance is ${dist[u]} + 1 = ${dist[x]}. It joins the back of the queue, and the edge ${u}-${x} becomes part of the search tree.`
-      }, { cur: u, look: x, lookTone: "found", ptrs: [{ node: idOf(u), label: "u" }, { node: idOf(x), label: "x" }] });
+      }, { cur: u, look: x, lookTone: "found", ptrs: [{ node: idOf(u), label: "here" }, { node: idOf(x), label: "next" }] });
     }
     done.add(u);
   }

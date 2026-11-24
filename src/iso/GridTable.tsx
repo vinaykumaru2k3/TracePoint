@@ -26,6 +26,12 @@ export default function GridTable({ grid, rowHead, colHead, pointers = [], step 
     const k = `${p.r},${p.c}`, had = merged.get(k);
     merged.set(k, had ? { ...p, label: `${had.label} · ${p.label}`, dim: had.dim && p.dim } : p);
   }
+  /* The headers of the cell being written (or, failing that, of the live pointers) light up, so the
+     camera keeps them in frame (SceneFit measures `.grid-head.on` with the focus). */
+  const hot = grid.flatMap((row, r) => row.flatMap((cell, c) => (cell.state === "active" ? [[r, c]] : [])));
+  const at = hot.length ? hot : pointers.filter((p) => !p.dim).map((p) => [p.r, p.c]);
+  const onRow = new Set(at.map(([r]) => r)), onCol = new Set(at.map(([, c]) => c));
+  const head = (on: boolean) => (on ? "grid-head on" : "grid-head");
   return (
     <g>
       <polygon className="foot" points={foot} />
@@ -34,11 +40,11 @@ export default function GridTable({ grid, rowHead, colHead, pointers = [], step 
       )))}
       {colHead.slice(0, cols).map((t, c) => {
         const p = project(c * step + 1, -0.7, 0);
-        return <text key={`c${c}`} className="plate-index" x={p.x} y={p.y} textAnchor="middle">{t}</text>;
+        return <g key={`c${c}`} className={head(onCol.has(c))}><text className="plate-index" x={p.x} y={p.y} textAnchor="middle">{t}</text></g>;
       })}
       {rowHead.slice(0, rows).map((t, r) => {
         const p = project(-0.7, r * step + 1, 0);
-        return <text key={`r${r}`} className="plate-index" x={p.x} y={p.y} textAnchor="end" dominantBaseline="central">{t}</text>;
+        return <g key={`r${r}`} className={head(onRow.has(r))}><text className="plate-index" x={p.x} y={p.y} textAnchor="end" dominantBaseline="central">{t}</text></g>;
       })}
       {[...merged.values()].map((p) => (
         <IsoPointer key={`${p.r},${p.c}`} x={p.c * step + 1} y={p.r * step + 1} z={grid[p.r]?.[p.c]?.v != null ? 8 : 0} label={p.label} dim={p.dim} />

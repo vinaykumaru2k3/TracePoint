@@ -1,5 +1,7 @@
+import { Fragment } from "react";
 import { Link } from "react-router-dom";
-import { Icon, Kbd } from "../design/ui";
+import { Icon, Kbd, KIND_MEANING, KindSwatch } from "../design/ui";
+import { resetTips } from "../hooks/useStoredFlag";
 
 interface Props { dark: boolean; onTheme(): void; onSearch(): void; courseOpen: boolean; onCourse(): void }
 
@@ -45,6 +47,11 @@ export default function TopNav({ dark, onTheme, onSearch, courseOpen, onCourse }
         </ul>
         <h3>Your own input</h3>
         <p>Type values under the diagram and press Run. Copy link shares that exact run.</p>
+        <h3>Step kinds</h3>
+        <dl>
+          {Object.entries(KIND_MEANING).map(([k, m]) => <Fragment key={k}><dt><KindSwatch kind={k} /></dt><dd>{m}</dd></Fragment>)}
+        </dl>
+        <button className="btn sm" type="button" onClick={() => { resetTips(); document.getElementById("help")?.hidePopover?.(); }}>Show tips again</button>
       </div>
     </header>
   );

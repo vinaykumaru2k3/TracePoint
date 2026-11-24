@@ -16,6 +16,11 @@ describe("coin change generator", () => {
     expect(steps.filter((s) => s.kind === "found").length).toBe(2);
   });
 
+  it("names the two traceback stops of the default run differently", () => {
+    const names = run(lesson, "coins 1 3 4, amount 6").filter((s) => s.kind === "found" && s.short).map((s) => s.short);
+    expect(names).toEqual(["coin 3 at 6", "coin 3 at 3"]);
+  });
+
   it("separates a coin that beats the cell (add) from one that does not (check)", () => {
     const steps = run(lesson, "coins 1 3 4, amount 6");
     const adds = steps.filter((s) => s.anchors.includes("coin.take"));

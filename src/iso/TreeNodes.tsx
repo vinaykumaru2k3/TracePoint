@@ -68,8 +68,10 @@ export default function TreeNodes({ nodes, edges, pointers = [] }: { nodes: TNod
         const w = Math.max(28, n.tag.length * 7 + 12);
         return (
           <g key={`t${n.id}`} className="tree-tag" style={at(n.col * COL, n.depth * ROW + TN_A * U * 0.5 + 13)}>
-            <rect x={-w / 2} y={-9} width={w} height={18} rx={4} />
-            <text textAnchor="middle" dominantBaseline="central">{n.tag}</text>
+            <g className="tag-body">
+              <rect x={-w / 2} y={-9} width={w} height={18} rx={4} />
+              <text textAnchor="middle" dominantBaseline="central">{n.tag}</text>
+            </g>
           </g>
         );
       })}
@@ -125,7 +127,7 @@ export function Strip({ tiles, X, Y, slots, name, index = false, labels, pointer
     merged.set(p.at, had ? { at: p.at, label: `${had.label} · ${p.label}`, dim: had.dim && p.dim } : p);
   }
   return (
-    <g>
+    <g className="strip">
       <polygon className="foot" points={foot} />
       {name && <text className="row-name" x={xL - 8} y={Y} textAnchor="end" dominantBaseline="central">{name}</text>}
       {tiles.map((t, i) => {

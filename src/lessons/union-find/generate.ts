@@ -102,7 +102,7 @@ export function generateUf(inp: UfInput): Step<UfState>[] {
         title: `${r} is a root`,
         idea: "A root is its own parent. It is the name of its group.",
         text: `find(${x}) looks at parent[${x}], which is ${x} itself. So ${x} is the root of its group and find returns ${x} at once.`
-      }, { cur: r, root: r, ptrs: [{ node: idOf(r), label: "x" }] });
+      }, { cur: r, root: r, ptrs: [{ node: idOf(r), label: "here" }] });
       return r;
     }
     let first = true;
@@ -119,7 +119,7 @@ export function generateUf(inp: UfInput): Step<UfState>[] {
         text: atRoot
           ? `parent[${r}] is ${p}, and ${p} is its own parent. So ${p} is the root of ${x}'s group.`
           : `parent[${r}] is ${p}, not ${r}, so ${r} is not a root. find climbs to ${p} and looks again.`
-      }, { cur: p, root: atRoot ? p : undefined, path: [...path], edge: [r, p], ptrs: [{ node: idOf(p), label: "x" }] });
+      }, { cur: p, root: atRoot ? p : undefined, path: [...path], edge: [r, p], ptrs: [{ node: idOf(p), label: "here" }] });
       first = false;
       r = p;
     }
@@ -140,7 +140,7 @@ export function generateUf(inp: UfInput): Step<UfState>[] {
         title: `Compress: ${y} now points at ${r}`,
         idea: "Path compression points every node on the walk straight at the root. The next find from it takes one step.",
         text: `${y} pointed at ${was}. It now points straight at the root ${r}, so the tree gets flatter and later finds get shorter.`
-      }, { cur: y, root: r, linked: [y, r], changed: y, ptrs: [{ node: idOf(y), label: "y" }] });
+      }, { cur: y, root: r, linked: [y, r], changed: y, ptrs: [{ node: idOf(y), label: "moved" }] });
     });
     return r;
   };
@@ -187,7 +187,7 @@ export function generateUf(inp: UfInput): Step<UfState>[] {
       text: size[big] - size[small] === size[small] && !swap
         ? `${ra} and ${rb} lead groups of the same size, so ${rb} goes under ${ra}. One parent link joins the groups. ${big}'s group now has ${size[big]} nodes.`
         : `${small}'s group is smaller, so its root goes under ${big}. One parent link joins the groups. ${big}'s group now has ${size[big]} nodes.`
-    }, { cur: small, root: big, linked: [small, big], changed: small, ptrs: [{ node: idOf(small), label: "rb" }, { node: idOf(big), label: "ra" }] });
+    }, { cur: small, root: big, linked: [small, big], changed: small, ptrs: [{ node: idOf(small), label: "moved" }, { node: idOf(big), label: "root" }] });
   }
 
   op = null;

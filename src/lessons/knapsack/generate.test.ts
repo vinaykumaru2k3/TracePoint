@@ -89,4 +89,11 @@ describe("knapsack generator", () => {
     }
     for (const i of [1, 2, 3, 4]) expect(steps.find((x) => x.op === `i${i} w1`)!.anchors).toContain("kn.item");
   });
+  it("names the row headers as weight:value in the metrics line", () => {
+    const steps = run(lesson, lesson.defaultText);
+    const step = steps.find((x) => x.state.i === 1)!;
+    const m = lesson.metrics!({ state: step.state } as never);
+    expect(m.find((x) => x.label === "weight:value")?.value).toBe("2:3");
+    expect(lesson.metrics!({ state: steps[0].state } as never).find((x) => x.label === "weight:value")?.value).toBe("-");
+  });
 });

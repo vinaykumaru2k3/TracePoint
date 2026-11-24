@@ -80,7 +80,7 @@ export function generateTopo(g: GraphInput): Step<TopoState>[] {
       title: `${u} goes next`, short: `place ${u}`,
       idea: "Everything that had to come before this node is already in the order, so it is safe to place now.",
       text: `${u} leaves the queue and is added to the order in place ${order.length}. Now its arrows are removed, one by one.`
-    }, { cur: u, ptrs: [{ node: idOf(u), label: "u" }] });
+    }, { cur: u, ptrs: [{ node: idOf(u), label: "here" }] });
     for (const { to: x } of adj[u]) {
       indeg[x]--;
       const free = indeg[x] === 0;
@@ -93,7 +93,7 @@ export function generateTopo(g: GraphInput): Step<TopoState>[] {
         text: free
           ? `The arrow ${u} → ${x} is removed, and ${x}'s in-degree drops to 0. ${x} joins the queue.`
           : `The arrow ${u} → ${x} is removed. ${x}'s in-degree drops to ${indeg[x]}, so it is not ready yet.`
-      }, { cur: u, edge: [u, x], look: x, lookTone: free ? "compare" : undefined, ptrs: [{ node: idOf(u), label: "u" }, { node: idOf(x), label: "x" }] });
+      }, { cur: u, edge: [u, x], look: x, lookTone: free ? "compare" : undefined, ptrs: [{ node: idOf(u), label: "here" }, { node: idOf(x), label: "next" }] });
       gone[ekey(u, x, true)] = "dim";
     }
   }

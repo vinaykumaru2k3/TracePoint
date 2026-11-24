@@ -1,5 +1,5 @@
-import { createContext, useContext, useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from "react";
-import { aim, boxString, crops, follow, lerpBox, parseBox, type Box, type Lens, type Shot } from "./camera";
+import { createContext, useContext, useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { aim, boxString, crops, flagBox, follow, lerpBox, parseBox, readPin, roomFor, type Box, type Lens, type Shot } from "./camera";
 import { U } from "./project";
 
 export type { Box, Shot } from "./camera";
@@ -29,23 +29,55 @@ const reduced = () => !!window.matchMedia?.("(prefers-reduced-motion: reduce)").
 
 /** Which sides of the frame have more drawing beyond them. */
 interface Edges { l: boolean; r: boolean; t: boolean; b: boolean }
-const edges = (v: Box, s: Box, slack = 4): Edges =>
+/** Which sides of the frame `v` the drawing `s` runs past. Pass the drawing itself, not the room
+    `roomFor` leaves for grown flags, or a cue would mark a cut where nothing is cut. */
+export const cropEdges = (v: Box, s: Box, slack = 4): Edges =>
   ({ l: s.x < v.x - slack, r: s.x + s.w > v.x + v.w + slack, t: s.y < v.y - slack, b: s.y + s.h > v.y + v.h + slack });
 
+/** One crop cue: its side, and where its pill meets the view's edge (the middle of its outer side), in scene units. */
+export interface CueSpot { key: "l" | "r" | "t" | "b"; x: number; y: number }
+
+/** A cue's pill in screen pixels: its length along the edge, its depth, and its gap from the edge. */
+const PILL_L = 28, PILL_S = 16, PILL_GAP = 4;
+
 /**
- * A small chevron on each side where the drawing goes on past the frame, so a close-up never
- * passes for the whole picture. Drawn in scene units at the aimed frame; they fade in once the glide
- * has landed.
+ * Where each crop cue sits: at the middle of its cut edge, a small gap in from the very edge of the
+ * view `v`. The cue draws on its own pill, so it reads over plates as well as floor.
  */
-function CropCues({ view: v, cut, px }: { view: Box; cut: Edges; px: number }) {
-  const a = 6 * px, inset = 10 * px; // in screen pixels, whatever the zoom
-  const cx = v.x + v.w / 2, cy = v.y + v.h / 2;
-  const marks: [string, string][] = [];
-  if (cut.l) marks.push(["l", `M ${v.x + inset + a} ${cy - a * 1.4} L ${v.x + inset} ${cy} L ${v.x + inset + a} ${cy + a * 1.4}`]);
-  if (cut.r) marks.push(["r", `M ${v.x + v.w - inset - a} ${cy - a * 1.4} L ${v.x + v.w - inset} ${cy} L ${v.x + v.w - inset - a} ${cy + a * 1.4}`]);
-  if (cut.t) marks.push(["t", `M ${cx - a * 1.4} ${v.y + inset + a} L ${cx} ${v.y + inset} L ${cx + a * 1.4} ${v.y + inset + a}`]);
-  if (cut.b) marks.push(["b", `M ${cx - a * 1.4} ${v.y + v.h - inset - a} L ${cx} ${v.y + v.h - inset} L ${cx + a * 1.4} ${v.y + v.h - inset - a}`]);
-  return <g className="crop-cues" aria-hidden="true">{marks.map(([key, d]) => <path key={key} d={d} />)}</g>;
+export function cueSpots(v: Box, cut: Edges, px: number): CueSpot[] {
+  const g = PILL_GAP * px, cx = v.x + v.w / 2, cy = v.y + v.h / 2;
+  const spots: CueSpot[] = [];
+  if (cut.l) spots.push({ key: "l", x: v.x + g, y: cy });
+  if (cut.r) spots.push({ key: "r", x: v.x + v.w - g, y: cy });
+  if (cut.t) spots.push({ key: "t", x: cx, y: v.y + g });
+  if (cut.b) spots.push({ key: "b", x: cx, y: v.y + v.h - g });
+  return spots;
+}
+
+/**
+ * A small chevron on a `--surface` pill on each side where the drawing goes on past the frame, so a
+ * close-up never passes for the whole picture. Drawn in scene units at the aimed frame, sized in
+ * screen pixels (`px`); they fade in once the glide has landed. A mark, not a control.
+ */
+export function CropCues({ view, cut, px }: { view: Box; cut: Edges; px: number }) {
+  const L = PILL_L * px, S = PILL_S * px, a = 6 * px, k = 8 * px, inset = (S - a) / 2;
+  const cue = ({ key, x, y }: CueSpot) => {
+    const across = key === "t" || key === "b";
+    /* The pill grows inward from the edge point; the chevron's tip points at the edge. */
+    const rx = across ? x - L / 2 : key === "l" ? x : x - S;
+    const ry = across ? (key === "t" ? y : y - S) : y - L / 2;
+    const d = key === "l" ? `M ${x + inset + a} ${y - k} L ${x + inset} ${y} L ${x + inset + a} ${y + k}`
+      : key === "r" ? `M ${x - inset - a} ${y - k} L ${x - inset} ${y} L ${x - inset - a} ${y + k}`
+        : key === "t" ? `M ${x - k} ${y + inset + a} L ${x} ${y + inset} L ${x + k} ${y + inset + a}`
+          : `M ${x - k} ${y - inset - a} L ${x} ${y - inset} L ${x + k} ${y - inset - a}`;
+    return (
+      <g key={key} className="crop-cue">
+        <rect className="crop-pill" x={rx} y={ry} width={across ? L : S} height={across ? S : L} rx={S / 2} />
+        <path d={d} />
+      </g>
+    );
+  };
+  return <g className="crop-cues" aria-hidden="true">{cueSpots(view, cut, px).map(cue)}</g>;
 }
 
 interface Props {
@@ -53,6 +85,31 @@ interface Props {
   viewBox: string;
   label: string;
   children: ReactNode;
+}
+
+/**
+ * Hide every pointer whose point lies outside `view`, or whose flag would be clipped by its edge:
+ * once the camera crops, a flag whose cell or tile is off-stage would otherwise hang over empty floor
+ * or another part of the drawing. Reads the pointer's own point (`data-at`), not its live position,
+ * which may still be sliding, and how far its flag reaches (`data-reach`: "up 44 25" (reach, half-width) or "right 52",
+ * at 1x; the flag grows by `px` on the stage). Both axes count (`flagBox`, the same box the camera
+ * keeps in view for lit pointers): an up flag's sides against the left and right edges, and a right
+ * flag's height against the top and bottom.
+ */
+export function hideOffstage(svg: Element, view: Box | null, px = 1) {
+  for (const el of svg.querySelectorAll<SVGGElement>(".ptr[data-at]")) {
+    const pin = readPin(el.getAttribute("data-at"), el.getAttribute("data-reach"));
+    const f = pin && flagBox(pin, px);
+    const out = !!view && !!pin && !!f && (!(pin.x >= view.x && pin.x <= view.x + view.w && pin.y >= view.y && pin.y <= view.y + view.h)
+      || (pin.reach > 0 && (f.x < view.x || f.y < view.y || f.x + f.w > view.x + view.w || f.y + f.h > view.y + view.h)));
+    if (out) el.setAttribute("data-off", ""); else el.removeAttribute("data-off");
+  }
+}
+
+/** Scene units per screen pixel when `box` is fitted into a w x h element (preserveAspectRatio meet: the tighter axis rules). */
+export function sceneScale(box: Box, w: number, h: number): number {
+  if (!(w > 0) || !(h > 0) || !(box.w > 0) || !(box.h > 0)) return 1;
+  return Math.max(box.w / w, box.h / h);
 }
 
 /** The drawing surface: an SVG with a camera over an endless isometric floor. */
@@ -65,6 +122,7 @@ export default function IsoScene({ viewBox, label, children }: Props) {
   const floorRef = useRef<SVGRectElement>(null);
   const shown = useRef<Box | null>(null);
   const aimed = useRef<Box | null>(null);
+  const [px, setPx] = useState(1);
   const [size, setSize] = useState({ w: 0, h: 0 });
   const id = useId().replace(/:/g, "");
 
@@ -81,12 +139,27 @@ export default function IsoScene({ viewBox, label, children }: Props) {
     const svg = svgRef.current;
     if (!svg) return undefined;
     const shot = target ?? parseBox(viewBox);
-    const to = measuring ? parseBox(viewBox) : follow(aimed.current, shot, size.w, size.h, MAX_SCALE, whole ? undefined : lens);
+    const lensOn = whole ? undefined : lens;
+    let to = measuring ? parseBox(viewBox) : follow(aimed.current, shot, size.w, size.h, MAX_SCALE, lensOn);
+    /* On the stage, labels grow when the camera zooms out (--px); leave them room inside the frame.
+       Room and scale feed each other, so settle them in a few rounds. */
+    for (let k = 0; k < 4 && !measuring && lens; k++) {
+      const next = follow(aimed.current, roomFor(shot, sceneScale(to, size.w, size.h)), size.w, size.h, MAX_SCALE, lensOn);
+      if (Math.abs(next.w - to.w) < 0.5 && Math.abs(next.h - to.h) < 0.5) { to = next; break; }
+      to = next;
+    }
     aimed.current = to;
+    /* Only the lesson stage (a lens) keeps scene text at its screen size; walkthroughs and thumbnails
+       are deliberate small overviews, so their text shrinks with the drawing. */
+    const px = measuring || !lens ? 1 : sceneScale(to, size.w, size.h);
+    setPx(px);
     if (!measuring) {
+      /* The room-padded drawing is for fitting only; crop cues and Show all judge the drawing itself,
+         so a step whose room is cut but whose drawing is whole shows no cue. */
+      hideOffstage(svg, size.w > 0 ? to : null, px);
       const c = size.w > 0 && crops(to, shot);
-      setCut(c ? edges(to, shot) : null);
-      if (onCrop && lens) onCrop(size.w > 0 && crops(aim(shot, size.w, size.h, MAX_SCALE, lens), shot));
+      setCut(c ? cropEdges(to, shot) : null);
+      if (onCrop && lens) onCrop(size.w > 0 && crops(aim(roomFor(shot, px), size.w, size.h, MAX_SCALE, lens), shot));
     }
     const apply = (b: Box) => {
       shown.current = b;
@@ -108,7 +181,7 @@ export default function IsoScene({ viewBox, label, children }: Props) {
   }, [target, viewBox, size.w, size.h, measuring, lens, whole, onCrop]);
 
   return (
-    <svg className="iso" ref={svgRef} preserveAspectRatio="xMidYMid meet" role="img" aria-label={label}>
+    <svg className="iso" ref={svgRef} style={lens && !measuring ? ({ "--px": px } as CSSProperties) : undefined} preserveAspectRatio="xMidYMid meet" role="img" aria-label={label}>
       {!measuring && (
         <g className="floor" aria-hidden="true">
           <defs>

@@ -33,7 +33,7 @@ export function MemoryStrip({ lesson, step }: { lesson: AnyLesson; step: ReturnT
   return (
     <details className="mem" open={open} onToggle={onToggle}>
       <summary className="memhead">
-        <span className="lbl">{mem.title}</span>
+        <span className="memtitle">{mem.title}</span>
         <span className="costs">{lesson.costs.map(([n, c]: [string, string]) => <span key={n}><b>{c}</b> {n}</span>)}</span>
       </summary>
       {mem.layout === "table" ? (
@@ -62,4 +62,22 @@ export function MemoryStrip({ lesson, step }: { lesson: AnyLesson; step: ReturnT
       <p className="memnote">{mem.note}</p>
     </details>
   );
+}
+
+/** The result box's label: `<op> returns`, or `answer` on the recap when the op is itself a `return`, so the final result never reads `return 2 returns`. A mid-run return (a call-stack frame handing back its value) keeps its own label. */
+export function resultLabel(op: string, recap: boolean): string {
+  return recap && /^return\b/.test(op) ? "answer" : `${op} returns`;
+}
+
+/** The live values worth showing: a metric with no value yet (`-` or empty) is left out, on any step. */
+export function shownMetrics<M extends { value: string | number }>(metrics: M[]): M[] {
+  return metrics.filter((m) => m.value !== "-" && m.value !== "");
+}
+
+/** The code card's live-values line with the unset variables left out: a `name = value` part whose value is `-` or empty goes, and `""` when nothing is left. Parts are split on the three-space gap every lesson's `vars` uses. */
+export function shownVars(line: string): string {
+  return line
+    .split(/ {3,}/)
+    .filter((part) => !/^\S+ =\s*(-)?\s*$/.test(part))
+    .join("   ");
 }

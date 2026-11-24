@@ -31,6 +31,9 @@ export function generateLcs({ a, b }: LcsInput): Step<LcsState>[] {
   const rowHead = ["-", ...a.split("")];
   const colHead = ["-", ...b.split("")];
 
+  /* The same name twice in a row would give two stops one label, so the repeat carries its position. */
+  const fresh = (name: string, at: string) => (steps.length > 0 && steps[steps.length - 1].short === name ? `${name} (${at})` : name);
+
   const snap = (
     st: Omit<Step<LcsState>, "state" | "op">,
     v: { op?: string; i?: number; j?: number; mark?: Record<string, BlockState>; strip?: boolean; slots?: number } = {}
@@ -86,8 +89,8 @@ export function generateLcs({ a, b }: LcsInput): Step<LcsState>[] {
         dp[i][j] = diag + 1;
         snap({
           kind: "add", anchors: [...row, "lc.match"], notes: { ...rowNote, "lc.match": `${a[i - 1]} = ${b[j - 1]}: dp[${i}][${j}] = dp[${i - 1}][${j - 1}] + 1 = ${diag + 1}` },
-          title: `${a[i - 1]} matches: dp[${i}][${j}] = ${diag + 1}`,
-          idea: "When the two letters match, that letter extends the best answer for both words without their last letters. That answer is on the diagonal, so the cell is the diagonal plus 1.",
+          title: `${a[i - 1]} matches: dp[${i}][${j}] = ${diag + 1}`, short: fresh(`${a[i - 1]} = ${b[j - 1]}`, `col ${j}`),
+          idea: "When the two letters match, that letter extends the best answer for both words without their last letters. That answer sits on the diagonal: add 1.",
           text: `Letter ${i} of the first word is ${a[i - 1]} and letter ${j} of the second is ${b[j - 1]}. They match, so the cell is the diagonal dp[${i - 1}][${j - 1}] = ${diag}, plus 1. dp[${i}][${j}] = ${diag + 1}.`
         }, { op, i, j, mark });
       } else {
@@ -95,8 +98,8 @@ export function generateLcs({ a, b }: LcsInput): Step<LcsState>[] {
         dp[i][j] = best;
         snap({
           kind: "check", anchors: [...row, "lc.match", "lc.max"], notes: { ...rowNote, "lc.match": `${a[i - 1]} ≠ ${b[j - 1]}: no match`, "lc.max": `dp[${i}][${j}] = max(${up}, ${left}) = ${best}` },
-          title: `${a[i - 1]} ≠ ${b[j - 1]}: dp[${i}][${j}] = ${best}`,
-          idea: "When the letters differ, at least one of them is not used. So the cell takes the larger of the cell above (drop a letter of the first word) and the cell to the left (drop a letter of the second).",
+          title: `${a[i - 1]} ≠ ${b[j - 1]}: dp[${i}][${j}] = ${best}`, short: fresh(`${a[i - 1]} ≠ ${b[j - 1]}`, `col ${j}`),
+          idea: "When the letters differ, at least one is not used. So the cell takes the larger of the cell above (drop a first-word letter) and the cell to the left.",
           text: `${a[i - 1]} and ${b[j - 1]} differ. The cell above is ${up} and the cell to the left is ${left}. The larger is ${best}, so dp[${i}][${j}] = ${best}.`
         }, { op, i, j, mark });
       }
@@ -117,7 +120,7 @@ export function generateLcs({ a, b }: LcsInput): Step<LcsState>[] {
       snap({
         kind: "found", anchors: ["lc.trace", "lc.tbmatch"],
         notes: { "lc.trace": `row ${i}, column ${j}`, "lc.tbmatch": `${a[i - 1]} = ${b[j - 1]}: take ${ch}, move to (${i - 1}, ${j - 1})` },
-        title: `${ch} matches: take it`,
+        title: `${ch} matches: take it`, short: fresh(`back to ${ch}`, `row ${i}`),
         idea: "To spell the subsequence, walk back from the corner. When the two letters match, that letter belongs to the answer, so take it and move diagonally.",
         text: `Letter ${i} of the first word and letter ${j} of the second are both ${ch}, so ${ch} is in the answer. Move up and left to (${i - 1}, ${j - 1}). Letters are found last to first, so each one goes in front.`
       }, { op, i, j, mark, strip: true, slots: total });
@@ -135,6 +138,7 @@ export function generateLcs({ a, b }: LcsInput): Step<LcsState>[] {
           "lc.tbup": `up is ${up}, left is ${left}`,
           ...(goUp ? {} : { "lc.tbleft": `left is larger: move to (${i}, ${j - 1})` })
         },
+        short: goUp ? `up to row ${i - 1}` : `left to col ${j - 1}`,
         title: goUp ? (up === left ? `Tie (${up} and ${left}): move up` : "Up is larger: move up") : "Left is larger: move left",
         idea: "When the letters differ, the cell came from the larger of up and left, so move toward it. On a tie, move up.",
         text: goUp

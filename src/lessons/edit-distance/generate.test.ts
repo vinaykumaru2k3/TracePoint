@@ -66,6 +66,13 @@ describe("edit-distance generator", () => {
     for (const i of [1, 2, 3, 4, 5]) expect(steps.find((x) => x.op === `i${i} j1`)!.anchors).toContain("ed.row");
   });
 
+  it("names a replace in the traceback 'replace X', not like a keep", () => {
+    const steps = run(lesson, lesson.defaultText);
+    const reps = steps.filter((s) => s.op?.startsWith("back") && s.title.startsWith("Replace"));
+    expect(reps.length).toBeGreaterThan(0);
+    for (const s of reps) { expect(s.short).toMatch(/^replace [A-Z]/); expect(s.short!.length).toBeLessThanOrEqual(24); }
+  });
+
   it("traceback names each edit, marks compared cells, keeps the path found, anchors every line", () => {
     const steps = run(lesson, lesson.defaultText);
     const tb = steps.filter((s) => s.op?.startsWith("back"));

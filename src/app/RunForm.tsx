@@ -66,12 +66,13 @@ export default function RunForm({ lesson, text, linkError, onRun, asked = null, 
           <option value={lesson.defaultText}>Default run</option>
           {lesson.presets.map((p: { label: string; text: string }) => <option key={p.label} value={p.text}>{p.label}</option>)}
         </select>
-        <button className="btn sm" type="submit">Run</button>
+        <button className="btn sm" type="submit" aria-disabled={check && !check.ok ? "true" : undefined}>Run</button>
         <button className="btn sm" type="button" onClick={copy}><Icon name="link" size={12} />Copy link</button>
         <span className="copy-state" role="status">{copyState}</span>
       </div>
       {error && <p className="err" role="alert" id="ops-err">{error}</p>}
       <p className={error || check ? "hint" : "hint quiet"} id="ops-hint">{lesson.inputHint}</p>
+      {draft !== text && <button className="btn sm revert" type="button" onClick={() => { setDraft(text); setFail(null); setTyped(false); }}>Back to the running input</button>}
       {!error && check && <p className={check.ok ? "check ok" : "check"} id="ops-check">{check.ok ? "Ready: press Run." : `Not runnable yet: ${check.error}`}</p>}
       </form>
     </details>

@@ -63,7 +63,7 @@ describe("type scale", () => {
 
   it("the kind chip and the memory head sit in the chrome tier", () => {
     expect(rule(".explain .chip")).toContain("font-size: var(--fs-chrome)");
-    expect(rule(".memhead .lbl")).toContain("font-size: var(--fs-chrome)");
+    expect(rule(".memhead .memtitle")).toContain("font-size: var(--fs-chrome)");
     expect(rule(".memhead .costs")).toContain("font-size: var(--fs-chrome)");
   });
 

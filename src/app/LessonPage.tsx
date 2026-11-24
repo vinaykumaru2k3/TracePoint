@@ -3,11 +3,12 @@ import { Link, Navigate, useNavigate, useParams, useSearchParams } from "react-r
 import { sectionOf } from "../curriculum";
 import { Icon, Kbd, KindChip, MetricCard } from "../design/ui";
 import { usePlayer } from "../engine/usePlayer";
+import { runOpOf, stepName } from "../engine/stepName";
 import type { AnyLesson } from "../engine/types";
 import { useKeyboard } from "../hooks/useKeyboard";
 import { useMedia } from "../hooks/useMedia";
 import { useTip } from "../hooks/useTip";
-import { useStoredFlag } from "../hooks/useStoredFlag";
+import { KEYS_SEEN_KEY, useStoredFlag } from "../hooks/useStoredFlag";
 import { usePageFocus, usePageTitle } from "../hooks/usePage";
 import type { Progress } from "../hooks/useProgress";
 import { CameraContext, ZoomContext, type Shot, type Zoom } from "../iso/IsoScene";
@@ -15,7 +16,7 @@ import SceneFit from "../iso/SceneFit";
 import { LazyLesson } from "../lessons/load";
 import { DEFAULT_LESSON, META_BY_ID } from "../lessons/meta";
 import CodeCard from "./CodeCard";
-import { LearnList, MemoryStrip, describeMemory } from "./LessonParts";
+import { LearnList, MemoryStrip, describeMemory, resultLabel, shownMetrics } from "./LessonParts";
 import RunForm from "./RunForm";
 import Scrubber from "./Scrubber";
 import { runMax, useLessonRun } from "./useLessonRun";
@@ -96,8 +97,11 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
   const speedRef = useRef<HTMLButtonElement>(null);
   const onWhole = () => { toggleWhole(); if (whole && !cropped) speedRef.current?.focus(); };
   /* The key legend teaches the keys once: it stays for this visit after a key press (no jump in the layout) and is gone on the next load. */
-  const [keysSeen, setKeysSeen] = useStoredFlag("tracepoint-keys-seen", false);
-  const [showKeys] = useState(!keysSeen);
+  const [keysSeen, setKeysSeen] = useStoredFlag(KEYS_SEEN_KEY, false);
+  const [latched, setLatched] = useState(!keysSeen);
+  /* Show tips again (keysSeen back to false) brings the legend back at once. */
+  if (!keysSeen && !latched) setLatched(true);
+  const showKeys = latched;
   /* The first-visit tip under the timeline goes once dismissed, or once the viewer reaches step 3 on their own. */
   const { showTip, dismissTip } = useTip(idx);
   const zoom = useMemo<Zoom>(() => ({ lens: LENS, whole, onCrop: setCropped }), [whole]);
@@ -128,19 +132,12 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
   const step = steps[idx];
   const reached = Math.min(last, isDefault ? Math.max(progress[lesson.id] ?? 0, idx) : custom.text === text ? Math.max(custom.max, idx) : idx);
   const sec = sectionOf(lesson.section);
-  const label = (i: number) => steps[i].op ?? (i === 0 ? "start" : "recap");
   const nn = (i: number) => String(i + 1).padStart(steps.length > 99 ? 3 : 2, "0");
-  /* A stop's name: its short form, else its op. When one op names most of the run (bfs(A) on every step),
-     the op says nothing about the step, so the stop falls back to the step's kind. */
-  const runOp = useMemo(() => {
-    const n = new Map<string, number>();
-    for (const s of steps) if (s.op) n.set(s.op, (n.get(s.op) ?? 0) + 1);
-    for (const [op, c] of n) if (c >= steps.length * 0.4) return op;
-    return null;
-  }, [steps]);
+  /* A stop's name (see stepName): when one op names most of the run, the stop falls back to the step's kind. */
+  const runOp = useMemo(() => runOpOf(steps), [steps]);
   /* The Next pulse only invites the first press; it stops once the learner moves or plays. */
   const cue = idx === 0 && !player.playing;
-  const railName = (i: number) => steps[i].short ?? (steps[i].op && steps[i].op === runOp ? steps[i].kind : label(i));
+  const railName = (i: number) => stepName(steps, i, runOp);
   const stepTitle = useCallback((i: number) => steps[i].title, [steps]);
 
   const run = (raw: string) => {
@@ -167,7 +164,7 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
   const said = player.playing ? "" : `${stepOf}. ${step.title}. ${step.text}`;
   const sceneState = describeMemory(lesson.memory(step));
 
-  const playLabel = player.playing ? "Pause" : idx === last ? "Replay" : idx === 0 ? "Play all" : "Play";
+  const playLabel = player.playing ? "Pause" : idx === last ? "Replay" : "Play";
 
   const head = (
     <header className={`lesson-head${theory ? "" : " trace-head"}`} key="head">
@@ -194,7 +191,12 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
       <div className="stage">
         <div className="stage-top">
           <div className="metrics" aria-label="Live values">
-            {lesson.metrics(step).map((m: { label: string; value: string | number }) => <MetricCard key={m.label} {...m} />)}
+            {shownMetrics(lesson.metrics(step) as { label: string; value: string | number }[]).map((m, i) => (
+              <Fragment key={m.label}>
+                {i > 0 && <span className="sep" aria-hidden="true">·</span>}
+                <MetricCard {...m} />
+              </Fragment>
+            ))}
           </div>
           <div className="stage-ctl">
             <button className="btn sm zoom" type="button" onClick={onWhole} disabled={!cropped && !whole} aria-pressed={whole} title="Fit the whole drawing on the stage, or read it up close (F)">
@@ -229,7 +231,7 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
           ) : legendList}
           {step.op && step.ret !== undefined && (
             <div className="result">
-              <small>{step.op} returns</small>
+              <small>{resultLabel(step.op, step.kind === "recap")}</small>
               <b className={step.ret === "void" ? "void" : step.ret === "throws" ? "throws" : ""}>{step.ret}</b>
               {step.retNote && <em>{step.retNote}</em>}
             </div>
@@ -266,7 +268,7 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
   const explain = (
     <section className="card explain" aria-label="Explanation" key="explain">
       <div className="pane-title" aria-hidden="true">TRACE</div>
-      <div className="head"><span className="stephead"><b>#{nn(idx)}</b>{" "}{label(idx)}</span><KindChip kind={step.kind} /></div>
+      <div className="head"><span className="stephead"><b>#{nn(idx)}</b>{" "}{railName(idx)}</span><KindChip kind={step.kind} /></div>
       <h2>{step.title}</h2>
       <p className="say">{step.text}</p>
       <p className="sr" aria-live="polite" aria-atomic="true">{said}</p>

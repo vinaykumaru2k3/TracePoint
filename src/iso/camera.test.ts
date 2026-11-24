@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { aim, crops, follow, frame, lerpBox } from "./camera";
+import { FLAG_REACH, clearStrip, TAG_REACH, aim, crops, flagBox, follow, frame, lerpBox, roomFor, slide } from "./camera";
 
 describe("camera frame", () => {
   it("zooms out to fit a box that is too big for the stage", () => {
@@ -97,6 +97,204 @@ describe("readable camera", () => {
     expect(aim(spread, 1000, 500, 1.5, lens)).toEqual(frame(spread, 1000, 500, 1.5));
   });
 
+  it("drops the strip from the focus when the whole focus cannot be read at once", () => {
+    /* Knapsack at 1024x768: a 941x217 stage, the lit cells near the top of the table and the lit
+       item tile in the strip far below them. Fitting that whole focus reads no better than the whole
+       drawing, so the camera used to show everything at 0.35x. */
+    const shot = { x: -464, y: -32, w: 1015, h: 625, focus: { x: -139, y: 17, w: 493, h: 573 }, core: { x: -139, y: 17, w: 400, h: 200 } };
+    const v = aim(shot, 941, 217, 1.35, lens);
+    expect(941 / v.w).toBeGreaterThanOrEqual(lens.floor);
+    expect(v.y).toBeLessThanOrEqual(17);
+    expect(v.y + v.h).toBeGreaterThanOrEqual(217);
+    expect(crops(v, shot)).toBe(true);
+    /* A focus that fits keeps its strip. */
+    const near = { ...shot, focus: { x: -139, y: 17, w: 400, h: 210 } };
+    expect(aim(near, 941, 217, 1.35, lens).y + aim(near, 941, 217, 1.35, lens).h).toBeGreaterThanOrEqual(227);
+    /* follow keeps the core in view, not the strip. */
+    const prev = aim(shot, 941, 217, 1.35, lens);
+    expect(follow(prev, shot, 941, 217, 1.35, lens)).toEqual(prev);
+  });
+
+  it("keeps a headed focus's top at the floor scale, cropping far rows rather than the headers", () => {
+    /* A table whose core (headers down to the lit cell) is too tall to read at the floor on a short stage. */
+    const shot = { x: 0, y: 0, w: 3000, h: 900, focus: { x: 1000, y: 50, w: 400, h: 300 }, core: { x: 1000, y: 50, w: 400, h: 300 } };
+    const centred = aim(shot, 941, 217, 1.35, lens);
+    expect(941 / centred.w).toBeLessThan(lens.floor);
+    const v = aim({ ...shot, headed: true }, 941, 217, 1.35, lens);
+    expect(941 / v.w).toBeCloseTo(lens.floor);
+    expect(v.y).toBe(50);
+    expect(v.y + v.h).toBeLessThan(350);
+    /* follow keeps the top in view rather than centring the tall focus. */
+    const prev = { ...v, y: 120 };
+    expect(follow(prev, { ...shot, headed: true }, 941, 217, 1.35, lens).y).toBeCloseTo(50 - Math.min(40, prev.w * 0.1, prev.h * 0.1));
+    /* A headed focus that fits is framed as before. */
+    const fits = { ...shot, headed: true, focus: { x: 1000, y: 50, w: 400, h: 150 }, core: { x: 1000, y: 50, w: 400, h: 150 } };
+    expect(aim(fits, 941, 217, 1.35, lens)).toEqual(aim({ ...fits, headed: false }, 941, 217, 1.35, lens));
+  });
+
+  it("never crops the lit cell of a headed focus: the headers give way when it sits far below them", () => {
+    /* Headers at y 50, the lit cell 500 units further down, a 217px stage: the top cannot keep both. */
+    const lit = { x: 1100, y: 500, w: 120, h: 80 };
+    const shot = { x: 0, y: 0, w: 3000, h: 900, headed: true, lit, focus: { x: 1000, y: 50, w: 400, h: 530 }, core: { x: 1000, y: 50, w: 400, h: 530 } };
+    const inside = (v: { x: number; y: number; w: number; h: number }) =>
+      lit.x >= v.x && lit.y >= v.y && lit.x + lit.w <= v.x + v.w && lit.y + lit.h <= v.y + v.h;
+    const v = aim(shot, 941, 217, 1.35, lens);
+    expect(941 / v.w).toBeCloseTo(lens.floor);
+    expect(inside(v)).toBe(true);
+    expect(v.y).toBeGreaterThan(50);
+    /* follow from a frame that shows the headers pans down to the lit cell, with a margin. */
+    const prev = { ...v, y: 50 };
+    const f = follow(prev, shot, 941, 217, 1.35, lens);
+    expect(inside(f)).toBe(true);
+    expect(f.y + f.h).toBeGreaterThanOrEqual(lit.y + lit.h + Math.min(40, prev.w * 0.1, prev.h * 0.1) - 0.01);
+  });
+
+  it("shows a strip whole or not at all, never a clipped sliver", () => {
+    const lensL = { floor: 0.85, read: 1 };
+    const core = { x: 100, y: 0, w: 300, h: 200 };
+    /* The view's bottom edge (y 255) cuts the strip at 240..300. */
+    const v = { x: 0, y: 0, w: 1000, h: 255 };
+    /* Taking it in needs 230/300 = 0.77, under the floor, so the view lifts it out instead. */
+    const lifted = clearStrip(v, { x: 0, y: -100, w: 1000, h: 400, core, strip: { x: 300, y: 240, w: 200, h: 60 } }, 851, 230, lensL);
+    expect(lifted.y + lifted.h).toBeCloseTo(240);
+    expect(lifted.h).toBe(255);
+    /* A thin overrun is taken in whole while the scale stays at or above the floor. */
+    const taken = clearStrip(v, { x: 0, y: 0, w: 1000, h: 300, core, strip: { x: 300, y: 240, w: 200, h: 20 } }, 851, 230, lensL);
+    expect(taken.y + taken.h).toBeCloseTo(260);
+    expect(230 / taken.h).toBeGreaterThanOrEqual(lensL.floor);
+    /* A strip wholly in or wholly out is left alone, and so is one whose lift would drop the core. */
+    expect(clearStrip(v, { x: 0, y: 0, w: 1000, h: 300, core, strip: { x: 0, y: 260, w: 10, h: 10 } }, 851, 230, lensL)).toBe(v);
+    expect(clearStrip(v, { x: 0, y: 0, w: 1000, h: 300, core, strip: { x: 0, y: 100, w: 10, h: 10 } }, 851, 230, lensL)).toBe(v);
+    expect(clearStrip(v, { x: 0, y: 0, w: 1000, h: 300, core: { ...core, y: -40 }, strip: { x: 300, y: 240, w: 200, h: 60 } }, 851, 230, lensL)).toBe(v);
+  });
+
+  it("a headed crop whose headers gave way still ends with the strip off, lifting at the floor scale", () => {
+    /* Follow's margin put the view's bottom (420) into the strip (390..450); the headers (50) were
+       already out above, which used to refuse the lift and leave a sliver. */
+    const lit = { x: 1100, y: 300, w: 120, h: 80 };
+    const shot = { x: 0, y: 0, w: 3000, h: 900, headed: true, lit, core: { x: 1000, y: 50, w: 400, h: 330 }, strip: { x: 1000, y: 390, w: 300, h: 60 } };
+    const v = { x: 900, y: 164.7, w: 1107, h: 255.3 };
+    const out = clearStrip(v, shot, 941, 217, lens);
+    expect(out.y + out.h).toBeLessThanOrEqual(390 + 1e-6);
+    expect(out.h).toBe(v.h);
+    expect(lit.y >= out.y && lit.y + lit.h <= out.y + out.h).toBe(true);
+  });
+
+  it("a headed crop near the drawing's top shrinks upward instead of lifting onto empty floor", () => {
+    const lit = { x: 300, y: 150, w: 120, h: 60 };
+    const shot = { x: 0, y: 0, w: 3000, h: 900, headed: true, lit, core: { x: 200, y: 0, w: 400, h: 210 }, strip: { x: 200, y: 240, w: 300, h: 60 } };
+    const v = { x: 0, y: 0, w: 1107, h: 255.3 };
+    const out = clearStrip(v, shot, 941, 217, lens);
+    expect(out.y).toBe(0); // the headers stay
+    expect(out.y + out.h).toBeLessThanOrEqual(240 + 1e-6); // far rows and the strip crop
+    expect(941 / out.w).toBeCloseTo(217 / out.h); // the stage's aspect
+    expect(217 / out.h).toBeGreaterThanOrEqual(lens.floor);
+    expect(217 / out.h).toBeLessThanOrEqual(lens.read);
+    expect(lit.x >= out.x && lit.x + lit.w <= out.x + out.w).toBe(true);
+  });
+
+  it("never lifts the lit cell's bottom out: a lit cell right above the strip keeps its place", () => {
+    const inside = (b: { x: number; y: number; w: number; h: number }, v: typeof b) =>
+      b.x >= v.x && b.y >= v.y && b.x + b.w <= v.x + v.w && b.y + b.h <= v.y + v.h;
+    const v = { x: 900, y: 164.7, w: 1107, h: 255.3 };
+    /* The lit cell (300..395) reaches past the strip's top (390): lifting to the strip would cut it. */
+    const lit = { x: 1100, y: 300, w: 120, h: 95 };
+    const over = { x: 0, y: 0, w: 3000, h: 900, core: lit, strip: { x: 1000, y: 390, w: 300, h: 60 } };
+    const kept = clearStrip(v, over, 941, 217, lens);
+    expect(inside(lit, kept)).toBe(true);
+    expect(kept).toBe(v);
+    /* Just clear of the strip, the lit cell keeps its place and the strip goes fully off. */
+    const near = { x: 1100, y: 300, w: 120, h: 88 };
+    const out = clearStrip(v, { ...over, core: near }, 941, 217, lens);
+    expect(inside(near, out)).toBe(true);
+    expect(out.y + out.h).toBeLessThanOrEqual(390 + 1e-6);
+  });
+
+  it("keeps a lit cell's flag in view, not only the cell: the shrink counts the flag's grown reach", () => {
+    const inside = (b: { x: number; y: number; w: number; h: number }, v: typeof b) =>
+      b.x >= v.x - 1e-6 && b.y >= v.y - 1e-6 && b.x + b.w <= v.x + v.w + 1e-6 && b.y + b.h <= v.y + v.h + 1e-6;
+    /* A lit cell in the table's top row with a wide `start · here` flag (half 62) over its point. */
+    const lit = { x: 20, y: 60, w: 120, h: 60 };
+    const pin = { x: 80, y: 70, dir: "up" as const, reach: 44, half: 62 };
+    const shot = { x: 0, y: 40, w: 3000, h: 900, headed: true, lit, core: { x: 0, y: 40, w: 400, h: 120 }, strip: { x: 200, y: 300, w: 300, h: 60 }, pins: [pin] };
+    for (const px of [1, 1.2, 1.6]) {
+      const padded = roomFor(shot, px);
+      /* The view's bottom cuts the strip, and lifting would show floor above: it shrinks to `shot.y`. */
+      const h = 330 - padded.y, v = { x: padded.x, y: padded.y, w: (h * 941) / 217, h };
+      const out = clearStrip(v, padded, 941, 217, lens);
+      expect(out.y).toBeCloseTo(padded.y);
+      expect(out.y + out.h).toBeLessThanOrEqual(300 + 1e-6);
+      expect(inside(flagBox(pin, px), out)).toBe(true);
+    }
+    /* The flag box is the one hideOffstage tests: an up flag spans its half-width each side. */
+    expect(flagBox(pin, 2)).toEqual({ x: 80 - 124, y: 70 - 88, w: 248, h: 88 });
+    expect(flagBox({ x: 10, y: 50, dir: "right", reach: 40, half: 11 }, 1)).toEqual({ x: 10, y: 39, w: 40, h: 22 });
+  });
+
+  it("reads at the scale that fits a whole axis rather than crop one side and show stale rows on the other", () => {
+    /* Knapsack step 5 at 1440x900, measured: a 946x476 stage. At 1x the row-4 head was cut at the
+       left while the frame clamped to the right edge, and the bottom half showed stale plates. */
+    const shot = {
+      x: -464.4, y: -32.4, w: 1015.2, h: 625.1, headed: true,
+      focus: { x: -185.4, y: 17.2, w: 539.6, h: 573.5 }, core: { x: -185.4, y: 17.2, w: 539.6, h: 248.6 },
+      lit: { x: -3.6, y: 17.2, w: 357.8, h: 248.6 }, strip: { x: -178.6, y: 515.9, w: 399.6, h: 62.8 },
+    };
+    /* The table without its strip reads at 0.87, only 1.14x the whole picture's 0.76: the whole shows. */
+    const v = aim(shot, 946, 476.4, 1.35, lens);
+    expect(v).toEqual(frame(shot, 946, 476.4, 1.35));
+    expect(crops(v, shot)).toBe(false);
+    /* Without the strip the table alone, a whole axis (0.93) gains 1.22x: it crops the far rows
+       only, with nothing cut at either side and no floor above. */
+    const bare = { ...shot, strip: undefined };
+    const c = aim(bare, 946, 476.4, 1.35, lens);
+    expect(946 / c.w).toBeGreaterThanOrEqual(lens.floor);
+    expect(c.x).toBeLessThanOrEqual(shot.x + 1e-6);
+    expect(c.x + c.w).toBeGreaterThanOrEqual(shot.x + shot.w - 1e-6);
+    expect(crops(c, shot)).toBe(true);
+    expect(c.y).toBeGreaterThanOrEqual(shot.y - 1e-6);
+    /* A focus off to one side is centred, then clamped so no floor shows past the drawing on one
+       side only: a view wider than the drawing centres on it. */
+    const side = aim({ ...shot, headed: false, focus: { x: -460, y: 17, w: 100, h: 100 }, core: undefined, lit: undefined }, 946, 476.4, 1.35, lens);
+    expect(side.x + side.w / 2).toBeCloseTo(shot.x + shot.w / 2);
+  });
+
+  it("an LCS recap crop shows the whole table above its strip, never a cut top plate", () => {
+    /* LCS recap, measured, with the table's own bottom (`body`) under the strip's top. */
+    const shot = {
+      x: -550.8, y: -32.4, w: 928.8, h: 581.9, flags: false,
+      focus: { x: -262.8, y: 17.2, w: 444.2, h: 530.3 }, core: { x: -262.8, y: 17.2, w: 444.2, h: 421.4 },
+      strip: { x: -231.4, y: 472.7, w: 238.8, h: 62.8 }, body: { x: -550.8, y: -32.4, w: 928.8, h: 482.4 },
+    };
+    /* 1440x900 (a 946x440 stage) and 1024x768 (959x224, where the focus fit at 0.53 cut the top plate). */
+    for (const [W, H] of [[946, 439.7], [959, 223.6]]) {
+      const v = aim(shot, W, H, 1.35, lens);
+      expect(v.y).toBeLessThanOrEqual(shot.y + 1e-6);
+      expect(v.y + v.h).toBeLessThanOrEqual(shot.strip.y + 1e-6);
+      expect(v.y + v.h).toBeGreaterThanOrEqual(shot.body.y + shot.body.h - 1e-6);
+      expect(v.x <= shot.x && v.x + v.w >= shot.x + shot.w).toBe(true);
+    }
+    /* A body that gains under 1.2x over the whole picture is not worth hiding the strip: the whole shows. */
+    const tall = { ...shot, body: { ...shot.body, h: 520 } };
+    expect(aim(tall, 959, 223.6, 1.35, lens)).toEqual(frame(tall, 959, 223.6, 1.35));
+  });
+
+  it("slides a crop toward its cut while the far side shows only empty floor, at the same scale", () => {
+    const shot = { x: 0, y: -40, w: 1000, h: 600, strip: { x: 300, y: 500, w: 200, h: 60 }, body: { x: 0, y: -40, w: 1000, h: 480 } };
+    /* Cut 30 at the top; below, the view (bottom 460) runs 20 past the body (440) with the strip off. */
+    const v = { x: 0, y: -10, w: 1000, h: 470 };
+    const out = slide(v, shot);
+    expect(out.w).toBe(v.w);
+    expect(out.h).toBe(v.h);
+    expect(out.y).toBeCloseTo(-30); // the far edge meets the body
+    /* With more floor below, it slides until the cut closes. */
+    expect(slide({ ...v, y: -10, h: 400 }, { ...shot, body: { ...shot.body, h: 300 } }).y).toBeCloseTo(-40);
+    /* The same on the x axis: cut at the right, floor past the left edge. */
+    expect(slide({ x: -50, y: -40, w: 900, h: 600 }, { x: 0, y: -40, w: 1000, h: 600 }).x).toBeCloseTo(0);
+    /* Nothing to slide: no cut, or no floor on the far side. */
+    expect(slide({ x: 0, y: -40, w: 1000, h: 470 }, shot)).toEqual({ x: 0, y: -40, w: 1000, h: 470 });
+    expect(slide({ x: 0, y: 0, w: 1000, h: 440 }, shot)).toEqual({ x: 0, y: 0, w: 1000, h: 440 });
+  });
+
   it("never reads past the cap", () => {
     expect(1000 / aim(wide, 1000, 500, 0.9, { floor: 0.85, read: 1.2 }).w).toBeCloseTo(0.9);
   });
@@ -117,5 +315,18 @@ describe("readable camera", () => {
     const prev = aim(wide, 1000, 500, 1.5, lens);
     const small = { x: 0, y: 0, w: 1150, h: 300 };
     expect(follow(prev, small, 1000, 500, 1.5, lens)).toEqual(frame(small, 1000, 500, 1.5));
+  });
+});
+
+describe("room for grown labels", () => {
+  it("widens the drawing by the flags' extra reach once text scales up, and not at 1x or closer", () => {
+    const shot = { x: 0, y: 0, w: 1000, h: 400, focus: { x: 10, y: 10, w: 5, h: 5 } };
+    expect(roomFor(shot, 1)).toBe(shot);
+    expect(roomFor({ ...shot, headed: true }, 2).headed).toBe(true);
+    expect(roomFor(shot, 0.8)).toBe(shot);
+    const t = FLAG_REACH * 0.5, m = TAG_REACH * 0.5;
+    expect(roomFor(shot, 1.5)).toEqual({ x: -m, y: -t, w: 1000 + 2 * m, h: 400 + t + m, focus: { x: 10 - m, y: 10 - t, w: 5 + 2 * m, h: 5 + t + m } });
+    /* The lens crops to the focus or core, so they get the same room as the drawing. */
+    expect(roomFor({ ...shot, core: { x: 0, y: 0, w: 10, h: 10 } }, 1.5).core).toEqual({ x: -m, y: -t, w: 10 + 2 * m, h: 10 + t + m });
   });
 });

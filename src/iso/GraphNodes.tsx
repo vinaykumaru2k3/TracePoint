@@ -82,8 +82,10 @@ export default function GraphNodes({ nodes, edges, pointers = [] }: { nodes: TNo
         const t = String(l.w), w = Math.max(22, t.length * 7 + 10);
         return (
           <g key={`w${l.key}`} className={`edge-w e-${l.state}`} style={at(l.mid.x, l.mid.y)}>
-            <rect x={-w / 2} y={-8} width={w} height={16} rx={8} />
-            <text textAnchor="middle" dominantBaseline="central">{t}</text>
+            <g className="tag-body">
+              <rect x={-w / 2} y={-8} width={w} height={16} rx={8} />
+              <text textAnchor="middle" dominantBaseline="central">{t}</text>
+            </g>
           </g>
         );
       })}
@@ -92,8 +94,10 @@ export default function GraphNodes({ nodes, edges, pointers = [] }: { nodes: TNo
         const w = Math.max(28, n.tag.length * 7 + 12);
         return (
           <g key={`t${n.id}`} className="tree-tag" style={at(n.col * COL, n.depth * ROW + TN_A * U * 0.5 + 13)}>
-            <rect x={-w / 2} y={-9} width={w} height={18} rx={4} />
-            <text textAnchor="middle" dominantBaseline="central">{n.tag}</text>
+            <g className="tag-body">
+              <rect x={-w / 2} y={-9} width={w} height={18} rx={4} />
+              <text textAnchor="middle" dominantBaseline="central">{n.tag}</text>
+            </g>
           </g>
         );
       })}

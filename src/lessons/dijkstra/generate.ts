@@ -44,14 +44,14 @@ export function generateDijkstra(g: GraphInput): Step<DijkstraState>[] {
     steps.push({
       ...st, op: live,
       state: {
-        ...view, frame, ptrs: [{ node: idOf(s), label: "s" }, ...(v.ptrs ?? [])],
+        ...view, frame, ptrs: [{ node: idOf(s), label: "start" }, ...(v.ptrs ?? [])],
         strip: st.kind === "problem" ? undefined : {
           name: "pq",
           tiles: [
             ...(v.stale ? [{ v: v.stale, state: "stale" as const }] : []),
             ...pq.map(([x, d], k) => ({ v: `${x}:${d}`, state: d > dist[x] ? ("stale" as const) : k === 0 && !v.stale ? ("active" as const) : ("compare" as const) }))
           ],
-          ptrs: pq.length && !v.stale ? [{ at: 0, label: "min" }] : []
+          ptrs: pq.length && !v.stale ? [{ at: 0, label: "smallest" }] : []
         },
         op: live, dist: { ...dist }, pq: pq.map(([x, d]) => [x, d])
       }
@@ -82,7 +82,7 @@ export function generateDijkstra(g: GraphInput): Step<DijkstraState>[] {
         title: `${u}:${d} is out of date`, short: `skip ${u}:${d}`,
         idea: "A lazy queue never edits an entry. It leaves the old one in and throws it away when it comes out.",
         text: `This entry says ${u} costs ${d}, but a cheaper route of ${dist[u]} was found after it was queued. ${u} is already settled, so the entry is skipped.`
-      }, { stale: `${u}:${d}`, ptrs: [{ node: idOf(u), label: "u" }] });
+      }, { stale: `${u}:${d}`, ptrs: [{ node: idOf(u), label: "here" }] });
       continue;
     }
     done.add(u);
@@ -91,10 +91,10 @@ export function generateDijkstra(g: GraphInput): Step<DijkstraState>[] {
       title: `Settle ${u} at cost ${d}`, short: `settle ${u}`,
       idea: "The smallest entry is final. Any other route to it would pass through a node that already costs at least as much.",
       text: `${u}:${d} is the cheapest entry in the queue, so ${d} is the true cost of ${u}. Now each edge out of ${u} is tried.`
-    }, { cur: u, ptrs: [{ node: idOf(u), label: "u" }] });
+    }, { cur: u, ptrs: [{ node: idOf(u), label: "here" }] });
     for (const { to: x, w } of adj[u]) {
       const nd = d + w;
-      const ptrs: TPointer[] = [{ node: idOf(u), label: "u" }, { node: idOf(x), label: "x" }];
+      const ptrs: TPointer[] = [{ node: idOf(u), label: "here" }, { node: idOf(x), label: "next" }];
       if (nd < dist[x]) {
         const was = dist[x];
         dist[x] = nd;
@@ -102,7 +102,7 @@ export function generateDijkstra(g: GraphInput): Step<DijkstraState>[] {
         push(x, nd);
         snap({
           kind: "add", anchors: ["dij.relax", "dij.push"], notes: { "dij.relax": `${d} + ${w} = ${nd} < ${distText(was)}`, "dij.push": `push ${x}:${nd}` },
-          title: `Cheaper route to ${x}: ${nd}`, short: `${x} = ${nd}`,
+          title: `Cheaper route to ${x}: ${nd}`, short: `dist ${x} = ${nd}`,
           idea: "Relaxing an edge asks whether going through this node is cheaper. If so, the distance drops and a new entry is queued.",
           text: Number.isFinite(was)
             ? `Through ${u}, ${x} costs ${d} + ${w} = ${nd}, less than the ${was} known before. dist[${x}] drops to ${nd} and ${x}:${nd} is queued. The old entry ${x}:${was} stays in the queue, now out of date.`

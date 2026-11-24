@@ -30,18 +30,19 @@ a { color: inherit; text-decoration: none; }
   0% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--edge-active) 80%, transparent); }
   65%, 100% { box-shadow: 0 0 0 10px color-mix(in oklab, var(--edge-active) 0%, transparent); }
 }
-.btn:disabled { opacity: 0.55; cursor: default; background: transparent; }
+.btn:disabled, .btn[aria-disabled="true"] { opacity: 0.55; cursor: default; background: transparent; }
 .icon-btn { flex: none; width: 32px; height: 32px; display: grid; place-items: center; padding: 0; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); color: var(--muted); cursor: pointer; transition: background 0.15s, color 0.15s; }
 .icon-btn:hover { background: var(--surface-2); color: var(--ink); }
 .icon-btn[aria-pressed="true"] { color: var(--ink); border-color: var(--line-strong); }
 .chip { display: inline-block; font-family: var(--mono); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; padding: 0 8px; border: 1px solid var(--line-strong); border-radius: var(--radius); color: var(--on-c); }
 .explain .chip { font-size: var(--fs-chrome); }
 .kbd { font: inherit; font-family: var(--mono); font-size: 11px; padding: 0 5px; border: 1px solid var(--line-strong); border-bottom-width: 2px; border-radius: 4px; background: var(--surface); color: var(--muted); }
-/* Live values read as a row of figures split by hairlines, not as cards inside the lesson card. */
-.metric { min-width: 0; padding: 2px 14px 2px 0; }
-.metric + .metric { padding-left: 14px; border-left: 1px solid var(--line); }
-.metric small { display: block; font-size: var(--fs-chrome); font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
-.metric b { font-family: var(--mono); display: block; font-size: calc(var(--fs-chrome) + 2px); color: var(--ink); line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-variant-numeric: tabular-nums; }
+/* Live values are one muted line: `label value · label value`, the values in ink. */
+.metrics { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; min-width: 0; font-size: var(--fs-chrome); color: var(--muted); }
+.metric { min-width: 0; white-space: nowrap; }
+.metric small { font-size: var(--fs-chrome); font-weight: 400; color: var(--muted); }
+.metric b { font-family: var(--mono); font-size: var(--fs-chrome); font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+.metrics .sep { color: var(--muted); }
 .pane-title, .pane-title-label { font-family: var(--mono); font-size: 11px; font-weight: 500; line-height: 1.4; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
 .pane-title { padding: 7px 14px; border-bottom: 1px solid var(--line); }
 .lbl { font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }
@@ -143,7 +144,7 @@ a { color: inherit; text-decoration: none; }
 .center { padding: 14px 6px 14px; display: flex; flex-direction: column; }
 .lesson { flex: 1; min-height: 0; padding: 14px 18px 14px; display: flex; flex-direction: column; gap: 12px; }
 /* Holds the page open while a lesson chunk loads: as tall as the stage can be at least, so nothing jumps. */
-.lesson-loading { flex: 1; min-height: clamp(320px, 56vh, 540px); }
+.lesson-loading { flex: 1; min-height: clamp(260px, 45vh, 540px); }
 .lesson > * { flex: none; }
 .lesson > .stagecard { flex: 1 1 auto; min-height: 0; display: flex; }
 .lesson-head { display: grid; gap: 4px; }
@@ -168,8 +169,6 @@ a { color: inherit; text-decoration: none; }
 /* The floor: an isometric dot grid drawn in scene units, so it slides and scales with the camera. */
 .floor circle { fill: var(--grid-dot); stroke: none; }
 .stage-top { position: relative; display: flex; align-items: flex-start; gap: 10px; }
-.metrics { display: flex; gap: 6px 0; flex-wrap: wrap; }
-.metrics .metric { min-width: 86px; }
 .stage-ctl { margin-left: auto; display: flex; gap: 6px; align-items: center; }
 .stage-ctl .zoom[aria-pressed="true"] { border-color: var(--inv-bg); background: var(--inv-bg); color: var(--inv-fg); }
 .stage-ctl .btn.speed { min-inline-size: 96px; font-variant-numeric: tabular-nums; }
@@ -240,17 +239,18 @@ a { color: inherit; text-decoration: none; }
 /* on the desktop stage page the input is one row; its hint shows only while the reader edits (it stays readable to screen readers) */
 .lesson > .run-fold > .run { grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: 12px; }
 .lesson > .run-fold > .run > p { grid-column: 1 / -1; }
+.lesson > .run-fold > .run > .revert { grid-column: 1 / -1; justify-self: start; }
 .lesson > .run-fold > .run .hint.quiet { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 .memhead { font-size: var(--fs-chrome); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: baseline; }
-.memhead .lbl { color: var(--ink); font-size: var(--fs-chrome); }
+.memhead .memtitle { color: var(--ink); font-size: var(--fs-chrome); font-weight: 600; }
 .memhead .costs { font-size: var(--fs-chrome); }
 .mem > summary { list-style: none; cursor: pointer; border-radius: 4px; }
 .mem > summary::-webkit-details-marker { display: none; }
-.memhead .lbl { display: inline-flex; align-items: center; gap: 8px; }
-.memhead .lbl::before { content: ""; width: 6px; height: 6px; flex: none; border: solid var(--muted); border-width: 0 1.5px 1.5px 0; transform: rotate(-45deg); transition: transform 0.15s; }
-.mem[open] .memhead .lbl::before { transform: rotate(45deg); }
-.mem > summary:hover .lbl::before { border-color: var(--ink); }
+.memhead .memtitle { display: inline-flex; align-items: center; gap: 8px; }
+.memhead .memtitle::before { content: ""; width: 6px; height: 6px; flex: none; border: solid var(--muted); border-width: 0 1.5px 1.5px 0; transform: rotate(-45deg); transition: transform 0.15s; }
+.mem[open] .memhead .memtitle::before { transform: rotate(45deg); }
+.mem > summary:hover .memtitle::before { border-color: var(--ink); }
 .costs { display: flex; gap: 12px; flex-wrap: wrap; font-size: 11px; color: var(--muted); }
 .costs b { color: var(--ink); font-weight: 600; }
 .cells { display: grid; gap: 6px; margin-top: 6px; }
@@ -385,6 +385,16 @@ a { color: inherit; text-decoration: none; }
 .e-active .arrow-head { fill: var(--edge-active); }
 .e-tree .arrow-head { fill: var(--st-found-r); }
 .e-dim .arrow-head { opacity: 0.35; }
+/* Scene text never draws under 11 CSS px: --px is scene units per screen pixel, set by IsoScene.
+   11px text grows by --px; bigger text grows only once it would drop under 11px. Text inside a
+   .tag-body or .grid-head is scaled with its group, never twice. */
+.tag-body, .grid-head, .plate-index:not(.grid-head *, .tag-body *) { scale: max(1, var(--px, 1)); transform-box: fill-box; transform-origin: center; }
+.row-name, .null-tag { scale: max(1, calc(var(--px, 1) * 11 / 12)); transform-box: fill-box; transform-origin: center; }
+/* A row name is anchored at its end, beside the row: it grows away from the row, not over it. */
+.row-name { transform-origin: right center; }
+.box-label { scale: max(1, calc(var(--px, 1) * 11 / 15)); transform-box: fill-box; transform-origin: center; }
+/* A pointer's flag grows about the point it names, so its tip stays on that point. */
+.ptr-flag { scale: max(1, var(--px, 1)); transform-box: view-box; transform-origin: 0 0; }
 .edge-w rect { fill: var(--surface); stroke: var(--line-strong); stroke-width: 1; }
 .edge-w text { font-family: var(--mono); font-size: 11px; font-weight: 600; fill: var(--muted); }
 .edge-w.e-active rect { stroke: var(--edge-active); stroke-width: 1.6; }
@@ -400,8 +410,13 @@ a { color: inherit; text-decoration: none; }
 .ptr .ptr-tip { fill: var(--edge); }
 .ptr text { font-family: var(--mono); font-size: 11px; font-weight: 600; fill: var(--ink); }
 .ptr.dim { opacity: 0.55; }
-/* The drawing goes on past this edge of the close-up. Fades in once the camera has landed. */
-.crop-cues path { fill: none; stroke: var(--muted); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; animation: cue-in 0.3s ease-out 0.55s both; }
+/* The camera cropped away the point this flag names (IsoScene hideOffstage). */
+.ptr[data-off] { opacity: 0; visibility: hidden; }
+/* The drawing goes on past this edge of the close-up: a chevron on a pill at the edge, so it reads
+   over plates as well as floor. Fades in once the camera has landed. */
+.crop-cue { animation: cue-in 0.3s ease-out 0.55s both; }
+.crop-pill { fill: var(--surface); stroke: var(--line); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.crop-cue path { fill: none; stroke: var(--muted); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
 @keyframes cue-in { from { opacity: 0; } }
 .enter { animation: enter 0.5s cubic-bezier(0.3, 0.8, 0.3, 1) both; }
 .leaving { animation: leave 0.5s ease-in forwards; pointer-events: none; }
@@ -411,9 +426,9 @@ a { color: inherit; text-decoration: none; }
 @media (prefers-reduced-motion: reduce) {
   .btn.cue { animation: none; box-shadow: 0 0 0 3px color-mix(in oklab, var(--edge-active) 45%, transparent); }
   .box, .ptr, .tree-tag, .bar i, .btn, .ln, .edge, .win, .icon-btn, .scrub-head, .scrub-base i, .scrub-ticks li::before, .page, .side-body, .side-col.shut .side-body { transition: none; }
-  .enter, .crop-cues path, .ring.fresh .ring-arc, .ring.fresh .ring-check, .drawer[open] .drawer-sheet, .drawer[open]::backdrop { animation: none; }
+  .enter, .crop-cue, .ring.fresh .ring-arc, .ring.fresh .ring-check, .drawer[open] .drawer-sheet, .drawer[open]::backdrop { animation: none; }
   .tick { display: none; }
-  .run-fold > summary::before, .memhead .lbl::before { transition: none; }
+  .run-fold > summary::before, .memhead .memtitle::before { transition: none; }
   .leaving { display: none; }
 }
 
@@ -432,10 +447,8 @@ a { color: inherit; text-decoration: none; }
 /* ---------- mid-width desktop windows: give the stage back some room ---------- */
 @media (min-width: 1121px) and (max-width: 1360px) {
   .page { --side-open: 256px; grid-template-columns: var(--side-w) minmax(0, 1fr) 372px; }
-  /* keep the live values on one line so the stage does not lose a row */
-  .stage-top .metrics { flex-wrap: nowrap; flex: 0 1 auto; min-width: 0; }
-  .stage-top .metric { min-width: 48px; padding-right: 10px; }
-  .stage-top .metric + .metric { padding-left: 10px; }
+  /* let the live values shrink to their content so the metrics do not claim a wider share of the bar than they need */
+  .stage-top .metrics { flex: 0 1 auto; min-width: 0; }
   .stage-ctl .play { min-width: 0; padding: 4px 10px; }
 }
 
@@ -473,28 +486,26 @@ a { color: inherit; text-decoration: none; }
   .flow-main > .lesson-head, .flow-main > .stagecard, .flow-main > .rail-wrap, .flow-main > .run-fold, .flow-main > .mem { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; }
   .flow-main > .stagecard { margin: 0; padding: 0; overflow: hidden; }
   .flow-main > .codewrap { display: flex; flex-direction: column; }
-  .stage { height: clamp(320px, 56vh, 540px); padding: 10px 12px; }
+  .stage { height: clamp(260px, 45vh, 540px); padding: 10px 12px; }
   .stagecard { scroll-margin-top: 64px; }
   .page.flow { padding-bottom: 84px; }
   .stepbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; display: flex; align-items: center; gap: 8px; padding: 8px 12px calc(8px + env(safe-area-inset-bottom)); background: var(--bg); border-top: 1px solid var(--line); }
   .stepbar-at { flex: 1; min-width: 0; text-align: center; font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .stepbar-at b { color: var(--ink); }
   .stepbar .btn.primary { min-width: 112px; gap: 8px; }
-  .stepbar .to-theory { text-decoration: none; }
+  .stepbar .to-theory { display: none; text-decoration: none; }
   .code { max-height: 360px; }
 }
 @media (max-width: 560px) {
+  .stepbar .to-theory { display: inline-flex; }
   .tabs .soon { display: none; }
   .lesson-head h1 { font-size: 22px; }
   /* A phone must show the drawing and the sentence that explains it in one screen above the step bar:
      the live values sit on one line, the drawing gets 240px, and the explanation drops what the step bar repeats. */
   .stage { height: auto; grid-template-rows: auto 240px auto; }
   .stage-top { flex-direction: column; gap: 8px; }
-  .metrics { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); width: 100%; }
-  .metrics .metric { min-width: 0; padding-right: 6px; }
-  .metrics .metric + .metric { padding-left: 8px; }
-  .metric small { font-size: var(--fs-micro); letter-spacing: 0.03em; overflow: hidden; text-overflow: ellipsis; }
-  .metric b { font-size: 14px; }
+  .metrics { width: 100%; }
+  .metric small { font-size: var(--fs-micro); }
   /* the explanation is pinned so the sentence still starts above the step bar */
   .explain h2 { font-size: 17px; }
   .explain .say { font-size: 14px; line-height: 1.55; }

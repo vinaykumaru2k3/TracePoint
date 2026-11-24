@@ -1,3 +1,5 @@
+// @ts-expect-error node:fs has no types in the app tsconfig
+import { readFileSync } from "node:fs";
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { MemoryRouter } from "react-router-dom";
@@ -90,5 +92,29 @@ describe("key legend", () => {
   it("keeps each key and its label together as one pair", () => {
     store({});
     expect(at("/stack/3")).toMatch(/<span class="kp"><kbd class="kbd">←<\/kbd><kbd class="kbd">→<\/kbd> step<\/span>/);
+  });
+});
+
+describe("quiet metrics line", () => {
+  it("separates metric items with a hidden dot, none before the first", () => {
+    store({});
+    const html = at("/stack/2");
+    const row = html.match(/<div class="metrics"[^>]*>(.*?)<\/div>/)![1];
+    expect(row).toContain('<span class="sep" aria-hidden="true">·</span>');
+    expect(row.startsWith('<span class="sep"')).toBe(false);
+    expect(row.split('class="sep"').length - 1).toBe(row.split('class="metric"').length - 2);
+  });
+  it("titles the memory summary with memtitle, not lbl", () => {
+    store({});
+    const html = at("/stack/2");
+    const sum = html.match(/<summary class="memhead">(.*?)<\/summary>/)![1];
+    expect(sum).toContain('<span class="memtitle">');
+    expect(sum).not.toContain('class="lbl"');
+  });
+  it("keeps text-transform out of the metric rules", () => {
+    const css = readFileSync("src/app.css", "utf8");
+    const rules = [...css.matchAll(/([^{}]*\.metrics?\b[^{}]*)\{([^}]*)\}/g)];
+    expect(rules.length).toBeGreaterThan(0);
+    for (const [, , body] of rules) expect(body).not.toMatch(/text-transform|letter-spacing/);
   });
 });

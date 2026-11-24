@@ -1,5 +1,6 @@
 import { memo, useLayoutEffect, useRef, useState, type ComponentType } from "react";
 import { MeasureContext, type Box, type Shot } from "./IsoScene";
+import { readPin, type Pin } from "./camera";
 
 interface Props<S> {
   steps: S[];
@@ -13,16 +14,30 @@ interface Props<S> {
  * Draws every step of the run once, off-screen and without motion, and reports where each step's
  * drawing sits. The visible scene's camera moves between these boxes as the steps play.
  */
-/** What a step is about: lit cells, pointers, active edges and windows; failing those, what it found. */
-const FOCUS = ".s-active, .s-compare, .s-swap, .e-active, .ptr:not(.dim), .win";
+/** What a step is about: lit cells, pointers, active edges and windows, and the table headers that
+    name the lit cell (`.grid-head.on`); failing those, what it found. */
+const FOCUS = ".s-active, .s-compare, .s-swap, .e-active, .ptr:not(.dim), .win, .grid-head.on";
+/** Lit table headers: the focus then starts at a header row, which the camera keeps (`Shot.headed`). */
+const HEAD = ".grid-head.on";
 const FOUND = ".s-found";
 
-/** The union of the matching elements' on-screen boxes, in the svg's own units. */
-function focusOf(svg: SVGSVGElement, pad: number): Box | undefined {
+/** The side strip under a drawing (a queue, a heap array, the chosen items); see `Shot.core`. */
+const STRIP = ".strip";
+
+/**
+ * The elements a focus is measured from: the lit ones, else (only when nothing is lit) the found
+ * ones. `core` leaves out the strip; when everything lit is in the strip, the core is empty, so the
+ * camera keeps the full focus rather than framing found cells that are not the step's subject.
+ */
+export function pickFocus<E>(focus: E[], found: E[], inStrip: (el: E) => boolean, core: boolean): E[] {
+  if (focus.length) return core ? focus.filter((el) => !inStrip(el)) : focus;
+  return core ? found.filter((el) => !inStrip(el)) : found;
+}
+
+/** The union of the elements' on-screen boxes, in the svg's own units, grown by `pad`. */
+function boxOf(svg: SVGSVGElement, els: Element[], pad: number): Box | undefined {
   const m = svg.getScreenCTM()?.inverse();
   if (!m) return undefined;
-  let els = [...svg.querySelectorAll(FOCUS)];
-  if (!els.length) els = [...svg.querySelectorAll(FOUND)];
   let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
   for (const el of els) {
     const r = el.getBoundingClientRect();
@@ -33,6 +48,20 @@ function focusOf(svg: SVGSVGElement, pad: number): Box | undefined {
     }
   }
   return x1 > x0 ? { x: x0 - pad, y: y0 - pad, w: x1 - x0 + 2 * pad, h: y1 - y0 + 2 * pad } : undefined;
+}
+
+/** The lit pointers' pins (not dim, not in the strip): their grown flags count into the crop (`Shot.pins`). */
+function pinsOf(svg: SVGSVGElement): Pin[] {
+  return [...svg.querySelectorAll(".ptr:not(.dim)[data-at]")]
+    .filter((el) => !el.closest(STRIP))
+    .map((el) => readPin(el.getAttribute("data-at"), el.getAttribute("data-reach")))
+    .filter((p): p is Pin => !!p);
+}
+
+/** The focus box (see FOCUS); `core` leaves out the strip and `heads: false` the lit headers. */
+function focusOf(svg: SVGSVGElement, pad: number, core = false, heads = true): Box | undefined {
+  const lit = [...svg.querySelectorAll(FOCUS)].filter((el) => heads || !el.matches(HEAD));
+  return boxOf(svg, pickFocus(lit, [...svg.querySelectorAll(FOUND)], (el) => !!el.closest(STRIP), core), pad);
 }
 
 /** The scenes to draw: all of them until the fit pass has measured, none after. */
@@ -55,7 +84,22 @@ function SceneFit<S>({ steps, Scene, onFit, pad = 18 }: Props<S>) {
       if (svgs.length !== steps.length) { onFit(null); return; }
       const raw = svgs.map((svg) => {
         const b = svg.getBBox();
-        return b.width || b.height ? { x: b.x - pad, y: b.y - pad, w: b.width + 2 * pad, h: b.height + 2 * pad, focus: focusOf(svg, pad) } as Shot : null;
+        if (!(b.width || b.height)) return null;
+        const shot: Shot = { x: b.x - pad, y: b.y - pad, w: b.width + 2 * pad, h: b.height + 2 * pad, focus: focusOf(svg, pad), flags: !!svg.querySelector(".ptr") };
+        const strips = [...svg.querySelectorAll<SVGElement>(STRIP)];
+        if (strips.length) {
+          shot.core = focusOf(svg, pad, true);
+          shot.strip = boxOf(svg, strips, 4);
+          /* The drawing without its strip: hide the strip for one measure. */
+          for (const el of strips) el.style.display = "none";
+          const d = svg.getBBox();
+          for (const el of strips) el.style.display = "";
+          if (d.width || d.height) shot.body = { x: d.x - pad, y: d.y - pad, w: d.width + 2 * pad, h: d.height + 2 * pad };
+        }
+        if (svg.querySelector(HEAD)) { shot.headed = true; shot.lit = focusOf(svg, pad, true, false); }
+        const pins = pinsOf(svg);
+        if (pins.length) shot.pins = pins;
+        return shot;
       });
       /* An empty step keeps the frame of the step before it (or after it, at the start). */
       const firstGood = raw.find(Boolean) ?? null;
