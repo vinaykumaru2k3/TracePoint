@@ -5,6 +5,7 @@ import { Icon } from "../design/ui";
 import { CameraContext, type Shot } from "../iso/IsoScene";
 import SceneFit from "../iso/SceneFit";
 import { Rich } from "../theory/inline";
+import { runOpOf, stepName } from "../engine/stepName";
 
 const nn = (n: number) => String(n).padStart(2, "0");
 
@@ -22,6 +23,8 @@ export default function Walkthrough({ lesson, initial = 0 }: { lesson: AnyLesson
   const { steps, shots } = lesson.theory;
   const run = useMemo(() => defaultRun(lesson), [lesson]);
   const frames = useMemo(() => shots.map((n) => run[n - 1]), [run, shots]);
+  /* The same stop name as the trace head, scrubber and Next (see stepName). */
+  const runOp = useMemo(() => runOpOf(run), [run]);
   const [i, setI] = useState(Math.min(Math.max(initial, 0), steps.length - 1));
   const [boxes, setBoxes] = useState<Shot[] | null>(null);
   const step = frames[i];
@@ -48,7 +51,7 @@ export default function Walkthrough({ lesson, initial = 0 }: { lesson: AnyLesson
       </ol>
       <figure className="walk-fig" aria-label={`Diagram for step ${i + 1}`}>
         <div className="walk-cap">
-          <span className="walk-op"><span className="walk-ix">#{nn(n)}</span> {step.op ?? step.kind}</span>
+          <span className="walk-op"><span className="walk-ix">#{nn(n)}</span> {stepName(run, n - 1, runOp)}</span>
           <span className="walk-title">{step.title}</span>
         </div>
         <div className="walk-stage">

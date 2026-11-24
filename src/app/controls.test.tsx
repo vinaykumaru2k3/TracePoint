@@ -55,6 +55,17 @@ describe("controls say what they do", () => {
     expect(head("/dijkstra/4")).not.toBe(runOp);
     expect(head("/dijkstra/4")).toBe(stepName(dij, 3, runOp));
   });
+  it("heads the theory walkthrough with the same stop name", () => {
+    const walk = (path: string) => text(at(path).match(/<span class="walk-op">(.*?)<\/span><span class="walk-title">/)![1]).replace(/^#\d+ /, "");
+    const steps = (id: string) => { const l = LESSON_BY_ID[id]; return l.generate((l.parse(l.defaultText) as { ok: true; input: never }).input); };
+    for (const id of ["dijkstra", "lcs"]) {
+      const run = steps(id), runOp = runOpOf(run), n = LESSON_BY_ID[id].theory.shots[0];
+      const name = walk(`/${id}/learn`);
+      expect(name, id).toBe(stepName(run, n - 1, runOp));
+      expect(name, id).not.toBe(runOp);
+      expect(name, id).not.toMatch(COORD);
+    }
+  });
   it("keeps the phone step bar on plain Next", () => {
     const mq = { matches: true, addEventListener() {}, removeEventListener() {} };
     vi.stubGlobal("window", { innerHeight: 812, innerWidth: 375, matchMedia: () => mq });
