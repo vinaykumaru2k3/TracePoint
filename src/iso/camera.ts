@@ -29,6 +29,17 @@ export interface Shot extends Box {
    * than the headers.
    */
   headed?: boolean;
+  /** The lit cells themselves: the core without the headers. A headed crop never leaves them out. */
+  lit?: Box;
+}
+
+/**
+ * Where a headed view `h` tall starts: at the focus top, so the headers show, unless the lit cells
+ * would then fall below it (plus `m`); then the view drops to keep them and the headers give way.
+ */
+export function headedTop(f: Box, lit: Box | undefined, h: number, m = 0): number {
+  if (!lit || lit.y + lit.h + m <= f.y + h) return f.y;
+  return lit.h + 2 * m > h ? lit.y + lit.h / 2 - h / 2 : lit.y + lit.h + m - h;
 }
 
 export interface Lens {
@@ -72,7 +83,7 @@ export function aim(shot: Shot, W: number, H: number, maxScale: number, lens?: L
   if (s < (W / whole.w) * CROP_GAIN) return whole;
   return {
     x: clamp(f.x + f.w / 2 - w / 2, shot.x, shot.x + shot.w - w),
-    y: clamp(top && f.h > h ? f.y : f.y + f.h / 2 - h / 2, shot.y, shot.y + shot.h - h),
+    y: clamp(top && f.h > h ? headedTop(f, shot.lit, h) : f.y + f.h / 2 - h / 2, shot.y, shot.y + shot.h - h),
     w, h
   };
 }
@@ -97,8 +108,8 @@ export function follow(prev: Box | null, shot: Shot, W: number, H: number, maxSc
   const f = cropped ? (lens ? focusFor(shot, W, H, lens) : shot.focus ?? shot) : shot;
   const m = cropped ? Math.min(40, prev.w * 0.1, prev.h * 0.1) : 0;
   const need = { x: f.x - m, y: f.y - m, w: f.w + 2 * m, h: f.h + 2 * m };
-  /* A headed focus taller than the view keeps its top in view; the far rows give way. */
-  if (shot.headed && need.h > prev.h) need.h = prev.h;
+  /* A headed focus taller than the view keeps its top in view, unless that drops the lit cells. */
+  if (shot.headed && need.h > prev.h) { need.y = headedTop(need, shot.lit, prev.h, m); need.h = prev.h; }
   /* Move the least that brings `need` into view; centre it when it is bigger than the view. */
   const shift = (lo: number, len: number, a: number, alen: number) =>
     alen > len ? a + alen / 2 - (lo + len / 2) : a < lo ? a - lo : a + alen > lo + len ? a + alen - (lo + len) : 0;
@@ -136,5 +147,6 @@ export function roomFor(shot: Shot, px: number): Shot {
     ...grow(shot),
     ...(shot.focus && { focus: grow(shot.focus) }),
     ...(shot.core && { core: grow(shot.core) }),
+    ...(shot.lit && { lit: grow(shot.lit) }),
   };
 }

@@ -132,6 +132,23 @@ describe("readable camera", () => {
     expect(aim(fits, 941, 217, 1.35, lens)).toEqual(aim({ ...fits, headed: false }, 941, 217, 1.35, lens));
   });
 
+  it("never crops the lit cell of a headed focus: the headers give way when it sits far below them", () => {
+    /* Headers at y 50, the lit cell 500 units further down, a 217px stage: the top cannot keep both. */
+    const lit = { x: 1100, y: 500, w: 120, h: 80 };
+    const shot = { x: 0, y: 0, w: 3000, h: 900, headed: true, lit, focus: { x: 1000, y: 50, w: 400, h: 530 }, core: { x: 1000, y: 50, w: 400, h: 530 } };
+    const inside = (v: { x: number; y: number; w: number; h: number }) =>
+      lit.x >= v.x && lit.y >= v.y && lit.x + lit.w <= v.x + v.w && lit.y + lit.h <= v.y + v.h;
+    const v = aim(shot, 941, 217, 1.35, lens);
+    expect(941 / v.w).toBeCloseTo(lens.floor);
+    expect(inside(v)).toBe(true);
+    expect(v.y).toBeGreaterThan(50);
+    /* follow from a frame that shows the headers pans down to the lit cell, with a margin. */
+    const prev = { ...v, y: 50 };
+    const f = follow(prev, shot, 941, 217, 1.35, lens);
+    expect(inside(f)).toBe(true);
+    expect(f.y + f.h).toBeGreaterThanOrEqual(lit.y + lit.h + Math.min(40, prev.w * 0.1, prev.h * 0.1) - 0.01);
+  });
+
   it("never reads past the cap", () => {
     expect(1000 / aim(wide, 1000, 500, 0.9, { floor: 0.85, read: 1.2 }).w).toBeCloseTo(0.9);
   });

@@ -34,10 +34,11 @@ export function pickFocus<E>(focus: E[], found: E[], inStrip: (el: E) => boolean
 }
 
 /** The union of the matching elements' on-screen boxes, in the svg's own units; `core` leaves out the strip. */
-function focusOf(svg: SVGSVGElement, pad: number, core = false): Box | undefined {
+function focusOf(svg: SVGSVGElement, pad: number, core = false, heads = true): Box | undefined {
   const m = svg.getScreenCTM()?.inverse();
   if (!m) return undefined;
-  const els = pickFocus([...svg.querySelectorAll(FOCUS)], [...svg.querySelectorAll(FOUND)], (el) => !!el.closest(STRIP), core);
+  const lit = [...svg.querySelectorAll(FOCUS)].filter((el) => heads || !el.matches(HEAD));
+  const els = pickFocus(lit, [...svg.querySelectorAll(FOUND)], (el) => !!el.closest(STRIP), core);
   let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
   for (const el of els) {
     const r = el.getBoundingClientRect();
@@ -73,7 +74,7 @@ function SceneFit<S>({ steps, Scene, onFit, pad = 18 }: Props<S>) {
         if (!(b.width || b.height)) return null;
         const shot: Shot = { x: b.x - pad, y: b.y - pad, w: b.width + 2 * pad, h: b.height + 2 * pad, focus: focusOf(svg, pad) };
         if (svg.querySelector(STRIP)) shot.core = focusOf(svg, pad, true);
-        if (svg.querySelector(HEAD)) shot.headed = true;
+        if (svg.querySelector(HEAD)) { shot.headed = true; shot.lit = focusOf(svg, pad, true, false); }
         return shot;
       });
       /* An empty step keeps the frame of the step before it (or after it, at the start). */
