@@ -13,8 +13,11 @@ interface Props<S> {
  * Draws every step of the run once, off-screen and without motion, and reports where each step's
  * drawing sits. The visible scene's camera moves between these boxes as the steps play.
  */
-/** What a step is about: lit cells, pointers, active edges and windows; failing those, what it found. */
-const FOCUS = ".s-active, .s-compare, .s-swap, .e-active, .ptr:not(.dim), .win";
+/** What a step is about: lit cells, pointers, active edges and windows, and the table headers that
+    name the lit cell (`.grid-head.on`); failing those, what it found. */
+const FOCUS = ".s-active, .s-compare, .s-swap, .e-active, .ptr:not(.dim), .win, .grid-head.on";
+/** Lit table headers: the focus then starts at a header row, which the camera keeps (`Shot.headed`). */
+const HEAD = ".grid-head.on";
 const FOUND = ".s-found";
 
 /** The side strip under a drawing (a queue, a heap array, the chosen items); see `Shot.core`. */
@@ -70,6 +73,7 @@ function SceneFit<S>({ steps, Scene, onFit, pad = 18 }: Props<S>) {
         if (!(b.width || b.height)) return null;
         const shot: Shot = { x: b.x - pad, y: b.y - pad, w: b.width + 2 * pad, h: b.height + 2 * pad, focus: focusOf(svg, pad) };
         if (svg.querySelector(STRIP)) shot.core = focusOf(svg, pad, true);
+        if (svg.querySelector(HEAD)) shot.headed = true;
         return shot;
       });
       /* An empty step keeps the frame of the step before it (or after it, at the start). */

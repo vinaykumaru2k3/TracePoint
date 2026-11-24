@@ -20,7 +20,16 @@ const ZOOM_IN_GAIN = 1.25;
  * edges). `core` is that focus without the side strip under the drawing (a queue, the chosen items):
  * the camera falls back to it when the whole focus cannot be read at once.
  */
-export interface Shot extends Box { focus?: Box; core?: Box }
+export interface Shot extends Box {
+  focus?: Box;
+  core?: Box;
+  /**
+   * The focus starts with header labels (a table's lit row and column heads). When it cannot be read
+   * whole at the lens floor, the camera stays at the floor and keeps its top, cropping far rows rather
+   * than the headers.
+   */
+  headed?: boolean;
+}
 
 export interface Lens {
   /** Below this scale the whole drawing is too small to read, so the camera frames the focus instead. */
@@ -55,12 +64,15 @@ export function aim(shot: Shot, W: number, H: number, maxScale: number, lens?: L
   const f = focusFor(shot, W, H, lens);
   /* Read at `lens.read`, but the focus always fits whole: a spread-out focus pulls the zoom back,
      though never further than fitting the whole drawing would. */
-  const s = Math.min(maxScale, Math.max(W / whole.w, Math.min(lens.read, W / f.w, H / f.h))), w = W / s, h = H / s;
+  const fit = Math.min(lens.read, W / f.w, H / f.h);
+  /* A headed focus too tall for the floor keeps the floor scale and its top (see `Shot.headed`). */
+  const top = !!shot.headed && fit < lens.floor;
+  const s = Math.min(maxScale, Math.max(W / whole.w, top ? Math.min(lens.read, lens.floor) : fit)), w = W / s, h = H / s;
   /* A close-up that barely beats the whole picture is not worth hiding the rest for. */
   if (s < (W / whole.w) * CROP_GAIN) return whole;
   return {
     x: clamp(f.x + f.w / 2 - w / 2, shot.x, shot.x + shot.w - w),
-    y: clamp(f.y + f.h / 2 - h / 2, shot.y, shot.y + shot.h - h),
+    y: clamp(top && f.h > h ? f.y : f.y + f.h / 2 - h / 2, shot.y, shot.y + shot.h - h),
     w, h
   };
 }
@@ -85,6 +97,8 @@ export function follow(prev: Box | null, shot: Shot, W: number, H: number, maxSc
   const f = cropped ? (lens ? focusFor(shot, W, H, lens) : shot.focus ?? shot) : shot;
   const m = cropped ? Math.min(40, prev.w * 0.1, prev.h * 0.1) : 0;
   const need = { x: f.x - m, y: f.y - m, w: f.w + 2 * m, h: f.h + 2 * m };
+  /* A headed focus taller than the view keeps its top in view; the far rows give way. */
+  if (shot.headed && need.h > prev.h) need.h = prev.h;
   /* Move the least that brings `need` into view; centre it when it is bigger than the view. */
   const shift = (lo: number, len: number, a: number, alen: number) =>
     alen > len ? a + alen / 2 - (lo + len / 2) : a < lo ? a - lo : a + alen > lo + len ? a + alen - (lo + len) : 0;
@@ -118,6 +132,7 @@ export function roomFor(shot: Shot, px: number): Shot {
   const top = FLAG_REACH * (px - 1), side = TAG_REACH * (px - 1);
   const grow = (b: Box): Box => ({ x: b.x - side, y: b.y - top, w: b.w + 2 * side, h: b.h + top + side });
   return {
+    ...shot,
     ...grow(shot),
     ...(shot.focus && { focus: grow(shot.focus) }),
     ...(shot.core && { core: grow(shot.core) }),

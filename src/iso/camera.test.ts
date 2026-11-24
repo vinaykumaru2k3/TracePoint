@@ -115,6 +115,23 @@ describe("readable camera", () => {
     expect(follow(prev, shot, 941, 217, 1.35, lens)).toEqual(prev);
   });
 
+  it("keeps a headed focus's top at the floor scale, cropping far rows rather than the headers", () => {
+    /* A table whose core (headers down to the lit cell) is too tall to read at the floor on a short stage. */
+    const shot = { x: 0, y: 0, w: 3000, h: 900, focus: { x: 1000, y: 50, w: 400, h: 300 }, core: { x: 1000, y: 50, w: 400, h: 300 } };
+    const centred = aim(shot, 941, 217, 1.35, lens);
+    expect(941 / centred.w).toBeLessThan(lens.floor);
+    const v = aim({ ...shot, headed: true }, 941, 217, 1.35, lens);
+    expect(941 / v.w).toBeCloseTo(lens.floor);
+    expect(v.y).toBe(50);
+    expect(v.y + v.h).toBeLessThan(350);
+    /* follow keeps the top in view rather than centring the tall focus. */
+    const prev = { ...v, y: 120 };
+    expect(follow(prev, { ...shot, headed: true }, 941, 217, 1.35, lens).y).toBeCloseTo(50 - Math.min(40, prev.w * 0.1, prev.h * 0.1));
+    /* A headed focus that fits is framed as before. */
+    const fits = { ...shot, headed: true, focus: { x: 1000, y: 50, w: 400, h: 150 }, core: { x: 1000, y: 50, w: 400, h: 150 } };
+    expect(aim(fits, 941, 217, 1.35, lens)).toEqual(aim({ ...fits, headed: false }, 941, 217, 1.35, lens));
+  });
+
   it("never reads past the cap", () => {
     expect(1000 / aim(wide, 1000, 500, 0.9, { floor: 0.85, read: 1.2 }).w).toBeCloseTo(0.9);
   });
@@ -142,6 +159,7 @@ describe("room for grown labels", () => {
   it("widens the drawing by the flags' extra reach once text scales up, and not at 1x or closer", () => {
     const shot = { x: 0, y: 0, w: 1000, h: 400, focus: { x: 10, y: 10, w: 5, h: 5 } };
     expect(roomFor(shot, 1)).toBe(shot);
+    expect(roomFor({ ...shot, headed: true }, 2).headed).toBe(true);
     expect(roomFor(shot, 0.8)).toBe(shot);
     const t = FLAG_REACH * 0.5, m = TAG_REACH * 0.5;
     expect(roomFor(shot, 1.5)).toEqual({ x: -m, y: -t, w: 1000 + 2 * m, h: 400 + t + m, focus: { x: 10 - m, y: 10 - t, w: 5 + 2 * m, h: 5 + t + m } });

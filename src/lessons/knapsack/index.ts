@@ -50,6 +50,8 @@ export default defineLesson<KnapInput, KnapState>({
   legend: [{ cls: "s-active", label: "cell being written" }, { cls: "s-compare", label: "cells read" }, { cls: "s-found", label: "answer and items taken" }],
   metrics: ({ state: s }) => [
     { label: "Item", value: s.i ?? "-" },
+    /* Names the row headers (2:3, 3:4, ...) on the stage: each is an item's weight:value. */
+    { label: "weight:value", value: s.kind === "grid" && s.i ? s.rowHead[s.i] ?? "-" : "-" },
     { label: "Room", value: s.w ?? "-" },
     { label: "Cells done", value: s.filled }
   ],
