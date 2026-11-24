@@ -20,13 +20,21 @@ const FOUND = ".s-found";
 /** The side strip under a drawing (a queue, a heap array, the chosen items); see `Shot.core`. */
 const STRIP = ".strip";
 
+/**
+ * The elements a focus is measured from: the lit ones, else (only when nothing is lit) the found
+ * ones. `core` leaves out the strip; when everything lit is in the strip, the core is empty, so the
+ * camera keeps the full focus rather than framing found cells that are not the step's subject.
+ */
+export function pickFocus<E>(focus: E[], found: E[], inStrip: (el: E) => boolean, core: boolean): E[] {
+  if (focus.length) return core ? focus.filter((el) => !inStrip(el)) : focus;
+  return core ? found.filter((el) => !inStrip(el)) : found;
+}
+
 /** The union of the matching elements' on-screen boxes, in the svg's own units; `core` leaves out the strip. */
 function focusOf(svg: SVGSVGElement, pad: number, core = false): Box | undefined {
   const m = svg.getScreenCTM()?.inverse();
   if (!m) return undefined;
-  const pick = (sel: string) => [...svg.querySelectorAll(sel)].filter((el) => !core || !el.closest(STRIP));
-  let els = pick(FOCUS);
-  if (!els.length) els = pick(FOUND);
+  const els = pickFocus([...svg.querySelectorAll(FOCUS)], [...svg.querySelectorAll(FOUND)], (el) => !!el.closest(STRIP), core);
   let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
   for (const el of els) {
     const r = el.getBoundingClientRect();

@@ -5,12 +5,24 @@ import IsoPointer from "./IsoPointer";
 import { readFileSync } from "node:fs";
 
 const css: string = readFileSync("src/app.css", "utf8").replace(/\/\*[^]*?\*\//g, "");
+/** Split a selector list on top-level commas only, so `:not(a, b)` stays whole. */
+const selectors = (list: string) => {
+  const out: string[] = [];
+  let depth = 0, cur = "";
+  for (const ch of list) {
+    if (ch === "," && depth === 0) { out.push(cur.trim()); cur = ""; continue; }
+    if (ch === "(") depth++;
+    if (ch === ")") depth--;
+    cur += ch;
+  }
+  return [...out, cur.trim()];
+};
 /** The declarations of every rule whose selector list names `sel`. */
-const rule = (sel: string) => css.split("}").filter((r) => r.split("{")[0].split(",").some((s) => s.trim() === sel)).map((r) => r.split("{")[1]).join(";");
+const rule = (sel: string) => css.split("}").filter((r) => selectors(r.split("{")[0]).includes(sel)).map((r) => r.split("{")[1]).join(";");
 
 describe("scene text keeps its screen size when the camera zooms out", () => {
   it("scales every kind of scene text by --px", () => {
-    for (const sel of [".tag-body", ".grid-head", ".plate-index:not(.grid-head *", ".row-name", ".null-tag", ".box-label", ".ptr-flag"]) {
+    for (const sel of [".tag-body", ".grid-head", ".plate-index:not(.grid-head *, .tag-body *)", ".row-name", ".null-tag", ".box-label", ".ptr-flag"]) {
       expect(rule(sel), sel).toMatch(/scale: max\(1, .*var\(--px, 1\)/);
     }
   });

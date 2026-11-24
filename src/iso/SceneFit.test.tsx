@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import IsoScene, { ZoomContext, sceneScale } from "./IsoScene";
-import SceneFit, { fitScenes } from "./SceneFit";
+import SceneFit, { fitScenes, pickFocus } from "./SceneFit";
 
 describe("SceneFit", () => {
   it("fitScenes keeps the steps until measured, then none", () => {
@@ -23,6 +23,16 @@ describe("SceneFit", () => {
     const html = renderToStaticMarkup(<IsoScene viewBox="0 0 100 100" label="x">{null}</IsoScene>);
     expect(html).toMatch(/<svg class="iso"/);
     expect(html).not.toContain("--px");
+  });
+  it("pickFocus: a core with every lit element in the strip is empty, never the found cells", () => {
+    const inStrip = (el: { strip: boolean }) => el.strip;
+    const tile = { strip: true }, cell = { strip: false }, path = { strip: false };
+    expect(pickFocus([tile], [path], inStrip, true)).toEqual([]);
+    expect(pickFocus([tile], [path], inStrip, false)).toEqual([tile]);
+    expect(pickFocus([tile, cell], [path], inStrip, true)).toEqual([cell]);
+    /* Nothing lit: both paths fall back to the found cells. */
+    expect(pickFocus([], [path, tile], inStrip, false)).toEqual([path, tile]);
+    expect(pickFocus([], [path, tile], inStrip, true)).toEqual([path]);
   });
   it("sceneScale follows the tighter axis and guards zero sizes", () => {
     expect(sceneScale({ x: 0, y: 0, w: 643, h: 526 }, 959, 345)).toBeCloseTo(1.525, 2);
