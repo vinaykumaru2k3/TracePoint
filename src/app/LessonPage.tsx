@@ -165,7 +165,7 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
   const said = player.playing ? "" : `${stepOf}. ${step.title}. ${step.text}`;
   const sceneState = describeMemory(lesson.memory(step));
 
-  const playLabel = player.playing ? "Pause" : idx === last ? "Replay" : idx === 0 ? "Play all" : "Play";
+  const playLabel = player.playing ? "Pause" : idx === last ? "Replay" : "Play";
 
   const head = (
     <header className={`lesson-head${theory ? "" : " trace-head"}`} key="head">

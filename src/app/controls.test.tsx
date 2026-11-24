@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { MemoryRouter } from "react-router-dom";
 import { AppRoutes } from "./App";
 import TopNav from "./TopNav";
+import { KIND_MEANING } from "../design/ui";
 // @ts-expect-error node:fs has no types in the app tsconfig
 import { readFileSync } from "node:fs";
 
@@ -119,5 +120,32 @@ describe("stylesheet", () => {
     const nav = renderToStaticMarkup(<MemoryRouter><TopNav dark={false} onTheme={() => {}} onSearch={() => {}} courseOpen={false} onCourse={() => {}} /></MemoryRouter>);
     const help = nav.match(/id="help"[^>]*>.*?<\/div>/)![0];
     expect(help).toMatch(/<button[^>]*type="button"[^>]*>Show tips again<\/button>/);
+  });
+  it("labels Play the same on every step but the last", () => {
+    for (const p of ["/stack/1", "/stack/2"]) {
+      const h = at(p);
+      expect(h).toMatch(/<button[^>]*>(?:<[^>]+>)*Play(?:<[^>]+>)*<\/button>/);
+      expect(h).not.toContain("Play all");
+    }
+  });
+  it("marks Run aria-disabled for an unparseable input, never with disabled", () => {
+    const bad = at("/stack/1?in=zzz").match(/<button[^>]*type="submit"[^>]*>Run<\/button>/)![0];
+    expect(bad).toContain('aria-disabled="true"');
+    expect(bad).not.toMatch(/\sdisabled/);
+    const good = at("/stack/1?in=push%205").match(/<button[^>]*type="submit"[^>]*>Run<\/button>/)![0];
+    expect(good).not.toContain("aria-disabled");
+  });
+  it("lists the step kinds in the help popover", () => {
+    const nav = renderToStaticMarkup(<MemoryRouter><TopNav dark={false} onTheme={() => {}} onSearch={() => {}} courseOpen={false} onCourse={() => {}} /></MemoryRouter>);
+    const help = nav.match(/id="help"[^>]*>.*<\/div>/)![0];
+    expect(help).toMatch(/<h3>Step kinds<\/h3>/);
+    const kinds = help.slice(help.indexOf("Step kinds"));
+    expect((kinds.match(/<dd>/g) ?? []).length).toBe(Object.keys(KIND_MEANING).length);
+    expect(kinds.indexOf("Show tips again")).toBeGreaterThan(kinds.lastIndexOf("</dl>"));
+  });
+  it("shows the stepbar theory link only on phones", () => {
+    expect(css).toMatch(/\.stepbar \.to-theory\s*\{[^}]*display:\s*none/);
+    const phone = css.slice(css.indexOf("@media (max-width: 560px)"));
+    expect(phone).toMatch(/\.stepbar \.to-theory\s*\{[^}]*display:\s*inline-flex/);
   });
 });

@@ -69,6 +69,11 @@ export const KIND_MEANING: Record<string, string> = {
 };
 
 /** The step-kind chip. Cycle 2 reuses the kinds to build "predict the next step" choices. */
+/** The chip's colour and kind word on their own, for lists that explain the kinds (the help popover). */
+export function KindSwatch({ kind }: { kind: string }) {
+  return <span className="chip" style={{ background: kindColor(kind) }}>{kind}</span>;
+}
+
 export function KindChip({ kind }: { kind: string }) {
   return <span className="chip" title={KIND_MEANING[kind] ?? `This step is a ${kind} step.`} style={{ background: kindColor(kind) }}>{kind}</span>;
 }
