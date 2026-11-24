@@ -231,7 +231,7 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
           ) : legendList}
           {step.op && step.ret !== undefined && (
             <div className="result">
-              <small>{resultLabel(step.op)}</small>
+              <small>{resultLabel(step.op, step.kind === "recap")}</small>
               <b className={step.ret === "void" ? "void" : step.ret === "throws" ? "throws" : ""}>{step.ret}</b>
               {step.retNote && <em>{step.retNote}</em>}
             </div>
