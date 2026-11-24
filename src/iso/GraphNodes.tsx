@@ -17,6 +17,22 @@ export interface GEdge {
 }
 
 const f1 = (v: number) => v.toFixed(1);
+/** Weight badges' boxes are centred on `x, y`, `w` wide and 16 tall. */
+type Badge = { x: number; y: number; w: number };
+const hits = (b: Badge, x0: number, y0: number, x1: number, y1: number) =>
+  b.x + b.w / 2 > x0 && b.x - b.w / 2 < x1 && b.y + 8 > y0 && b.y - 8 < y1;
+
+/**
+ * A pointer flag floats above its node unless it would cover a weight badge there (the edge between
+ * two nodes above it often passes right over it); then it sits to the right, if that side is clear.
+ * Boxes match IsoPointer's at 1x, with a little slack for the stem.
+ */
+export function flagSide(p: { x: number; y: number }, label: string, badges: Badge[]): "up" | "right" {
+  const w = Math.max(34, label.length * 9 + 16);
+  if (!badges.some((b) => hits(b, p.x - w / 2, p.y - 46, p.x + w / 2, p.y - 9))) return "up";
+  return badges.some((b) => hits(b, p.x, p.y - 13, p.x + 18 + w, p.y + 13)) ? "up" : "right";
+}
+
 const at = (X: number, Y: number): CSSProperties => ({ transform: `translate(${X}px, ${Y}px)` });
 
 /* Silhouette of a slab seen from its mid-height centre: flat sides HW out, points HH up and down. */
@@ -62,6 +78,7 @@ export default function GraphNodes({ nodes, edges, pointers = [] }: { nodes: TNo
     merged.set(p.node, had ? { ...had, label: `${had.label} · ${p.label}`, dim: had.dim && p.dim } : p);
   }
 
+  const badges = lines.flatMap((l) => (l.w === undefined ? [] : [{ x: l.mid.x, y: l.mid.y, w: Math.max(22, String(l.w).length * 7 + 10) }]));
   /* Higher rows first, so a slab lower on screen overlaps the one above it, never the other way round. */
   const order = [...nodes].sort((a, b) => a.depth - b.depth || a.col - b.col);
   return (
@@ -104,7 +121,7 @@ export default function GraphNodes({ nodes, edges, pointers = [] }: { nodes: TNo
       {[...merged.entries()].map(([id, p]) => {
         const n = byId.get(id)!;
         const [cx, cy] = centre(n.col, n.depth);
-        return <IsoPointer key={p.label} x={cx} y={cy} z={TN_H} label={p.label} dim={p.dim} />;
+        return <IsoPointer key={p.label} x={cx} y={cy} z={TN_H} label={p.label} dim={p.dim} dir={flagSide(project(cx, cy, TN_H), p.label, badges)} />;
       })}
     </g>
   );
