@@ -75,6 +75,21 @@ describe("hideOffstage", () => {
     hideOffstage(svg as unknown as Element, view, 1.5);
     expect([up, right].map((p) => p.attrs.has("data-off"))).toEqual([true, true]);
   });
+  it("checks the flag's other axis too: an up flag's half-width, a right flag's height", () => {
+    const view = { x: 0, y: 0, w: 100, h: 100 };
+    /* An up flag 40 wide (half 20) at x 15 passes the left edge; at x 50 it fits. */
+    const nearLeft = ptr("15 60", "up 44 20"), mid = ptr("50 60", "up 44 20"), nearRight = ptr("90 60", "up 44 20");
+    /* A right flag is 22 tall (11 each side): at y 5 its top passes the view's top. */
+    const high = ptr("10 5", "right 40"), low = ptr("10 95", "right 40"), ok = ptr("10 50", "right 40");
+    const all = [nearLeft, mid, nearRight, high, low, ok];
+    const svg = { querySelectorAll: () => all };
+    hideOffstage(svg as unknown as Element, view);
+    expect(all.map((p) => p.attrs.has("data-off"))).toEqual([true, false, true, true, true, false]);
+    /* Grown by px 2, the right flag at y 50 still fits (22 each side), the one at y 20 does not. */
+    const grown = ptr("10 20", "right 40");
+    hideOffstage({ querySelectorAll: () => [ok, grown] } as unknown as Element, { x: 0, y: 0, w: 200, h: 100 }, 2);
+    expect([ok, grown].map((p) => p.attrs.has("data-off"))).toEqual([false, true]);
+  });
 });
 
 describe("crop cues", () => {

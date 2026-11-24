@@ -84,18 +84,24 @@ interface Props {
  * Hide every pointer whose point lies outside `view`, or whose flag would be clipped by its edge:
  * once the camera crops, a flag whose cell or tile is off-stage would otherwise hang over empty floor
  * or another part of the drawing. Reads the pointer's own point (`data-at`), not its live position,
- * which may still be sliding, and how far its flag reaches (`data-reach`: "up 44" or "right 52", at
- * 1x; the flag grows by `px` on the stage).
+ * which may still be sliding, and how far its flag reaches (`data-reach`: "up 44 25" (reach, half-width) or "right 52",
+ * at 1x; the flag grows by `px` on the stage). Both axes count: an up flag's sides against the left
+ * and right edges, and a right flag's height against the top and bottom.
  */
+/** Half the height of a right flag's box, at 1x (IsoPointer draws it 22 tall about the point). */
+const FLAG_HALF_H = 11;
+
 export function hideOffstage(svg: Element, view: Box | null, px = 1) {
   const k = Math.max(1, px);
   for (const el of svg.querySelectorAll<SVGGElement>(".ptr[data-at]")) {
     const [x, y] = (el.getAttribute("data-at") ?? "").split(" ").map(Number);
-    const [dir, far] = (el.getAttribute("data-reach") ?? "").split(" ");
+    const [dir, far, half] = (el.getAttribute("data-reach") ?? "").split(" ");
     const reach = (Number(far) || 0) * k;
+    /* Across the flag: an up flag's half-width, a right flag's half-height. */
+    const across = (dir === "right" ? FLAG_HALF_H : Number(half) || 0) * k;
     const out = !!view && (!(x >= view.x && x <= view.x + view.w && y >= view.y && y <= view.y + view.h)
-      || (dir === "up" && y - reach < view.y)
-      || (dir === "right" && x + reach > view.x + view.w));
+      || (dir === "up" && (y - reach < view.y || x - across < view.x || x + across > view.x + view.w))
+      || (dir === "right" && (x + reach > view.x + view.w || y - across < view.y || y + across > view.y + view.h)));
     if (out) el.setAttribute("data-off", ""); else el.removeAttribute("data-off");
   }
 }

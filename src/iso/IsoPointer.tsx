@@ -28,7 +28,7 @@ export default function IsoPointer({ x, y, z = 0, label, dir = "up", dim }: Prop
     );
   }
   return (
-    <g className={cls} data-at={`${p.x} ${p.y}`} data-reach="up 44" style={{ transform: `translate(${p.x}px, ${p.y}px)` }}>
+    <g className={cls} data-at={`${p.x} ${p.y}`} data-reach={`up 44 ${w / 2}`} style={{ transform: `translate(${p.x}px, ${p.y}px)` }}>
       {/* The stem stops short of the point, so it never strikes through the value it names. The flag
           (stem, tip, rect, text) grows about the point when the camera zooms out (.ptr-flag). */}
       <g className="ptr-flag">
