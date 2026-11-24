@@ -193,6 +193,23 @@ describe("readable camera", () => {
     expect(lit.x >= out.x && lit.x + lit.w <= out.x + out.w).toBe(true);
   });
 
+  it("never lifts the lit cell's bottom out: a lit cell right above the strip keeps its place", () => {
+    const inside = (b: { x: number; y: number; w: number; h: number }, v: typeof b) =>
+      b.x >= v.x && b.y >= v.y && b.x + b.w <= v.x + v.w && b.y + b.h <= v.y + v.h;
+    const v = { x: 900, y: 164.7, w: 1107, h: 255.3 };
+    /* The lit cell (300..395) reaches past the strip's top (390): lifting to the strip would cut it. */
+    const lit = { x: 1100, y: 300, w: 120, h: 95 };
+    const over = { x: 0, y: 0, w: 3000, h: 900, core: lit, strip: { x: 1000, y: 390, w: 300, h: 60 } };
+    const kept = clearStrip(v, over, 941, 217, lens);
+    expect(inside(lit, kept)).toBe(true);
+    expect(kept).toBe(v);
+    /* Just clear of the strip, the lit cell keeps its place and the strip goes fully off. */
+    const near = { x: 1100, y: 300, w: 120, h: 88 };
+    const out = clearStrip(v, { ...over, core: near }, 941, 217, lens);
+    expect(inside(near, out)).toBe(true);
+    expect(out.y + out.h).toBeLessThanOrEqual(390 + 1e-6);
+  });
+
   it("never reads past the cap", () => {
     expect(1000 / aim(wide, 1000, 500, 0.9, { floor: 0.85, read: 1.2 }).w).toBeCloseTo(0.9);
   });

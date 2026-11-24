@@ -60,7 +60,10 @@ export function clearStrip(v: Box, shot: Shot, W: number, H: number, lens: Lens)
     const w = (W * room) / H, cx = v.x + v.w / 2 - w / 2;
     out = { x: lit ? clamp(cx, lit.x + lit.w - w, lit.x) : cx, y: shot.y, w, h: room };
   }
-  return !lit || lit.y >= out.y ? out : v;
+  /* The whole lit box, top and bottom (and both sides, if the view shrank), must stay in. */
+  const keeps = !lit || (lit.y >= out.y && lit.y + lit.h <= out.y + out.h
+    && (out.w === v.w || (lit.x >= out.x && lit.x + lit.w <= out.x + out.w)));
+  return keeps ? out : v;
 }
 
 /**
