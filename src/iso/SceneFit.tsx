@@ -33,12 +33,10 @@ export function pickFocus<E>(focus: E[], found: E[], inStrip: (el: E) => boolean
   return core ? found.filter((el) => !inStrip(el)) : found;
 }
 
-/** The union of the matching elements' on-screen boxes, in the svg's own units; `core` leaves out the strip. */
-function focusOf(svg: SVGSVGElement, pad: number, core = false, heads = true): Box | undefined {
+/** The union of the elements' on-screen boxes, in the svg's own units, grown by `pad`. */
+function boxOf(svg: SVGSVGElement, els: Element[], pad: number): Box | undefined {
   const m = svg.getScreenCTM()?.inverse();
   if (!m) return undefined;
-  const lit = [...svg.querySelectorAll(FOCUS)].filter((el) => heads || !el.matches(HEAD));
-  const els = pickFocus(lit, [...svg.querySelectorAll(FOUND)], (el) => !!el.closest(STRIP), core);
   let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
   for (const el of els) {
     const r = el.getBoundingClientRect();
@@ -49,6 +47,12 @@ function focusOf(svg: SVGSVGElement, pad: number, core = false, heads = true): B
     }
   }
   return x1 > x0 ? { x: x0 - pad, y: y0 - pad, w: x1 - x0 + 2 * pad, h: y1 - y0 + 2 * pad } : undefined;
+}
+
+/** The focus box (see FOCUS); `core` leaves out the strip and `heads: false` the lit headers. */
+function focusOf(svg: SVGSVGElement, pad: number, core = false, heads = true): Box | undefined {
+  const lit = [...svg.querySelectorAll(FOCUS)].filter((el) => heads || !el.matches(HEAD));
+  return boxOf(svg, pickFocus(lit, [...svg.querySelectorAll(FOUND)], (el) => !!el.closest(STRIP), core), pad);
 }
 
 /** The scenes to draw: all of them until the fit pass has measured, none after. */
@@ -73,7 +77,7 @@ function SceneFit<S>({ steps, Scene, onFit, pad = 18 }: Props<S>) {
         const b = svg.getBBox();
         if (!(b.width || b.height)) return null;
         const shot: Shot = { x: b.x - pad, y: b.y - pad, w: b.width + 2 * pad, h: b.height + 2 * pad, focus: focusOf(svg, pad) };
-        if (svg.querySelector(STRIP)) shot.core = focusOf(svg, pad, true);
+        if (svg.querySelector(STRIP)) { shot.core = focusOf(svg, pad, true); shot.strip = boxOf(svg, [...svg.querySelectorAll(STRIP)], 4); }
         if (svg.querySelector(HEAD)) { shot.headed = true; shot.lit = focusOf(svg, pad, true, false); }
         return shot;
       });

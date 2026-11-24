@@ -31,6 +31,27 @@ export interface Shot extends Box {
   headed?: boolean;
   /** The lit cells themselves: the core without the headers. A headed crop never leaves them out. */
   lit?: Box;
+  /** The strip under the drawing, if any: a crop shows it whole or not at all (`clearStrip`). */
+  strip?: Box;
+}
+
+/**
+ * A crop that cuts through the strip shows a sliver of clipped tiles, which reads as a bug. Take the
+ * strip in whole when that stays at or above the lens floor; else lift the view so the strip is
+ * just out (the chevron says it is there), as long as the core stays in view; else leave it.
+ */
+export function clearStrip(v: Box, shot: Shot, W: number, H: number, lens: Lens): Box {
+  const st = shot.strip;
+  if (!st || !(W > 0 && H > 0)) return v;
+  const bottom = v.y + v.h, end = st.y + st.h;
+  if (st.y >= bottom || end <= bottom || st.y < v.y) return v;
+  const h = end - v.y, s = H / h;
+  if (s >= lens.floor) {
+    const w = W / s;
+    return { x: v.x + v.w / 2 - w / 2, y: v.y, w, h };
+  }
+  const y = st.y - v.h, core = shot.core ?? shot.focus;
+  return !core || core.y >= y ? { ...v, y } : v;
 }
 
 /**
@@ -81,11 +102,11 @@ export function aim(shot: Shot, W: number, H: number, maxScale: number, lens?: L
   const s = Math.min(maxScale, Math.max(W / whole.w, top ? Math.min(lens.read, lens.floor) : fit)), w = W / s, h = H / s;
   /* A close-up that barely beats the whole picture is not worth hiding the rest for. */
   if (s < (W / whole.w) * CROP_GAIN) return whole;
-  return {
+  return clearStrip({
     x: clamp(f.x + f.w / 2 - w / 2, shot.x, shot.x + shot.w - w),
     y: clamp(top && f.h > h ? headedTop(f, shot.lit, h) : f.y + f.h / 2 - h / 2, shot.y, shot.y + shot.h - h),
     w, h
-  };
+  }, shot, W, H, lens);
 }
 
 /** True when a frame leaves part of the drawing out. */
@@ -115,7 +136,8 @@ export function follow(prev: Box | null, shot: Shot, W: number, H: number, maxSc
     alen > len ? a + alen / 2 - (lo + len / 2) : a < lo ? a - lo : a + alen > lo + len ? a + alen - (lo + len) : 0;
   let x = prev.x + shift(prev.x, prev.w, need.x, need.w), y = prev.y + shift(prev.y, prev.h, need.y, need.h);
   if (cropped) { x = clamp(x, shot.x, shot.x + shot.w - prev.w); y = clamp(y, shot.y, shot.y + shot.h - prev.h); }
-  return x !== prev.x || y !== prev.y ? { ...prev, x, y } : prev;
+  const next = x !== prev.x || y !== prev.y ? { ...prev, x, y } : prev;
+  return lens && cropped ? clearStrip(next, shot, W, H, lens) : next;
 }
 
 export const lerpBox = (a: Box, b: Box, t: number): Box =>
@@ -148,5 +170,6 @@ export function roomFor(shot: Shot, px: number): Shot {
     ...(shot.focus && { focus: grow(shot.focus) }),
     ...(shot.core && { core: grow(shot.core) }),
     ...(shot.lit && { lit: grow(shot.lit) }),
+    ...(shot.strip && { strip: grow(shot.strip) }),
   };
 }

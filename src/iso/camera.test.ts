@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { FLAG_REACH, TAG_REACH, aim, crops, follow, frame, lerpBox, roomFor } from "./camera";
+import { FLAG_REACH, clearStrip, TAG_REACH, aim, crops, follow, frame, lerpBox, roomFor } from "./camera";
 
 describe("camera frame", () => {
   it("zooms out to fit a box that is too big for the stage", () => {
@@ -147,6 +147,25 @@ describe("readable camera", () => {
     const f = follow(prev, shot, 941, 217, 1.35, lens);
     expect(inside(f)).toBe(true);
     expect(f.y + f.h).toBeGreaterThanOrEqual(lit.y + lit.h + Math.min(40, prev.w * 0.1, prev.h * 0.1) - 0.01);
+  });
+
+  it("shows a strip whole or not at all, never a clipped sliver", () => {
+    const lensL = { floor: 0.85, read: 1 };
+    const core = { x: 100, y: 0, w: 300, h: 200 };
+    /* The view's bottom edge (y 255) cuts the strip at 240..300. */
+    const v = { x: 0, y: 0, w: 1000, h: 255 };
+    /* Taking it in needs 230/300 = 0.77, under the floor, so the view lifts it out instead. */
+    const lifted = clearStrip(v, { x: 0, y: 0, w: 1000, h: 300, core, strip: { x: 300, y: 240, w: 200, h: 60 } }, 851, 230, lensL);
+    expect(lifted.y + lifted.h).toBeCloseTo(240);
+    expect(lifted.h).toBe(255);
+    /* A thin overrun is taken in whole while the scale stays at or above the floor. */
+    const taken = clearStrip(v, { x: 0, y: 0, w: 1000, h: 300, core, strip: { x: 300, y: 240, w: 200, h: 20 } }, 851, 230, lensL);
+    expect(taken.y + taken.h).toBeCloseTo(260);
+    expect(230 / taken.h).toBeGreaterThanOrEqual(lensL.floor);
+    /* A strip wholly in or wholly out is left alone, and so is one whose lift would drop the core. */
+    expect(clearStrip(v, { x: 0, y: 0, w: 1000, h: 300, core, strip: { x: 0, y: 260, w: 10, h: 10 } }, 851, 230, lensL)).toBe(v);
+    expect(clearStrip(v, { x: 0, y: 0, w: 1000, h: 300, core, strip: { x: 0, y: 100, w: 10, h: 10 } }, 851, 230, lensL)).toBe(v);
+    expect(clearStrip(v, { x: 0, y: 0, w: 1000, h: 300, core: { ...core, y: -40 }, strip: { x: 300, y: 240, w: 200, h: 60 } }, 851, 230, lensL)).toBe(v);
   });
 
   it("never reads past the cap", () => {
