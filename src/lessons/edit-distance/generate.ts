@@ -149,7 +149,7 @@ export function generateEdit({ a, b }: EditInput): Step<EditState>[] {
       if (mv.kind === "rep") {
         tag = `rep ${y}`; to = `(${i - 1}, ${j - 1})`;
         notes["ed.tbrep"] = `the cell is diagonal + 1: replace ${x} with ${y}, move to ${to}`;
-        title = `Replace ${x} with ${y}`; short = fresh(`back to ${x}`, `row ${i}`);
+        title = `Replace ${x} with ${y}`; short = fresh(`replace ${x}`, `row ${i}`);
         idea = "When the letters differ and the cell is the diagonal plus 1, the edit was a replace. Move diagonally.";
         text = `${x} and ${y} differ, and the cell is the diagonal plus 1. So ${x} was replaced with ${y}. Move up and left to ${to}.`;
       } else {

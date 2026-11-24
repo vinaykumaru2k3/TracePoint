@@ -141,6 +141,8 @@ describe("stylesheet", () => {
     expect(help).toMatch(/<h3>Step kinds<\/h3>/);
     const kinds = help.slice(help.indexOf("Step kinds"));
     expect((kinds.match(/<dd>/g) ?? []).length).toBe(Object.keys(KIND_MEANING).length);
+    for (const m of kinds.match(/<dd>[^<]*<\/dd>/g) ?? []) expect(m).not.toMatch(/^<dd>[A-Z]{3,}/);
+    expect((kinds.match(/class="chip"/g) ?? []).length).toBe(Object.keys(KIND_MEANING).length);
     expect(kinds.indexOf("Show tips again")).toBeGreaterThan(kinds.lastIndexOf("</dl>"));
   });
   it("shows the stepbar theory link only on phones", () => {

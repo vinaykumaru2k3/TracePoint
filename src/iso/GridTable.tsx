@@ -34,11 +34,11 @@ export default function GridTable({ grid, rowHead, colHead, pointers = [], step 
       )))}
       {colHead.slice(0, cols).map((t, c) => {
         const p = project(c * step + 1, -0.7, 0);
-        return <text key={`c${c}`} className="plate-index" x={p.x} y={p.y} textAnchor="middle">{t}</text>;
+        return <g key={`c${c}`} className="grid-head"><text className="plate-index" x={p.x} y={p.y} textAnchor="middle">{t}</text></g>;
       })}
       {rowHead.slice(0, rows).map((t, r) => {
         const p = project(-0.7, r * step + 1, 0);
-        return <text key={`r${r}`} className="plate-index" x={p.x} y={p.y} textAnchor="end" dominantBaseline="central">{t}</text>;
+        return <g key={`r${r}`} className="grid-head"><text className="plate-index" x={p.x} y={p.y} textAnchor="end" dominantBaseline="central">{t}</text></g>;
       })}
       {[...merged.values()].map((p) => (
         <IsoPointer key={`${p.r},${p.c}`} x={p.c * step + 1} y={p.r * step + 1} z={grid[p.r]?.[p.c]?.v != null ? 8 : 0} label={p.label} dim={p.dim} />

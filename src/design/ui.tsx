@@ -55,25 +55,25 @@ const CHIP: Record<string, string> = {
 /** The colour of a step kind, shared by the chip and the timeline. */
 export const kindColor = (kind: string) => CHIP[kind] ?? "var(--surface-2)";
 
-/** What each step kind means, in one plain sentence (the chip's tooltip). */
+/** What each step kind means, in one plain sentence, without the kind word (the chip's tooltip adds it; the help list shows it beside a swatch). */
 export const KIND_MEANING: Record<string, string> = {
-  problem: "PROBLEM: the question this run sets out to answer.",
-  add: "ADD: something new enters the structure.",
-  remove: "REMOVE: something leaves the structure.",
-  peek: "PEEK: look at a value without changing anything.",
-  empty: "EMPTY: the structure has nothing left, or nothing to give.",
-  check: "CHECK: compare or test something before deciding.",
-  move: "MOVE: a pointer, index or value shifts to a new place.",
-  found: "FOUND: the answer for this run is reached.",
-  recap: "RECAP: the run is done; here is what happened."
+  problem: "the question this run sets out to answer.",
+  add: "something new enters the structure.",
+  remove: "something leaves the structure.",
+  peek: "look at a value without changing anything.",
+  empty: "the structure has nothing left, or nothing to give.",
+  check: "compare or test something before deciding.",
+  move: "a pointer, index or value shifts to a new place.",
+  found: "the answer for this run is reached.",
+  recap: "the run is done; here is what happened."
 };
 
-/** The step-kind chip. Cycle 2 reuses the kinds to build "predict the next step" choices. */
 /** The chip's colour and kind word on their own, for lists that explain the kinds (the help popover). */
 export function KindSwatch({ kind }: { kind: string }) {
   return <span className="chip" style={{ background: kindColor(kind) }}>{kind}</span>;
 }
 
+/** The step-kind chip. Cycle 2 reuses the kinds to build "predict the next step" choices. */
 export function KindChip({ kind }: { kind: string }) {
-  return <span className="chip" title={KIND_MEANING[kind] ?? `This step is a ${kind} step.`} style={{ background: kindColor(kind) }}>{kind}</span>;
+  return <span className="chip" title={KIND_MEANING[kind] ? `${kind.toUpperCase()}: ${KIND_MEANING[kind]}` : `This step is a ${kind} step.`} style={{ background: kindColor(kind) }}>{kind}</span>;
 }

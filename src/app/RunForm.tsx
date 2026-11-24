@@ -72,7 +72,7 @@ export default function RunForm({ lesson, text, linkError, onRun, asked = null, 
       </div>
       {error && <p className="err" role="alert" id="ops-err">{error}</p>}
       <p className={error || check ? "hint" : "hint quiet"} id="ops-hint">{lesson.inputHint}</p>
-      {draft !== text && <button className="btn sm" type="button" onClick={() => { setDraft(text); setFail(null); setTyped(false); }}>Back to the running input</button>}
+      {draft !== text && <button className="btn sm revert" type="button" onClick={() => { setDraft(text); setFail(null); setTyped(false); }}>Back to the running input</button>}
       {!error && check && <p className={check.ok ? "check ok" : "check"} id="ops-check">{check.ok ? "Ready: press Run." : `Not runnable yet: ${check.error}`}</p>}
       </form>
     </details>
