@@ -55,7 +55,7 @@ export function generateMst(g: GraphInput): Step<MstState>[] {
   strip = { name: "sorted", tiles: kTiles() };
   snap({
     kind: "check", anchors: ["kr.sig", "kr.sort"], notes: { "kr.sort": sorted.map(label).join(" ") },
-    title: "Kruskal: sort the edges by weight",
+    title: "Kruskal: sort the edges by weight", short: "kruskal: sort edges",
     idea: "Kruskal looks at edges from cheapest to dearest. Each node starts in a set of its own.",
     text: `The ${sorted.length} edges are sorted from cheapest to dearest, shown in the strip. Each node starts as its own set, named on its tag. A union-find structure tracks the sets.`
   }, { tags: setTags() });
@@ -70,7 +70,7 @@ export function generateMst(g: GraphInput): Step<MstState>[] {
       strip = { name: "sorted", tiles: kTiles(k) };
       snap({
         kind: "check", anchors: ["kr.find", "kr.skip"], notes: { "kr.find": `find(${e.u}) = find(${e.v}) = ${ru}`, "kr.skip": `skip ${k}` },
-        title: `Skip ${e.u}-${e.v}: it would close a loop`,
+        title: `Skip ${e.u}-${e.v}: it would close a loop`, short: `skip ${e.u}-${e.v}: loop`,
         idea: "Two ends in the same set are already joined by kept edges. Adding this one would make a loop, so it is never needed.",
         text: `${e.u} and ${e.v} are both in set ${ru}, so a path of kept edges already joins them. ${e.u}-${e.v} with weight ${e.w} is skipped.`
       }, { states: { [e.u]: "swap", [e.v]: "swap" }, edges: { [k]: "dim" }, tags: setTags(), ptrs });
@@ -84,7 +84,7 @@ export function generateMst(g: GraphInput): Step<MstState>[] {
     strip = { name: "sorted", tiles: kTiles(k) };
     snap({
       kind: "add", anchors: ["kr.find", "kr.take"], notes: { "kr.find": `find(${e.u}) = ${ru}, find(${e.v}) = ${rv}`, "kr.take": `take ${k}, total ${total}` },
-      title: `Take ${e.u}-${e.v} for ${e.w}`,
+      title: `Take ${e.u}-${e.v} for ${e.w}`, short: `take ${e.u}-${e.v} (${e.w})`,
       idea: "The cheapest edge between two different sets is always safe to keep. It joins them for the least cost.",
       text: `${e.u} is in set ${ru} and ${e.v} is in set ${rv}, so this edge joins two separate pieces. It is kept and the two sets merge. The total is now ${total}.`
     }, { states: { [e.u]: "active", [e.v]: "active" }, edges: { [k]: "active" }, tags: setTags(), ptrs });
@@ -96,6 +96,7 @@ export function generateMst(g: GraphInput): Step<MstState>[] {
   snap({
     kind: "found", anchors: ["kr.done"], notes: { "kr.done": `return ${kRet}` }, ret: kRet,
     title: pieces > 1 ? `Kruskal ends with ${pieces} separate trees` : `Kruskal's tree costs ${total}`,
+    short: pieces > 1 ? `kruskal: ${pieces} trees` : `kruskal: total ${total}`,
     idea: pieces > 1 ? "When the graph is in pieces, no spanning tree exists. Kruskal returns the cheapest tree for each piece, a spanning forest." : "Kruskal stops once it has n - 1 edges. Every later edge would close a loop.",
     text: pieces > 1
       ? `Every edge was tried and ${kept.length} kept, for a total of ${total}. The graph has ${pieces} pieces with no edge between them, so the result is a forest.`
@@ -128,7 +129,7 @@ export function generateMst(g: GraphInput): Step<MstState>[] {
   strip = { name: "heap", tiles: pTiles(), ptrs: heap.length ? [{ at: 0, label: "smallest" }] : [] };
   snap({
     kind: "add", anchors: ["pr.sig", "pr.init"], notes: { "pr.init": `tree = {${g.start}}, heap = [${heap.map(label).join(", ")}]` },
-    title: `Prim: grow a tree from ${g.start}`,
+    title: `Prim: grow a tree from ${g.start}`, short: `prim: start at ${g.start}`,
     idea: "Prim keeps one tree and grows it. The heap holds every edge that leaves the tree, cheapest first.",
     text: `The tree starts as ${g.start} alone. Each edge from ${g.start} goes into the heap. Prim will add the cheapest edge leaving the tree, again and again.`
   }, { states: states({ [g.start]: "active" }), ptrs: [{ node: idOf(g.start), label: "start" }] });
@@ -140,7 +141,7 @@ export function generateMst(g: GraphInput): Step<MstState>[] {
       strip = { name: "heap", tiles: pTiles(label(e)) };
       snap({
         kind: "remove", anchors: ["pr.pop", "pr.skip"], notes: { "pr.pop": label(e), "pr.skip": `${e.v} already in the tree` },
-        title: `Skip ${e.u}-${e.v}: both ends are in the tree`,
+        title: `Skip ${e.u}-${e.v}: both ends are in the tree`, short: `skip ${e.u}-${e.v}: in tree`,
         idea: "An edge can enter the heap and later stop leaving the tree. A lazy heap throws such an edge away when it comes out.",
         text: `${e.u}-${e.v} was pushed when only ${e.u} was in the tree. ${e.v} joined since, so this edge would close a loop. It is skipped.`
       }, { states: states({ [e.u]: "swap", [e.v]: "swap" }), edges: { [k]: "dim" }, ptrs: [{ node: idOf(e.v), label: "to" }] });
@@ -152,7 +153,7 @@ export function generateMst(g: GraphInput): Step<MstState>[] {
     strip = { name: "heap", tiles: pTiles(), ptrs: heap.length ? [{ at: 0, label: "smallest" }] : [] };
     snap({
       kind: "add", anchors: ["pr.pop", "pr.take"], notes: { "pr.pop": label(e), "pr.take": `add ${e.v}, total ${total}` },
-      title: `Add ${e.v} by ${e.u}-${e.v} for ${e.w}`,
+      title: `Add ${e.v} by ${e.u}-${e.v} for ${e.w}`, short: `add ${e.v} (${e.u}-${e.v} ${e.w})`,
       idea: "The cheapest edge leaving the tree is always safe. It reaches a new node for the least cost.",
       text: `${e.u}-${e.v} is the cheapest edge in the heap and ${e.v} is not in the tree yet. ${e.v} joins the tree and the total is ${total}. Edges from ${e.v} to nodes outside go into the heap.`
     }, { states: states({ [e.v]: "active" }), edges: { [k]: "active" }, ptrs: [{ node: idOf(e.u), label: "from" }, { node: idOf(e.v), label: "to" }] });
@@ -164,6 +165,7 @@ export function generateMst(g: GraphInput): Step<MstState>[] {
   snap({
     kind: missed.length ? "empty" : "found", anchors: ["pr.done"], notes: { "pr.done": `return ${pRet}` }, ret: pRet,
     title: missed.length ? `Prim reaches only ${inTree.size} of ${n} nodes` : `Prim's tree also costs ${total}`,
+    short: missed.length ? `prim: ${inTree.size} of ${n} nodes` : `prim: total ${total}`,
     idea: missed.length ? "Prim grows one tree, so it covers only the start's piece. Kruskal's forest covered every piece." : "Both algorithms found a tree of the same cost. When weights tie, the trees can differ but the total cannot.",
     text: missed.length
       ? `The heap ran dry. ${missed.join(", ")} ${missed.length === 1 ? "has" : "have"} no edge into ${g.start}'s piece, so ${missed.length === 1 ? "it was" : "they were"} never reached. Kruskal's total was ${kTotal}.`

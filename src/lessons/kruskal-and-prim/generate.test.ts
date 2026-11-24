@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import lesson from ".";
 import { rets, run } from "../testkit";
+import { runOpOf, stepName } from "../../engine/stepName";
 
 describe("kruskal and prim generator", () => {
   it("both find the tree of cost 11", () => {
@@ -24,5 +25,18 @@ describe("kruskal and prim generator", () => {
   it("keeps runs short", () => {
     expect(run(lesson, lesson.defaultText).length).toBeLessThanOrEqual(40);
     expect(run(lesson, "A-B 9, A-C 8, A-D 7, A-E 6, A-F 5, A-G 4, A-H 3, B-C 1, C-D 1, D-E 1, E-F 1, F-G 1").length).toBeLessThanOrEqual(80);
+  });
+  it("names every stop on its own, never by the run's op", () => {
+    for (const text of [lesson.defaultText, ...lesson.presets.map((p) => p.text)]) {
+      const steps = run(lesson, text);
+      const names = steps.map((_, i) => stepName(steps, i, runOpOf(steps)));
+      for (const [i, s] of steps.entries()) {
+        expect(names[i]).not.toBe(s.op);
+        expect(names[i].length).toBeLessThanOrEqual(24);
+        if (i > 0) expect(names[i]).not.toBe(names[i - 1]);
+      }
+    }
+    const steps = run(lesson, lesson.defaultText);
+    expect(steps.map((s) => s.short).filter((x) => x?.startsWith("add "))).toContain("add D (B-D 5)");
   });
 });
