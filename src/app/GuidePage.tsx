@@ -21,7 +21,7 @@ import CourseDrawer, { NARROW } from "./CourseDrawer";
 import CourseSidebar from "./CourseSidebar";
 import ErrorBoundary from "./ErrorBoundary";
 import Intro, { INTRO_KEY } from "./Intro";
-import { readFlag } from "../hooks/useStoredFlag";
+import { useStoredFlag } from "../hooks/useStoredFlag";
 import SideCol from "./SideCol";
 import type { ExplorerKind, ExplorerPrefs } from "../hooks/useExplorer";
 
@@ -189,7 +189,7 @@ export default function GuidePage({ progress, courseOpen, onCloseCourse, section
   /* A new guide starts at the top of the page on narrow screens, where the page scrolls. */
   useEffect(() => { if (narrow) window.scrollTo({ top: 0 }); }, [sectionId]); // eslint-disable-line react-hooks/exhaustive-deps
   const h1Ref = useRef<HTMLHeadingElement>(null);
-  const [introHidden, setIntroHidden] = useState(false);
+  const [introHidden] = useStoredFlag(INTRO_KEY, false);
   usePageTitle(`${sectionOf(sectionId)?.name ?? "Guide"} · guide · Tracepoint`);
   usePageFocus(h1Ref, `guide/${sectionId}`);
   const kind = resolveGuide(sectionId);
@@ -209,8 +209,8 @@ export default function GuidePage({ progress, courseOpen, onCloseCourse, section
   const sidebar = <CourseSidebar currentId="" currentIdx={0} progress={progress} guideId={sectionId} />;
   const home = fixed !== undefined;
   /* While the intro offers "Start the course", the hero button steps back so a first visitor sees one primary way in. */
-  const introShown = home && !introHidden && Object.keys(progress).length === 0 && !readFlag(INTRO_KEY, false);
-  const intro = home ? <Intro progress={progress} onHide={() => setIntroHidden(true)} key="intro" /> : null;
+  const introShown = home && !introHidden && Object.keys(progress).length === 0;
+  const intro = home ? <Intro progress={progress} key="intro" /> : null;
   const head = (
     <header className="lesson-head guide-head" key="head" style={{ "--sec": sec.color } as React.CSSProperties}>
       <div className="ghero">

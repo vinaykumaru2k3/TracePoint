@@ -98,7 +98,10 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
   const onWhole = () => { toggleWhole(); if (whole && !cropped) speedRef.current?.focus(); };
   /* The key legend teaches the keys once: it stays for this visit after a key press (no jump in the layout) and is gone on the next load. */
   const [keysSeen, setKeysSeen] = useStoredFlag(KEYS_SEEN_KEY, false);
-  const [showKeys] = useState(!keysSeen);
+  const [latched, setLatched] = useState(!keysSeen);
+  /* Show tips again (keysSeen back to false) brings the legend back at once. */
+  if (!keysSeen && !latched) setLatched(true);
+  const showKeys = latched;
   /* The first-visit tip under the timeline goes once dismissed, or once the viewer reaches step 3 on their own. */
   const { showTip, dismissTip } = useTip(idx);
   const zoom = useMemo<Zoom>(() => ({ lens: LENS, whole, onCrop: setCropped }), [whole]);

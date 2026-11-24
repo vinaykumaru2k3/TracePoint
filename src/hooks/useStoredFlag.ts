@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 export const TIP_KEY = "tracepoint-tip-seen";
+export const INTRO_KEY = "tracepoint-intro-hidden";
 export const KEYS_SEEN_KEY = "tracepoint-keys-seen";
 const FLAG_EVENT = "tracepoint-flag";
 
@@ -22,9 +23,9 @@ function announce(key: string, value: boolean) {
   window.dispatchEvent(new CustomEvent(FLAG_EVENT, { detail: { key, value } }));
 }
 
-/** Shows the first-visit tips again: the key legend and the trace tip. */
+/** Shows the first-visit tips again: the key legend, the trace tip and the home intro (its flag is "hidden", so "0" shows it). */
 export function resetTips(): void {
-  for (const key of [KEYS_SEEN_KEY, TIP_KEY]) { writeFlag(key, false); announce(key, false); }
+  for (const key of [KEYS_SEEN_KEY, TIP_KEY, INTRO_KEY]) { writeFlag(key, false); announce(key, false); }
 }
 
 export function useStoredFlag(key: string, fallback: boolean): [boolean, (v: boolean) => void] {

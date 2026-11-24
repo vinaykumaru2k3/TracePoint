@@ -12,13 +12,14 @@ describe("resetTips", () => {
   });
   afterEach(() => { vi.unstubAllGlobals(); });
 
-  it("writes 0 to both tip flags and announces each in this tab", () => {
+  it("writes 0 to the tip, key and intro flags and announces each in this tab", () => {
     const seen: { key: string; value: boolean }[] = [];
     win.addEventListener("tracepoint-flag", (e) => seen.push((e as CustomEvent).detail));
     resetTips();
     expect(store["tracepoint-keys-seen"]).toBe("0");
     expect(store["tracepoint-tip-seen"]).toBe("0");
-    expect(seen.map((s) => s.key).sort()).toEqual(["tracepoint-keys-seen", "tracepoint-tip-seen"]);
+    expect(store["tracepoint-intro-hidden"]).toBe("0");
+    expect(seen.map((s) => s.key).sort()).toEqual(["tracepoint-intro-hidden", "tracepoint-keys-seen", "tracepoint-tip-seen"]);
     expect(seen.every((s) => s.value === false)).toBe(true);
   });
 });

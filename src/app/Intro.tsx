@@ -4,12 +4,12 @@ import { Icon } from "../design/ui";
 import { linesFor, parseAll } from "../engine/anchors";
 import type { AnyLesson } from "../engine/types";
 import type { Progress } from "../hooks/useProgress";
-import { useStoredFlag } from "../hooks/useStoredFlag";
+import { INTRO_KEY, useStoredFlag } from "../hooks/useStoredFlag";
 import { LazyLesson } from "../lessons/load";
 import ErrorBoundary from "./ErrorBoundary";
 import { defaultRun } from "./Walkthrough";
 
-export const INTRO_KEY = "tracepoint-intro-hidden";
+export { INTRO_KEY };
 const SHOWN = 3;
 
 /** The lines with their shared leading whitespace removed, so relative indentation survives. */
