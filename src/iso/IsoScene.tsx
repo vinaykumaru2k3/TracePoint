@@ -56,14 +56,21 @@ interface Props {
 }
 
 /**
- * Hide every pointer whose point lies outside `view`: once the camera crops, a flag whose cell or tile
- * is off-stage would otherwise hang over empty floor or another part of the drawing. Reads the
- * pointer's own point (`data-at`), not its live position, which may still be sliding.
+ * Hide every pointer whose point lies outside `view`, or whose flag would be clipped by its edge:
+ * once the camera crops, a flag whose cell or tile is off-stage would otherwise hang over empty floor
+ * or another part of the drawing. Reads the pointer's own point (`data-at`), not its live position,
+ * which may still be sliding, and how far its flag reaches (`data-reach`: "up 44" or "right 52", at
+ * 1x; the flag grows by `px` on the stage).
  */
-export function hideOffstage(svg: Element, view: Box | null) {
+export function hideOffstage(svg: Element, view: Box | null, px = 1) {
+  const k = Math.max(1, px);
   for (const el of svg.querySelectorAll<SVGGElement>(".ptr[data-at]")) {
     const [x, y] = (el.getAttribute("data-at") ?? "").split(" ").map(Number);
-    const out = !!view && !(x >= view.x && x <= view.x + view.w && y >= view.y && y <= view.y + view.h);
+    const [dir, far] = (el.getAttribute("data-reach") ?? "").split(" ");
+    const reach = (Number(far) || 0) * k;
+    const out = !!view && (!(x >= view.x && x <= view.x + view.w && y >= view.y && y <= view.y + view.h)
+      || (dir === "up" && y - reach < view.y)
+      || (dir === "right" && x + reach > view.x + view.w));
     if (out) el.setAttribute("data-off", ""); else el.removeAttribute("data-off");
   }
 }
@@ -118,7 +125,7 @@ export default function IsoScene({ viewBox, label, children }: Props) {
     if (!measuring) {
       /* Crop checks use the same room-padded drawing the frame was fitted to. */
       const drawn = lens ? roomFor(shot, px) : shot;
-      hideOffstage(svg, size.w > 0 ? to : null);
+      hideOffstage(svg, size.w > 0 ? to : null, px);
       const c = size.w > 0 && crops(to, drawn);
       setCut(c ? edges(to, drawn) : null);
       if (onCrop && lens) onCrop(size.w > 0 && crops(aim(drawn, size.w, size.h, MAX_SCALE, lens), drawn));

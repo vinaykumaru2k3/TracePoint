@@ -43,8 +43,8 @@ describe("SceneFit", () => {
 
 describe("hideOffstage", () => {
   /** A stand-in for the svg: pointers with a data-at point, and the attributes hideOffstage sets. */
-  const ptr = (at: string) => {
-    const attrs = new Map<string, string>([["data-at", at]]);
+  const ptr = (at: string, reach?: string) => {
+    const attrs = new Map<string, string>([["data-at", at], ...(reach ? [["data-reach", reach] as [string, string]] : [])]);
     return {
       attrs,
       getAttribute: (k: string) => attrs.get(k) ?? null,
@@ -63,5 +63,15 @@ describe("hideOffstage", () => {
     left.attrs.set("data-off", "");
     hideOffstage(svg as unknown as Element, null);
     expect(left.attrs.has("data-off")).toBe(false);
+  });
+  it("also hides a pointer whose flag would be clipped, counting its growth on the stage", () => {
+    const up = ptr("50 60", "up 44"), right = ptr("40 50", "right 52");
+    const svg = { querySelectorAll: () => [up, right] };
+    const view = { x: 0, y: 0, w: 100, h: 100 };
+    hideOffstage(svg as unknown as Element, view);
+    expect([up, right].map((p) => p.attrs.has("data-off"))).toEqual([false, false]);
+    /* At px 1.5 the up flag reaches 66 above its point (past the top), the right one 78 (past the edge). */
+    hideOffstage(svg as unknown as Element, view, 1.5);
+    expect([up, right].map((p) => p.attrs.has("data-off"))).toEqual([true, true]);
   });
 });
