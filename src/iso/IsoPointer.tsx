@@ -18,7 +18,7 @@ export default function IsoPointer({ x, y, z = 0, label, dir = "up", dim }: Prop
   const cls = `ptr${dim ? " dim" : ""}`;
   if (dir === "right") {
     return (
-      <g className={cls} style={{ transform: `translate(${p.x}px, ${p.y}px)` }}>
+      <g className={cls} data-at={`${p.x} ${p.y}`} style={{ transform: `translate(${p.x}px, ${p.y}px)` }}>
         <g className="ptr-flag">
           <line x1={0} y1={0} x2={18} y2={0} />
           <rect x={18} y={-11} width={w} height={22} rx={6} />
@@ -28,7 +28,7 @@ export default function IsoPointer({ x, y, z = 0, label, dir = "up", dim }: Prop
     );
   }
   return (
-    <g className={cls} style={{ transform: `translate(${p.x}px, ${p.y}px)` }}>
+    <g className={cls} data-at={`${p.x} ${p.y}`} style={{ transform: `translate(${p.x}px, ${p.y}px)` }}>
       {/* The stem stops short of the point, so it never strikes through the value it names. The flag
           (stem, tip, rect, text) grows about the point when the camera zooms out (.ptr-flag). */}
       <g className="ptr-flag">

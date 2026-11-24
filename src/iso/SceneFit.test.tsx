@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
-import IsoScene, { ZoomContext, sceneScale } from "./IsoScene";
+import IsoScene, { ZoomContext, hideOffstage, sceneScale } from "./IsoScene";
 import SceneFit, { fitScenes, pickFocus } from "./SceneFit";
 
 describe("SceneFit", () => {
@@ -38,5 +38,30 @@ describe("SceneFit", () => {
     expect(sceneScale({ x: 0, y: 0, w: 643, h: 526 }, 959, 345)).toBeCloseTo(1.525, 2);
     expect(sceneScale({ x: 0, y: 0, w: 643, h: 100 }, 959, 345)).toBeCloseTo(0.67, 2);
     expect(sceneScale({ x: 0, y: 0, w: 643, h: 526 }, 0, 345)).toBe(1);
+  });
+});
+
+describe("hideOffstage", () => {
+  /** A stand-in for the svg: pointers with a data-at point, and the attributes hideOffstage sets. */
+  const ptr = (at: string) => {
+    const attrs = new Map<string, string>([["data-at", at]]);
+    return {
+      attrs,
+      getAttribute: (k: string) => attrs.get(k) ?? null,
+      setAttribute: (k: string, v: string) => void attrs.set(k, v),
+      removeAttribute: (k: string) => void attrs.delete(k),
+    };
+  };
+  it("marks pointers whose point is outside the view, and clears the mark once back in view", () => {
+    const inView = ptr("50 50"), edge = ptr("100 0"), left = ptr("-1 50"), below = ptr("50 101");
+    const svg = { querySelectorAll: (sel: string) => (sel === ".ptr[data-at]" ? [inView, edge, left, below] : []) };
+    hideOffstage(svg as unknown as Element, { x: 0, y: 0, w: 100, h: 100 });
+    expect([inView, edge, left, below].map((p) => p.attrs.has("data-off"))).toEqual([false, false, true, true]);
+    hideOffstage(svg as unknown as Element, { x: -10, y: 0, w: 200, h: 200 });
+    expect([inView, edge, left, below].some((p) => p.attrs.has("data-off"))).toBe(false);
+    /* No view yet (unmeasured stage): nothing is hidden. */
+    left.attrs.set("data-off", "");
+    hideOffstage(svg as unknown as Element, null);
+    expect(left.attrs.has("data-off")).toBe(false);
   });
 });

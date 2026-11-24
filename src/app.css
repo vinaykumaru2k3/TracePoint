@@ -410,6 +410,8 @@ a { color: inherit; text-decoration: none; }
 .ptr .ptr-tip { fill: var(--edge); }
 .ptr text { font-family: var(--mono); font-size: 11px; font-weight: 600; fill: var(--ink); }
 .ptr.dim { opacity: 0.55; }
+/* The camera cropped away the point this flag names (IsoScene hideOffstage). */
+.ptr[data-off] { opacity: 0; visibility: hidden; }
 /* The drawing goes on past this edge of the close-up. Fades in once the camera has landed. */
 .crop-cues path { fill: none; stroke: var(--muted); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; animation: cue-in 0.3s ease-out 0.55s both; }
 @keyframes cue-in { from { opacity: 0; } }

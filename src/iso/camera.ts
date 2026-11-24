@@ -102,3 +102,24 @@ export const parseBox = (s: string): Box => {
 };
 
 export const boxString = (b: Box) => `${b.x.toFixed(1)} ${b.y.toFixed(1)} ${b.w.toFixed(1)} ${b.h.toFixed(1)}`;
+
+/** How far a pointer flag reaches above the point it names, in scene units at 1x. */
+export const FLAG_REACH = 48;
+/** How far a tag or label reaches past the measured drawing on the other sides, at 1x. */
+export const TAG_REACH = 16;
+
+/**
+ * The drawing with room for its labels once they grow: on the lens stage, text and flags scale by
+ * `px` (scene units per screen pixel) when the camera zooms out, so they reach past the bounds
+ * SceneFit measured at 1x. Flags hang above their points, so the top gets the most room.
+ */
+export function roomFor(shot: Shot, px: number): Shot {
+  if (!(px > 1)) return shot;
+  const top = FLAG_REACH * (px - 1), side = TAG_REACH * (px - 1);
+  const grow = (b: Box): Box => ({ x: b.x - side, y: b.y - top, w: b.w + 2 * side, h: b.h + top + side });
+  return {
+    ...grow(shot),
+    ...(shot.focus && { focus: grow(shot.focus) }),
+    ...(shot.core && { core: grow(shot.core) }),
+  };
+}

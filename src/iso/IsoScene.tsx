@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import { aim, boxString, crops, follow, lerpBox, parseBox, type Box, type Lens, type Shot } from "./camera";
+import { aim, boxString, crops, follow, lerpBox, parseBox, roomFor, type Box, type Lens, type Shot } from "./camera";
 import { U } from "./project";
 
 export type { Box, Shot } from "./camera";
@@ -55,6 +55,19 @@ interface Props {
   children: ReactNode;
 }
 
+/**
+ * Hide every pointer whose point lies outside `view`: once the camera crops, a flag whose cell or tile
+ * is off-stage would otherwise hang over empty floor or another part of the drawing. Reads the
+ * pointer's own point (`data-at`), not its live position, which may still be sliding.
+ */
+export function hideOffstage(svg: Element, view: Box | null) {
+  for (const el of svg.querySelectorAll<SVGGElement>(".ptr[data-at]")) {
+    const [x, y] = (el.getAttribute("data-at") ?? "").split(" ").map(Number);
+    const out = !!view && !(x >= view.x && x <= view.x + view.w && y >= view.y && y <= view.y + view.h);
+    if (out) el.setAttribute("data-off", ""); else el.removeAttribute("data-off");
+  }
+}
+
 /** Scene units per screen pixel when `box` is fitted into a w x h element (preserveAspectRatio meet: the tighter axis rules). */
 export function sceneScale(box: Box, w: number, h: number): number {
   if (!(w > 0) || !(h > 0) || !(box.w > 0) || !(box.h > 0)) return 1;
@@ -88,12 +101,21 @@ export default function IsoScene({ viewBox, label, children }: Props) {
     const svg = svgRef.current;
     if (!svg) return undefined;
     const shot = target ?? parseBox(viewBox);
-    const to = measuring ? parseBox(viewBox) : follow(aimed.current, shot, size.w, size.h, MAX_SCALE, whole ? undefined : lens);
+    const lensOn = whole ? undefined : lens;
+    let to = measuring ? parseBox(viewBox) : follow(aimed.current, shot, size.w, size.h, MAX_SCALE, lensOn);
+    /* On the stage, labels grow when the camera zooms out (--px); leave them room inside the frame.
+       Room and scale feed each other, so settle them in a few rounds. */
+    for (let k = 0; k < 4 && !measuring && lens; k++) {
+      const next = follow(aimed.current, roomFor(shot, sceneScale(to, size.w, size.h)), size.w, size.h, MAX_SCALE, lensOn);
+      if (Math.abs(next.w - to.w) < 0.5 && Math.abs(next.h - to.h) < 0.5) { to = next; break; }
+      to = next;
+    }
     aimed.current = to;
     /* Only the lesson stage (a lens) keeps scene text at its screen size; walkthroughs and thumbnails
        are deliberate small overviews, so their text shrinks with the drawing. */
     setPx(measuring || !lens ? 1 : sceneScale(to, size.w, size.h));
     if (!measuring) {
+      hideOffstage(svg, size.w > 0 ? to : null);
       const c = size.w > 0 && crops(to, shot);
       setCut(c ? edges(to, shot) : null);
       if (onCrop && lens) onCrop(size.w > 0 && crops(aim(shot, size.w, size.h, MAX_SCALE, lens), shot));

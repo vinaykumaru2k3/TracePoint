@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { aim, crops, follow, frame, lerpBox } from "./camera";
+import { FLAG_REACH, TAG_REACH, aim, crops, follow, frame, lerpBox, roomFor } from "./camera";
 
 describe("camera frame", () => {
   it("zooms out to fit a box that is too big for the stage", () => {
@@ -135,5 +135,17 @@ describe("readable camera", () => {
     const prev = aim(wide, 1000, 500, 1.5, lens);
     const small = { x: 0, y: 0, w: 1150, h: 300 };
     expect(follow(prev, small, 1000, 500, 1.5, lens)).toEqual(frame(small, 1000, 500, 1.5));
+  });
+});
+
+describe("room for grown labels", () => {
+  it("widens the drawing by the flags' extra reach once text scales up, and not at 1x or closer", () => {
+    const shot = { x: 0, y: 0, w: 1000, h: 400, focus: { x: 10, y: 10, w: 5, h: 5 } };
+    expect(roomFor(shot, 1)).toBe(shot);
+    expect(roomFor(shot, 0.8)).toBe(shot);
+    const t = FLAG_REACH * 0.5, m = TAG_REACH * 0.5;
+    expect(roomFor(shot, 1.5)).toEqual({ x: -m, y: -t, w: 1000 + 2 * m, h: 400 + t + m, focus: { x: 10 - m, y: 10 - t, w: 5 + 2 * m, h: 5 + t + m } });
+    /* The lens crops to the focus or core, so they get the same room as the drawing. */
+    expect(roomFor({ ...shot, core: { x: 0, y: 0, w: 10, h: 10 } }, 1.5).core).toEqual({ x: -m, y: -t, w: 10 + 2 * m, h: 10 + t + m });
   });
 });
