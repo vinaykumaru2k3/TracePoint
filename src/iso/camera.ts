@@ -37,8 +37,11 @@ export interface Shot extends Box {
 
 /**
  * A crop that cuts through the strip shows a sliver of clipped tiles, which reads as a bug. Take the
- * strip in whole when that stays at or above the lens floor; else lift the view so the strip is
- * just out (the chevron says it is there), as long as the core stays in view; else leave it.
+ * strip in whole when that stays at or above the lens floor. Else move the view's bottom up to the
+ * strip's top (the chevron says it is there): lift it at the same scale, or, where lifting would show
+ * empty floor above the drawing, shrink it upward (reading closer, up to `lens.read`), so the top and
+ * its headers stay and far rows crop. Moving up never loses anything above, so this is judged only
+ * by the lit cells (`Shot.lit`, else the core): they stay in view, or the view is left as it was.
  */
 export function clearStrip(v: Box, shot: Shot, W: number, H: number, lens: Lens): Box {
   const st = shot.strip;
@@ -50,8 +53,14 @@ export function clearStrip(v: Box, shot: Shot, W: number, H: number, lens: Lens)
     const w = W / s;
     return { x: v.x + v.w / 2 - w / 2, y: v.y, w, h };
   }
-  const y = st.y - v.h, core = shot.core ?? shot.focus;
-  return !core || core.y >= y ? { ...v, y } : v;
+  const lit = shot.lit ?? shot.core ?? shot.focus;
+  let out: Box = { ...v, y: st.y - v.h };
+  const room = st.y - shot.y;
+  if (out.y < shot.y && room > 0 && H / room <= lens.read) {
+    const w = (W * room) / H, cx = v.x + v.w / 2 - w / 2;
+    out = { x: lit ? clamp(cx, lit.x + lit.w - w, lit.x) : cx, y: shot.y, w, h: room };
+  }
+  return !lit || lit.y >= out.y ? out : v;
 }
 
 /**

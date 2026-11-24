@@ -155,7 +155,7 @@ describe("readable camera", () => {
     /* The view's bottom edge (y 255) cuts the strip at 240..300. */
     const v = { x: 0, y: 0, w: 1000, h: 255 };
     /* Taking it in needs 230/300 = 0.77, under the floor, so the view lifts it out instead. */
-    const lifted = clearStrip(v, { x: 0, y: 0, w: 1000, h: 300, core, strip: { x: 300, y: 240, w: 200, h: 60 } }, 851, 230, lensL);
+    const lifted = clearStrip(v, { x: 0, y: -100, w: 1000, h: 400, core, strip: { x: 300, y: 240, w: 200, h: 60 } }, 851, 230, lensL);
     expect(lifted.y + lifted.h).toBeCloseTo(240);
     expect(lifted.h).toBe(255);
     /* A thin overrun is taken in whole while the scale stays at or above the floor. */
@@ -166,6 +166,31 @@ describe("readable camera", () => {
     expect(clearStrip(v, { x: 0, y: 0, w: 1000, h: 300, core, strip: { x: 0, y: 260, w: 10, h: 10 } }, 851, 230, lensL)).toBe(v);
     expect(clearStrip(v, { x: 0, y: 0, w: 1000, h: 300, core, strip: { x: 0, y: 100, w: 10, h: 10 } }, 851, 230, lensL)).toBe(v);
     expect(clearStrip(v, { x: 0, y: 0, w: 1000, h: 300, core: { ...core, y: -40 }, strip: { x: 300, y: 240, w: 200, h: 60 } }, 851, 230, lensL)).toBe(v);
+  });
+
+  it("a headed crop whose headers gave way still ends with the strip off, lifting at the floor scale", () => {
+    /* Follow's margin put the view's bottom (420) into the strip (390..450); the headers (50) were
+       already out above, which used to refuse the lift and leave a sliver. */
+    const lit = { x: 1100, y: 300, w: 120, h: 80 };
+    const shot = { x: 0, y: 0, w: 3000, h: 900, headed: true, lit, core: { x: 1000, y: 50, w: 400, h: 330 }, strip: { x: 1000, y: 390, w: 300, h: 60 } };
+    const v = { x: 900, y: 164.7, w: 1107, h: 255.3 };
+    const out = clearStrip(v, shot, 941, 217, lens);
+    expect(out.y + out.h).toBeLessThanOrEqual(390 + 1e-6);
+    expect(out.h).toBe(v.h);
+    expect(lit.y >= out.y && lit.y + lit.h <= out.y + out.h).toBe(true);
+  });
+
+  it("a headed crop near the drawing's top shrinks upward instead of lifting onto empty floor", () => {
+    const lit = { x: 300, y: 150, w: 120, h: 60 };
+    const shot = { x: 0, y: 0, w: 3000, h: 900, headed: true, lit, core: { x: 200, y: 0, w: 400, h: 210 }, strip: { x: 200, y: 240, w: 300, h: 60 } };
+    const v = { x: 0, y: 0, w: 1107, h: 255.3 };
+    const out = clearStrip(v, shot, 941, 217, lens);
+    expect(out.y).toBe(0); // the headers stay
+    expect(out.y + out.h).toBeLessThanOrEqual(240 + 1e-6); // far rows and the strip crop
+    expect(941 / out.w).toBeCloseTo(217 / out.h); // the stage's aspect
+    expect(217 / out.h).toBeGreaterThanOrEqual(lens.floor);
+    expect(217 / out.h).toBeLessThanOrEqual(lens.read);
+    expect(lit.x >= out.x && lit.x + lit.w <= out.x + out.w).toBe(true);
   });
 
   it("never reads past the cap", () => {
