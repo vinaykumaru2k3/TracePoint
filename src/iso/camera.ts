@@ -33,6 +33,8 @@ export interface Shot extends Box {
   lit?: Box;
   /** The strip under the drawing, if any: a crop shows it whole or not at all (`clearStrip`). */
   strip?: Box;
+  /** False when the step draws no pointer flags, so `roomFor` leaves no flag room above it. */
+  flags?: boolean;
 }
 
 /**
@@ -177,18 +179,21 @@ export const TAG_REACH = 16;
 /**
  * The drawing with room for its labels once they grow: on the lens stage, text and flags scale by
  * `px` (scene units per screen pixel) when the camera zooms out, so they reach past the bounds
- * SceneFit measured at 1x. Flags hang above their points, so the top gets the most room.
+ * SceneFit measured at 1x. Flags hang above their points, so the top gets the most room, but only
+ * on a step that has flags (`Shot.flags`): a flagless step is not shrunk for room it never uses.
+ * The strip gets no room above: its flags hang into the gap over it, and a crop hides them anyway.
+ * This room is for fitting only; crop cues judge the drawing itself.
  */
 export function roomFor(shot: Shot, px: number): Shot {
   if (!(px > 1)) return shot;
-  const top = FLAG_REACH * (px - 1), side = TAG_REACH * (px - 1);
-  const grow = (b: Box): Box => ({ x: b.x - side, y: b.y - top, w: b.w + 2 * side, h: b.h + top + side });
+  const side = TAG_REACH * (px - 1), top = shot.flags === false ? side : FLAG_REACH * (px - 1);
+  const grow = (b: Box, t = top): Box => ({ x: b.x - side, y: b.y - t, w: b.w + 2 * side, h: b.h + t + side });
   return {
     ...shot,
     ...grow(shot),
     ...(shot.focus && { focus: grow(shot.focus) }),
     ...(shot.core && { core: grow(shot.core) }),
     ...(shot.lit && { lit: grow(shot.lit) }),
-    ...(shot.strip && { strip: grow(shot.strip) }),
+    ...(shot.strip && { strip: grow(shot.strip, 0) }),
   };
 }

@@ -29,23 +29,48 @@ const reduced = () => !!window.matchMedia?.("(prefers-reduced-motion: reduce)").
 
 /** Which sides of the frame have more drawing beyond them. */
 interface Edges { l: boolean; r: boolean; t: boolean; b: boolean }
-const edges = (v: Box, s: Box, slack = 4): Edges =>
+/** Which sides of the frame `v` the drawing `s` runs past. Pass the drawing itself, not the room
+    `roomFor` leaves for grown flags, or a cue would mark a cut where nothing is cut. */
+export const cropEdges = (v: Box, s: Box, slack = 4): Edges =>
   ({ l: s.x < v.x - slack, r: s.x + s.w > v.x + v.w + slack, t: s.y < v.y - slack, b: s.y + s.h > v.y + v.h + slack });
+
+/** One crop cue: its side and the tip of its chevron, in scene units. */
+export interface CueSpot { key: "l" | "r" | "t" | "b"; x: number; y: number }
+
+/**
+ * Where each crop cue sits: `inset` screen pixels in from its edge, and along the edge beside the
+ * drawing `s` where the frame has room for it (so it marks floor, not a plate), else at the middle.
+ */
+export function cueSpots(v: Box, s: Box, cut: Edges, px: number): CueSpot[] {
+  const a = 6 * px, inset = 10 * px, need = 2 * (1.4 * a + inset);
+  /* The middle of the widest gap between the frame and the drawing on one axis, if it fits a cue. */
+  const beside = (lo: number, len: number, dlo: number, dlen: number) => {
+    const before = dlo - lo, after = lo + len - (dlo + dlen);
+    if (Math.max(before, after) < need) return lo + len / 2;
+    return after >= before ? (dlo + dlen + lo + len) / 2 : (lo + dlo) / 2;
+  };
+  const cx = beside(v.x, v.w, s.x, s.w), cy = beside(v.y, v.h, s.y, s.h);
+  const spots: CueSpot[] = [];
+  if (cut.l) spots.push({ key: "l", x: v.x + inset, y: cy });
+  if (cut.r) spots.push({ key: "r", x: v.x + v.w - inset, y: cy });
+  if (cut.t) spots.push({ key: "t", x: cx, y: v.y + inset });
+  if (cut.b) spots.push({ key: "b", x: cx, y: v.y + v.h - inset });
+  return spots;
+}
 
 /**
  * A small chevron on each side where the drawing goes on past the frame, so a close-up never
  * passes for the whole picture. Drawn in scene units at the aimed frame; they fade in once the glide
  * has landed.
  */
-function CropCues({ view: v, cut, px }: { view: Box; cut: Edges; px: number }) {
-  const a = 6 * px, inset = 10 * px; // in screen pixels, whatever the zoom
-  const cx = v.x + v.w / 2, cy = v.y + v.h / 2;
-  const marks: [string, string][] = [];
-  if (cut.l) marks.push(["l", `M ${v.x + inset + a} ${cy - a * 1.4} L ${v.x + inset} ${cy} L ${v.x + inset + a} ${cy + a * 1.4}`]);
-  if (cut.r) marks.push(["r", `M ${v.x + v.w - inset - a} ${cy - a * 1.4} L ${v.x + v.w - inset} ${cy} L ${v.x + v.w - inset - a} ${cy + a * 1.4}`]);
-  if (cut.t) marks.push(["t", `M ${cx - a * 1.4} ${v.y + inset + a} L ${cx} ${v.y + inset} L ${cx + a * 1.4} ${v.y + inset + a}`]);
-  if (cut.b) marks.push(["b", `M ${cx - a * 1.4} ${v.y + v.h - inset - a} L ${cx} ${v.y + v.h - inset} L ${cx + a * 1.4} ${v.y + v.h - inset - a}`]);
-  return <g className="crop-cues" aria-hidden="true">{marks.map(([key, d]) => <path key={key} d={d} />)}</g>;
+function CropCues({ view, drawn, cut, px }: { view: Box; drawn: Box; cut: Edges; px: number }) {
+  const a = 6 * px, k = a * 1.4; // in screen pixels, whatever the zoom
+  const d = ({ key, x, y }: CueSpot) =>
+    key === "l" ? `M ${x + a} ${y - k} L ${x} ${y} L ${x + a} ${y + k}`
+      : key === "r" ? `M ${x - a} ${y - k} L ${x} ${y} L ${x - a} ${y + k}`
+        : key === "t" ? `M ${x - k} ${y + a} L ${x} ${y} L ${x + k} ${y + a}`
+          : `M ${x - k} ${y - a} L ${x} ${y} L ${x + k} ${y - a}`;
+  return <g className="crop-cues" aria-hidden="true">{cueSpots(view, drawn, cut, px).map((c) => <path key={c.key} d={d(c)} />)}</g>;
 }
 
 interface Props {
@@ -123,12 +148,12 @@ export default function IsoScene({ viewBox, label, children }: Props) {
     const px = measuring || !lens ? 1 : sceneScale(to, size.w, size.h);
     setPx(px);
     if (!measuring) {
-      /* Crop checks use the same room-padded drawing the frame was fitted to. */
-      const drawn = lens ? roomFor(shot, px) : shot;
+      /* The room-padded drawing is for fitting only; crop cues and Show all judge the drawing itself,
+         so a step whose room is cut but whose drawing is whole shows no cue. */
       hideOffstage(svg, size.w > 0 ? to : null, px);
-      const c = size.w > 0 && crops(to, drawn);
-      setCut(c ? edges(to, drawn) : null);
-      if (onCrop && lens) onCrop(size.w > 0 && crops(aim(drawn, size.w, size.h, MAX_SCALE, lens), drawn));
+      const c = size.w > 0 && crops(to, shot);
+      setCut(c ? cropEdges(to, shot) : null);
+      if (onCrop && lens) onCrop(size.w > 0 && crops(aim(roomFor(shot, px), size.w, size.h, MAX_SCALE, lens), shot));
     }
     const apply = (b: Box) => {
       shown.current = b;
@@ -171,7 +196,7 @@ export default function IsoScene({ viewBox, label, children }: Props) {
         </g>
       )}
       {children}
-      {cut && aimed.current && <CropCues key={boxString(aimed.current)} view={aimed.current} cut={cut} px={aimed.current.w / size.w} />}
+      {cut && aimed.current && <CropCues key={boxString(aimed.current)} view={aimed.current} drawn={target ?? parseBox(viewBox)} cut={cut} px={aimed.current.w / size.w} />}
     </svg>
   );
 }

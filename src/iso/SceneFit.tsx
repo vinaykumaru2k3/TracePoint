@@ -76,7 +76,7 @@ function SceneFit<S>({ steps, Scene, onFit, pad = 18 }: Props<S>) {
       const raw = svgs.map((svg) => {
         const b = svg.getBBox();
         if (!(b.width || b.height)) return null;
-        const shot: Shot = { x: b.x - pad, y: b.y - pad, w: b.width + 2 * pad, h: b.height + 2 * pad, focus: focusOf(svg, pad) };
+        const shot: Shot = { x: b.x - pad, y: b.y - pad, w: b.width + 2 * pad, h: b.height + 2 * pad, focus: focusOf(svg, pad), flags: !!svg.querySelector(".ptr") };
         if (svg.querySelector(STRIP)) { shot.core = focusOf(svg, pad, true); shot.strip = boxOf(svg, [...svg.querySelectorAll(STRIP)], 4); }
         if (svg.querySelector(HEAD)) { shot.headed = true; shot.lit = focusOf(svg, pad, true, false); }
         return shot;

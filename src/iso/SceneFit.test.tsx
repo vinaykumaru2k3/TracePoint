@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
-import IsoScene, { ZoomContext, hideOffstage, sceneScale } from "./IsoScene";
+import IsoScene, { ZoomContext, cropEdges, cueSpots, hideOffstage, sceneScale } from "./IsoScene";
+import { roomFor } from "./camera";
 import SceneFit, { fitScenes, pickFocus } from "./SceneFit";
 
 describe("SceneFit", () => {
@@ -73,5 +74,39 @@ describe("hideOffstage", () => {
     /* At px 1.5 the up flag reaches 66 above its point (past the top), the right one 78 (past the edge). */
     hideOffstage(svg as unknown as Element, view, 1.5);
     expect([up, right].map((p) => p.attrs.has("data-off"))).toEqual([true, true]);
+  });
+});
+
+describe("crop cues", () => {
+  const view = { x: 0, y: 0, w: 1000, h: 400 };
+  it("judge the drawing itself, not the room left for grown flags", () => {
+    /* LCS recap at 1024: a flagless table that fits under the view top, with the strip cut below. */
+    const shot = { x: 300, y: 40, w: 400, h: 420, flags: false };
+    const padded = roomFor({ ...shot, flags: true }, 2);
+    expect(cropEdges(view, padded).t).toBe(true); // the old false cue
+    expect(cropEdges(view, shot)).toEqual({ l: false, r: false, t: false, b: true });
+  });
+  it("sit beside the drawing where the view has room, else at the middle of the edge", () => {
+    const shot = { x: 300, y: 40, w: 400, h: 420 };
+    const [b] = cueSpots(view, shot, { l: false, r: false, t: false, b: true }, 1);
+    expect(b.x > shot.x + shot.w || b.x < shot.x).toBe(true);
+    expect(b.y).toBeGreaterThan(380);
+    const full = { x: -50, y: 40, w: 1100, h: 420 };
+    const [l, m] = cueSpots(view, full, { l: true, r: false, t: false, b: true }, 1);
+    expect(m.x).toBe(500);
+    /* The left cue sits below or above the drawing when there is room there; here there is above. */
+    expect(l.y).toBeLessThan(40);
+  });
+});
+
+describe("room for grown labels", () => {
+  it("leaves flag room above only when the step has flags, and never above the strip", () => {
+    const strip = { x: 0, y: 300, w: 100, h: 40 };
+    const shot = { x: 0, y: 0, w: 1000, h: 400, strip };
+    const flagless = roomFor({ ...shot, flags: false }, 2);
+    expect(flagless.y).toBe(-16); // TAG_REACH at px 2, not FLAG_REACH
+    expect(roomFor(shot, 2).y).toBe(-48);
+    expect(roomFor(shot, 2).strip!.y).toBe(300);
+    expect(roomFor(shot, 2).strip!.h).toBe(56);
   });
 });
