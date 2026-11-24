@@ -1,5 +1,6 @@
 import { memo, useLayoutEffect, useRef, useState, type ComponentType } from "react";
 import { MeasureContext, type Box, type Shot } from "./IsoScene";
+import { readPin, type Pin } from "./camera";
 
 interface Props<S> {
   steps: S[];
@@ -49,6 +50,14 @@ function boxOf(svg: SVGSVGElement, els: Element[], pad: number): Box | undefined
   return x1 > x0 ? { x: x0 - pad, y: y0 - pad, w: x1 - x0 + 2 * pad, h: y1 - y0 + 2 * pad } : undefined;
 }
 
+/** The lit pointers' pins (not dim, not in the strip): their grown flags count into the crop (`Shot.pins`). */
+function pinsOf(svg: SVGSVGElement): Pin[] {
+  return [...svg.querySelectorAll(".ptr:not(.dim)[data-at]")]
+    .filter((el) => !el.closest(STRIP))
+    .map((el) => readPin(el.getAttribute("data-at"), el.getAttribute("data-reach")))
+    .filter((p): p is Pin => !!p);
+}
+
 /** The focus box (see FOCUS); `core` leaves out the strip and `heads: false` the lit headers. */
 function focusOf(svg: SVGSVGElement, pad: number, core = false, heads = true): Box | undefined {
   const lit = [...svg.querySelectorAll(FOCUS)].filter((el) => heads || !el.matches(HEAD));
@@ -79,6 +88,8 @@ function SceneFit<S>({ steps, Scene, onFit, pad = 18 }: Props<S>) {
         const shot: Shot = { x: b.x - pad, y: b.y - pad, w: b.width + 2 * pad, h: b.height + 2 * pad, focus: focusOf(svg, pad), flags: !!svg.querySelector(".ptr") };
         if (svg.querySelector(STRIP)) { shot.core = focusOf(svg, pad, true); shot.strip = boxOf(svg, [...svg.querySelectorAll(STRIP)], 4); }
         if (svg.querySelector(HEAD)) { shot.headed = true; shot.lit = focusOf(svg, pad, true, false); }
+        const pins = pinsOf(svg);
+        if (pins.length) shot.pins = pins;
         return shot;
       });
       /* An empty step keeps the frame of the step before it (or after it, at the start). */

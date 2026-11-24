@@ -35,7 +35,50 @@ export interface Shot extends Box {
   strip?: Box;
   /** False when the step draws no pointer flags, so `roomFor` leaves no flag room above it. */
   flags?: boolean;
+  /**
+   * The lit pointers (not dim, not in the strip). Their flags grow with `px` on the stage, so
+   * `roomFor` counts each flag's grown box (`flagBox`) into the drawing and the lit box: a crop that
+   * keeps the lit cell then keeps its flag too, which `hideOffstage` would otherwise hide.
+   */
+  pins?: Pin[];
 }
+
+/** A pointer's point and its flag at 1x, as IsoPointer writes them (`data-at`, `data-reach`). */
+export interface Pin {
+  x: number;
+  y: number;
+  /** "up": the flag hangs `reach` above the point, `half` wide each side. "right": it reaches `reach` to the right, `half` tall each side. */
+  dir: "up" | "right";
+  reach: number;
+  half: number;
+}
+
+/** Half the height of a right flag's box, at 1x (IsoPointer draws it 22 tall about the point). */
+export const FLAG_HALF_H = 11;
+
+/** Reads a pointer's pin from IsoPointer's attributes ("x y", and "up 44 25" or "right 52"). */
+export function readPin(at: string | null, reach: string | null): Pin | null {
+  const [x, y] = (at ?? "").split(" ").map(Number);
+  if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
+  const [dir, far, half] = (reach ?? "").split(" ");
+  return dir === "right"
+    ? { x, y, dir, reach: Number(far) || 0, half: FLAG_HALF_H }
+    : { x, y, dir: "up", reach: Number(far) || 0, half: Number(half) || 0 };
+}
+
+/** The box a pin's flag covers once grown by `px` (never shrunk below 1x). */
+export function flagBox(p: Pin, px: number): Box {
+  const k = Math.max(1, px), reach = p.reach * k, half = p.half * k;
+  return p.dir === "right"
+    ? { x: p.x, y: p.y - half, w: reach, h: 2 * half }
+    : { x: p.x - half, y: p.y - reach, w: 2 * half, h: reach };
+}
+
+/** The smallest box holding all of `boxes`. */
+const union = (a: Box, ...boxes: Box[]): Box => boxes.reduce((u, b) => {
+  const x = Math.min(u.x, b.x), y = Math.min(u.y, b.y);
+  return { x, y, w: Math.max(u.x + u.w, b.x + b.w) - x, h: Math.max(u.y + u.h, b.y + b.h) - y };
+}, a);
 
 /**
  * A crop that cuts through the strip shows a sliver of clipped tiles, which reads as a bug. Take the
@@ -189,15 +232,20 @@ export const TAG_REACH = 16;
  * This room is for fitting only; crop cues judge the drawing itself.
  */
 export function roomFor(shot: Shot, px: number): Shot {
-  if (!(px > 1)) return shot;
-  const side = TAG_REACH * (px - 1), top = shot.flags === false ? side : FLAG_REACH * (px - 1);
+  const pins = shot.pins ?? [];
+  if (!(px > 1) && !pins.length) return shot;
+  const g = Math.max(0, px - 1);
+  const side = TAG_REACH * g, top = shot.flags === false ? side : FLAG_REACH * g;
   const grow = (b: Box, t = top): Box => ({ x: b.x - side, y: b.y - t, w: b.w + 2 * side, h: b.h + t + side });
+  /* The lit pointers' grown flags: inside the drawing and inside the lit box the crop keeps. */
+  const flags = pins.map((p) => flagBox(p, px));
+  const lit = shot.lit ?? shot.core ?? shot.focus;
   return {
     ...shot,
-    ...grow(shot),
+    ...union(grow(shot), ...flags),
     ...(shot.focus && { focus: grow(shot.focus) }),
     ...(shot.core && { core: grow(shot.core) }),
-    ...(shot.lit && { lit: grow(shot.lit) }),
+    ...((shot.lit || (lit && flags.length)) && { lit: union(grow(lit!), ...flags) }),
     ...(shot.strip && { strip: grow(shot.strip, 0) }),
   };
 }

@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import { aim, boxString, crops, follow, lerpBox, parseBox, roomFor, type Box, type Lens, type Shot } from "./camera";
+import { aim, boxString, crops, flagBox, follow, lerpBox, parseBox, readPin, roomFor, type Box, type Lens, type Shot } from "./camera";
 import { U } from "./project";
 
 export type { Box, Shot } from "./camera";
@@ -85,23 +85,16 @@ interface Props {
  * once the camera crops, a flag whose cell or tile is off-stage would otherwise hang over empty floor
  * or another part of the drawing. Reads the pointer's own point (`data-at`), not its live position,
  * which may still be sliding, and how far its flag reaches (`data-reach`: "up 44 25" (reach, half-width) or "right 52",
- * at 1x; the flag grows by `px` on the stage). Both axes count: an up flag's sides against the left
- * and right edges, and a right flag's height against the top and bottom.
+ * at 1x; the flag grows by `px` on the stage). Both axes count (`flagBox`, the same box the camera
+ * keeps in view for lit pointers): an up flag's sides against the left and right edges, and a right
+ * flag's height against the top and bottom.
  */
-/** Half the height of a right flag's box, at 1x (IsoPointer draws it 22 tall about the point). */
-const FLAG_HALF_H = 11;
-
 export function hideOffstage(svg: Element, view: Box | null, px = 1) {
-  const k = Math.max(1, px);
   for (const el of svg.querySelectorAll<SVGGElement>(".ptr[data-at]")) {
-    const [x, y] = (el.getAttribute("data-at") ?? "").split(" ").map(Number);
-    const [dir, far, half] = (el.getAttribute("data-reach") ?? "").split(" ");
-    const reach = (Number(far) || 0) * k;
-    /* Across the flag: an up flag's half-width, a right flag's half-height. */
-    const across = (dir === "right" ? FLAG_HALF_H : Number(half) || 0) * k;
-    const out = !!view && (!(x >= view.x && x <= view.x + view.w && y >= view.y && y <= view.y + view.h)
-      || (dir === "up" && (y - reach < view.y || x - across < view.x || x + across > view.x + view.w))
-      || (dir === "right" && (x + reach > view.x + view.w || y - across < view.y || y + across > view.y + view.h)));
+    const pin = readPin(el.getAttribute("data-at"), el.getAttribute("data-reach"));
+    const f = pin && flagBox(pin, px);
+    const out = !!view && !!pin && !!f && (!(pin.x >= view.x && pin.x <= view.x + view.w && pin.y >= view.y && pin.y <= view.y + view.h)
+      || (pin.reach > 0 && (f.x < view.x || f.y < view.y || f.x + f.w > view.x + view.w || f.y + f.h > view.y + view.h)));
     if (out) el.setAttribute("data-off", ""); else el.removeAttribute("data-off");
   }
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { FLAG_REACH, clearStrip, TAG_REACH, aim, crops, follow, frame, lerpBox, roomFor } from "./camera";
+import { FLAG_REACH, clearStrip, TAG_REACH, aim, crops, flagBox, follow, frame, lerpBox, roomFor } from "./camera";
 
 describe("camera frame", () => {
   it("zooms out to fit a box that is too big for the stage", () => {
@@ -208,6 +208,27 @@ describe("readable camera", () => {
     const out = clearStrip(v, { ...over, core: near }, 941, 217, lens);
     expect(inside(near, out)).toBe(true);
     expect(out.y + out.h).toBeLessThanOrEqual(390 + 1e-6);
+  });
+
+  it("keeps a lit cell's flag in view, not only the cell: the shrink counts the flag's grown reach", () => {
+    const inside = (b: { x: number; y: number; w: number; h: number }, v: typeof b) =>
+      b.x >= v.x - 1e-6 && b.y >= v.y - 1e-6 && b.x + b.w <= v.x + v.w + 1e-6 && b.y + b.h <= v.y + v.h + 1e-6;
+    /* A lit cell in the table's top row with a wide `start · here` flag (half 62) over its point. */
+    const lit = { x: 20, y: 60, w: 120, h: 60 };
+    const pin = { x: 80, y: 70, dir: "up" as const, reach: 44, half: 62 };
+    const shot = { x: 0, y: 40, w: 3000, h: 900, headed: true, lit, core: { x: 0, y: 40, w: 400, h: 120 }, strip: { x: 200, y: 300, w: 300, h: 60 }, pins: [pin] };
+    for (const px of [1, 1.2, 1.6]) {
+      const padded = roomFor(shot, px);
+      /* The view's bottom cuts the strip, and lifting would show floor above: it shrinks to `shot.y`. */
+      const h = 330 - padded.y, v = { x: padded.x, y: padded.y, w: (h * 941) / 217, h };
+      const out = clearStrip(v, padded, 941, 217, lens);
+      expect(out.y).toBeCloseTo(padded.y);
+      expect(out.y + out.h).toBeLessThanOrEqual(300 + 1e-6);
+      expect(inside(flagBox(pin, px), out)).toBe(true);
+    }
+    /* The flag box is the one hideOffstage tests: an up flag spans its half-width each side. */
+    expect(flagBox(pin, 2)).toEqual({ x: 80 - 124, y: 70 - 88, w: 248, h: 88 });
+    expect(flagBox({ x: 10, y: 50, dir: "right", reach: 40, half: 11 }, 1)).toEqual({ x: 10, y: 39, w: 40, h: 22 });
   });
 
   it("reads at the scale that fits a whole axis rather than crop one side and show stale rows on the other", () => {
