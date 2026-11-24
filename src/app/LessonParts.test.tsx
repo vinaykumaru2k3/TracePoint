@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { resultLabel, shownMetrics } from "./LessonParts";
+import { resultLabel, shownMetrics, shownVars } from "./LessonParts";
 import { LESSONS } from "../lessons";
 
 describe("the result box and the metrics line", () => {
@@ -26,5 +26,12 @@ describe("the result box and the metrics line", () => {
   it("hides metrics with no value", () => {
     const m = [{ label: "Row", value: "-" }, { label: "Column", value: "" }, { label: "Cells done", value: 24 }, { label: "Top", value: 0 }];
     expect(shownMetrics(m).map((x) => x.label)).toEqual(["Cells done", "Top"]);
+  });
+  it("drops variables with no value from the live-values line", () => {
+    expect(shownVars("i = -   j = -   common = \"GA\"")).toBe("common = \"GA\"");
+    expect(shownVars("i = -   w =    taken = [1 3]")).toBe("taken = [1 3]");
+    expect(shownVars("i = 2   w = 5")).toBe("i = 2   w = 5");
+    expect(shownVars("i = -   j = -")).toBe("");
+    expect(shownVars("ready   height = 3")).toBe("ready   height = 3");
   });
 });

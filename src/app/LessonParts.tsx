@@ -73,3 +73,11 @@ export function resultLabel(op: string, recap: boolean): string {
 export function shownMetrics<M extends { value: string | number }>(metrics: M[]): M[] {
   return metrics.filter((m) => m.value !== "-" && m.value !== "");
 }
+
+/** The code card's live-values line with the unset variables left out: a `name = value` part whose value is `-` or empty goes, and `""` when nothing is left. Parts are split on the three-space gap every lesson's `vars` uses. */
+export function shownVars(line: string): string {
+  return line
+    .split(/ {3,}/)
+    .filter((part) => !/^\S+ =\s*(-)?\s*$/.test(part))
+    .join("   ");
+}

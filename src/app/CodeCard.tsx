@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNod
 import { linesFor, parseAll } from "../engine/anchors";
 import { LANGS, type AnyLesson, type AnyStep, type Lang } from "../engine/types";
 import { useLang } from "../hooks/useLang";
+import { shownVars } from "./LessonParts";
 
 const KEYWORDS: Record<Lang, string> = {
   java: "class|private|public|static|final|void|int|boolean|long|if|else|for|while|break|continue|throw|new|return|null|true|false|this",
@@ -76,6 +77,7 @@ export default function CodeCard({ lesson, step, idx, idle = "Step forward to se
   }, [step, lang]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const on = new Set(lines.slice(0, shown));
+  const vars = shownVars(lesson.vars(step));
   const rows = step.anchors.filter((a) => step.notes[a] && parsed.anchors[a] && on.has(parsed.anchors[a][0]));
 
   /* Tabs: arrows, Home and End move focus and selection together; only the selected tab is a Tab stop. */
@@ -100,7 +102,7 @@ export default function CodeCard({ lesson, step, idx, idle = "Step forward to se
           ))}
         </div>
       </div>
-      <div className="vars">{lesson.vars(step)}</div>
+      {vars && <div className="vars">{vars}</div>}
       <pre className="code" ref={codeRef} role="tabpanel" aria-labelledby={`tab-${lang}`} tabIndex={0}>
         {parsed.lines.map((line, k) => {
           const indent = line.length - line.trimStart().length;
