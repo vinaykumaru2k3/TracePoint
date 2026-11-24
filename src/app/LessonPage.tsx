@@ -132,7 +132,6 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
   const step = steps[idx];
   const reached = Math.min(last, isDefault ? Math.max(progress[lesson.id] ?? 0, idx) : custom.text === text ? Math.max(custom.max, idx) : idx);
   const sec = sectionOf(lesson.section);
-  const label = (i: number) => steps[i].op ?? (i === 0 ? "start" : "recap");
   const nn = (i: number) => String(i + 1).padStart(steps.length > 99 ? 3 : 2, "0");
   /* A stop's name (see stepName): when one op names most of the run, the stop falls back to the step's kind. */
   const runOp = useMemo(() => runOpOf(steps), [steps]);
@@ -269,7 +268,7 @@ function LessonView({ lesson, stepParam, view, progress, onVisit, courseOpen, on
   const explain = (
     <section className="card explain" aria-label="Explanation" key="explain">
       <div className="pane-title" aria-hidden="true">TRACE</div>
-      <div className="head"><span className="stephead"><b>#{nn(idx)}</b>{" "}{label(idx)}</span><KindChip kind={step.kind} /></div>
+      <div className="head"><span className="stephead"><b>#{nn(idx)}</b>{" "}{railName(idx)}</span><KindChip kind={step.kind} /></div>
       <h2>{step.title}</h2>
       <p className="say">{step.text}</p>
       <p className="sr" aria-live="polite" aria-atomic="true">{said}</p>

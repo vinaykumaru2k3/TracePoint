@@ -4,6 +4,8 @@ import { MemoryRouter } from "react-router-dom";
 import { AppRoutes } from "./App";
 import TopNav from "./TopNav";
 import { KIND_MEANING } from "../design/ui";
+import { LESSON_BY_ID } from "../lessons";
+import { COORD, runOpOf, stepName } from "../engine/stepName";
 // @ts-expect-error node:fs has no types in the app tsconfig
 import { readFileSync } from "node:fs";
 
@@ -40,6 +42,18 @@ describe("controls say what they do", () => {
     expect(next).not.toBe("Next: dijkstra(A)");
     const stop = text(at("/dijkstra/6").match(/<span class="scrub-head"[^>]*><b>(.*?)<\/b>/)![1]).replace(/^\d+/, "");
     expect(next).toBe(`Next: ${stop}`);
+  });
+  it("heads the TRACE pane with the step's stop name, never a coordinate or the run-wide op", () => {
+    const head = (path: string) => text(at(path).match(/<span class="stephead">(.*?)<\/span>/)![1]).replace(/^#\d+ /, "");
+    const steps = (id: string) => { const l = LESSON_BY_ID[id]; return l.generate((l.parse(l.defaultText) as { ok: true; input: never }).input); };
+    const lcs = steps("lcs");
+    expect(head("/lcs/3")).toBe(stepName(lcs, 2, runOpOf(lcs)));
+    expect(head("/lcs/3")).not.toMatch(COORD);
+    const dij = steps("dijkstra");
+    const runOp = runOpOf(dij);
+    expect(runOp).not.toBeNull();
+    expect(head("/dijkstra/4")).not.toBe(runOp);
+    expect(head("/dijkstra/4")).toBe(stepName(dij, 3, runOp));
   });
   it("keeps the phone step bar on plain Next", () => {
     const mq = { matches: true, addEventListener() {}, removeEventListener() {} };
