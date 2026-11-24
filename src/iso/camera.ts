@@ -15,8 +15,12 @@ export function frame(box: Box, W: number, H: number, maxScale: number): Box {
 /** Zoom back in only when the drawing would grow by more than this; small gains would make the scene breathe. */
 const ZOOM_IN_GAIN = 1.25;
 
-/** A step's drawing, and optionally the part of it the step is about (active cells, pointers, lit edges). */
-export interface Shot extends Box { focus?: Box }
+/**
+ * A step's drawing, and optionally the part of it the step is about (active cells, pointers, lit
+ * edges). `core` is that focus without the side strip under the drawing (a queue, the chosen items):
+ * the camera falls back to it when the whole focus cannot be read at once.
+ */
+export interface Shot extends Box { focus?: Box; core?: Box }
 
 export interface Lens {
   /** Below this scale the whole drawing is too small to read, so the camera frames the focus instead. */
@@ -28,6 +32,16 @@ export interface Lens {
 /** A close-up must be at least this much bigger than the whole picture to be worth cropping. */
 const CROP_GAIN = 1.2;
 
+/**
+ * What the lens frames: the whole focus when it fits the stage at a readable scale, else its core
+ * (the main drawing's part, without the strip), so a lit tile far below the table does not stretch
+ * the close-up back out to the whole picture.
+ */
+export function focusFor(shot: Shot, W: number, H: number, lens: Lens): Box {
+  const f = shot.focus ?? shot;
+  return shot.core && Math.min(W / f.w, H / f.h) < lens.floor ? shot.core : f;
+}
+
 const clamp = (v: number, lo: number, hi: number) => (hi < lo ? (lo + hi) / 2 : Math.min(hi, Math.max(lo, v)));
 
 /**
@@ -38,7 +52,7 @@ const clamp = (v: number, lo: number, hi: number) => (hi < lo ? (lo + hi) / 2 : 
 export function aim(shot: Shot, W: number, H: number, maxScale: number, lens?: Lens): Box {
   const whole = frame(shot, W, H, maxScale);
   if (!lens || !(W > 0 && H > 0) || W / whole.w >= lens.floor) return whole;
-  const f = shot.focus ?? shot;
+  const f = focusFor(shot, W, H, lens);
   /* Read at `lens.read`, but the focus always fits whole: a spread-out focus pulls the zoom back,
      though never further than fitting the whole drawing would. */
   const s = Math.min(maxScale, Math.max(W / whole.w, Math.min(lens.read, W / f.w, H / f.h))), w = W / s, h = H / s;
@@ -68,7 +82,7 @@ export function follow(prev: Box | null, shot: Shot, W: number, H: number, maxSc
   if (want < now * 0.999 || want > now * ZOOM_IN_GAIN) return ideal;
   const cropped = crops(ideal, shot);
   /* Once cropped, keep a margin round the focus so it never sits flush on the edge. */
-  const f = cropped ? shot.focus ?? shot : shot;
+  const f = cropped ? (lens ? focusFor(shot, W, H, lens) : shot.focus ?? shot) : shot;
   const m = cropped ? Math.min(40, prev.w * 0.1, prev.h * 0.1) : 0;
   const need = { x: f.x - m, y: f.y - m, w: f.w + 2 * m, h: f.h + 2 * m };
   /* Move the least that brings `need` into view; centre it when it is bigger than the view. */

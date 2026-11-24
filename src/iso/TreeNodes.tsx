@@ -127,7 +127,7 @@ export function Strip({ tiles, X, Y, slots, name, index = false, labels, pointer
     merged.set(p.at, had ? { at: p.at, label: `${had.label} · ${p.label}`, dim: had.dim && p.dim } : p);
   }
   return (
-    <g>
+    <g className="strip">
       <polygon className="foot" points={foot} />
       {name && <text className="row-name" x={xL - 8} y={Y} textAnchor="end" dominantBaseline="central">{name}</text>}
       {tiles.map((t, i) => {

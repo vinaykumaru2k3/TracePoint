@@ -17,12 +17,16 @@ interface Props<S> {
 const FOCUS = ".s-active, .s-compare, .s-swap, .e-active, .ptr:not(.dim), .win";
 const FOUND = ".s-found";
 
-/** The union of the matching elements' on-screen boxes, in the svg's own units. */
-function focusOf(svg: SVGSVGElement, pad: number): Box | undefined {
+/** The side strip under a drawing (a queue, a heap array, the chosen items); see `Shot.core`. */
+const STRIP = ".strip";
+
+/** The union of the matching elements' on-screen boxes, in the svg's own units; `core` leaves out the strip. */
+function focusOf(svg: SVGSVGElement, pad: number, core = false): Box | undefined {
   const m = svg.getScreenCTM()?.inverse();
   if (!m) return undefined;
-  let els = [...svg.querySelectorAll(FOCUS)];
-  if (!els.length) els = [...svg.querySelectorAll(FOUND)];
+  const pick = (sel: string) => [...svg.querySelectorAll(sel)].filter((el) => !core || !el.closest(STRIP));
+  let els = pick(FOCUS);
+  if (!els.length) els = pick(FOUND);
   let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
   for (const el of els) {
     const r = el.getBoundingClientRect();
@@ -55,7 +59,10 @@ function SceneFit<S>({ steps, Scene, onFit, pad = 18 }: Props<S>) {
       if (svgs.length !== steps.length) { onFit(null); return; }
       const raw = svgs.map((svg) => {
         const b = svg.getBBox();
-        return b.width || b.height ? { x: b.x - pad, y: b.y - pad, w: b.width + 2 * pad, h: b.height + 2 * pad, focus: focusOf(svg, pad) } as Shot : null;
+        if (!(b.width || b.height)) return null;
+        const shot: Shot = { x: b.x - pad, y: b.y - pad, w: b.width + 2 * pad, h: b.height + 2 * pad, focus: focusOf(svg, pad) };
+        if (svg.querySelector(STRIP)) shot.core = focusOf(svg, pad, true);
+        return shot;
       });
       /* An empty step keeps the frame of the step before it (or after it, at the start). */
       const firstGood = raw.find(Boolean) ?? null;

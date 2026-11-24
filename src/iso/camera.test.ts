@@ -97,6 +97,24 @@ describe("readable camera", () => {
     expect(aim(spread, 1000, 500, 1.5, lens)).toEqual(frame(spread, 1000, 500, 1.5));
   });
 
+  it("drops the strip from the focus when the whole focus cannot be read at once", () => {
+    /* Knapsack at 1024x768: a 941x217 stage, the lit cells near the top of the table and the lit
+       item tile in the strip far below them. Fitting that whole focus reads no better than the whole
+       drawing, so the camera used to show everything at 0.35x. */
+    const shot = { x: -464, y: -32, w: 1015, h: 625, focus: { x: -139, y: 17, w: 493, h: 573 }, core: { x: -139, y: 17, w: 400, h: 200 } };
+    const v = aim(shot, 941, 217, 1.35, lens);
+    expect(941 / v.w).toBeGreaterThanOrEqual(lens.floor);
+    expect(v.y).toBeLessThanOrEqual(17);
+    expect(v.y + v.h).toBeGreaterThanOrEqual(217);
+    expect(crops(v, shot)).toBe(true);
+    /* A focus that fits keeps its strip. */
+    const near = { ...shot, focus: { x: -139, y: 17, w: 400, h: 210 } };
+    expect(aim(near, 941, 217, 1.35, lens).y + aim(near, 941, 217, 1.35, lens).h).toBeGreaterThanOrEqual(227);
+    /* follow keeps the core in view, not the strip. */
+    const prev = aim(shot, 941, 217, 1.35, lens);
+    expect(follow(prev, shot, 941, 217, 1.35, lens)).toEqual(prev);
+  });
+
   it("never reads past the cap", () => {
     expect(1000 / aim(wide, 1000, 500, 0.9, { floor: 0.85, read: 1.2 }).w).toBeCloseTo(0.9);
   });
